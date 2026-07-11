@@ -46,8 +46,8 @@ RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   current_password TEXT;
 BEGIN
-  -- يتحقق من adminPassword أولاً، ثم password كـ fallback
-  SELECT COALESCE(data->>'adminPassword', data->>'password')
+  -- يتحقق من adminPassword أولاً، ثم password كـ fallback (مع تحويل النص الفارغ إلى NULL)
+  SELECT COALESCE(NULLIF(data->>'adminPassword', ''), data->>'password')
     INTO current_password
     FROM site_content WHERE id = 1;
 
