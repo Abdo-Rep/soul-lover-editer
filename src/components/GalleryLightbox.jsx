@@ -5,19 +5,16 @@ import { useState } from 'react'
 
 const slideVariants = {
   enter: (direction) => ({
-    x: direction > 0 ? '-60%' : direction < 0 ? '60%' : 0,
+    x: direction > 0 ? '-30%' : direction < 0 ? '30%' : 0,
     opacity: 0,
-    scale: 0.96,
   }),
   center: {
     x: 0,
     opacity: 1,
-    scale: 1,
   },
   exit: (direction) => ({
-    x: direction > 0 ? '60%' : direction < 0 ? '-60%' : 0,
+    x: direction > 0 ? '30%' : direction < 0 ? '-30%' : 0,
     opacity: 0,
-    scale: 0.96,
   }),
 }
 
@@ -27,7 +24,7 @@ export default function GalleryLightbox({
   onClose,
   onIndexChange,
 }) {
-  const dragThreshold = 60
+  const dragThreshold = 50
   const [direction, setDirection] = useState(0) // 1 = next, -1 = prev
 
   const item = items[activeIndex]
@@ -50,22 +47,30 @@ export default function GalleryLightbox({
     }
   }
 
+  const handleBackdropPointerDown = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4"
-      onClick={onClose}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-4 select-none touch-action-manipulation"
+      onPointerDown={handleBackdropPointerDown}
+      onClick={handleBackdropPointerDown}
     >
       <motion.div
-        initial={{ scale: 0.95, y: 15 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 15 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative w-full max-w-sm md:max-w-md bg-white/95 backdrop-blur-md border border-rose-100/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col pointer-events-auto"
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.96, opacity: 0 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+        className="relative w-full max-w-sm md:max-w-md bg-white border border-rose-100/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col pointer-events-auto"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Content Wrapper */}
         <div className="relative flex flex-col w-full p-0 m-0">
@@ -73,14 +78,14 @@ export default function GalleryLightbox({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-3 right-3 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 text-white shadow-md transition-all active:scale-95 border border-white/20"
+            className="absolute top-3 right-3 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white shadow-md transition-all active:scale-95 border border-white/20"
             aria-label="إغلاق"
           >
             <X size={16} />
           </button>
 
           {/* Floating Image Counter Badge directly on top of the image */}
-          <span className="absolute top-3 left-3 z-30 px-3 py-1 text-xs font-semibold text-white/90 bg-black/40 backdrop-blur-md rounded-full shadow-md border border-white/20">
+          <span className="absolute top-3 left-3 z-30 px-3 py-1 text-xs font-semibold text-white/95 bg-black/50 rounded-full shadow-md border border-white/20">
             {activeIndex + 1} / {items.length}
           </span>
 
@@ -89,13 +94,13 @@ export default function GalleryLightbox({
             type="button"
             onClick={goNext}
             disabled={activeIndex === items.length - 1}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 hover:bg-white text-rose-600 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 hover:bg-white text-rose-600 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
             aria-label="التالي"
           >
             <ChevronLeft size={20} />
           </button>
 
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
+          <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={item.id}
               custom={direction}
@@ -103,10 +108,10 @@ export default function GalleryLightbox({
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.12}
+              dragElastic={0.1}
               onDragEnd={(_, info) => {
                 if (info.offset.x < -dragThreshold) {
                   goPrev()
@@ -114,7 +119,7 @@ export default function GalleryLightbox({
                   goNext()
                 }
               }}
-              className="flex w-full flex-col items-center p-0 m-0"
+              className="flex w-full flex-col items-center p-0 m-0 will-change-transform"
             >
               {/* Image Container Edge-to-Edge */}
               <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-black/10">
@@ -153,7 +158,7 @@ export default function GalleryLightbox({
             type="button"
             onClick={goPrev}
             disabled={activeIndex === 0}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 hover:bg-white text-rose-600 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 hover:bg-white text-rose-600 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
             aria-label="السابق"
           >
             <ChevronRight size={20} />
