@@ -426,7 +426,8 @@ export function ContentProvider({ children }) {
   const getInitialTracks = useCallback((musicObj) => {
     const tracks = musicObj?.tracks || []
     const result = []
-    for (let i = 0; i < 5; i++) {
+    const targetCount = Math.max(20, tracks.length)
+    for (let i = 0; i < targetCount; i++) {
       if (tracks[i]) {
         result.push(tracks[i])
       } else if (i === 0 && musicObj?.src) {
