@@ -54,6 +54,8 @@ html {
   overflow-x: hidden;
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -63,6 +65,13 @@ body {
   background-color: var(--theme-50);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .romantic-bg {

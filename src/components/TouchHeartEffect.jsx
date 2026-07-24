@@ -73,7 +73,7 @@ export default function TouchHeartEffect() {
       })
     }
 
-    setParticles((prev) => [...prev, ...newParticles])
+    setParticles((prev) => [...prev.slice(-25), ...newParticles])
   }
 
   const removeParticle = (pid) => {
