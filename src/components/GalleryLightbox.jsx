@@ -5,16 +5,19 @@ import { useState } from 'react'
 
 const slideVariants = {
   enter: (direction) => ({
-    x: direction > 0 ? -100 : direction < 0 ? 100 : 0,
+    x: direction > 0 ? '-60%' : direction < 0 ? '60%' : 0,
     opacity: 0,
+    scale: 0.96,
   }),
   center: {
     x: 0,
     opacity: 1,
+    scale: 1,
   },
   exit: (direction) => ({
-    x: direction > 0 ? 100 : direction < 0 ? -100 : 0,
+    x: direction > 0 ? '60%' : direction < 0 ? '-60%' : 0,
     opacity: 0,
+    scale: 0.96,
   }),
 }
 
@@ -53,7 +56,7 @@ export default function GalleryLightbox({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4"
       onClick={onClose}
     >
       <motion.div
@@ -64,23 +67,23 @@ export default function GalleryLightbox({
         className="relative w-full max-w-sm md:max-w-md bg-white/95 backdrop-blur-md border border-rose-100/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col pointer-events-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Bar */}
-        <div className="flex shrink-0 items-center justify-between w-full px-4 py-3 bg-white/80 border-b border-rose-100/50">
-          <p className="text-xs font-semibold text-rose-400">
-            {activeIndex + 1} / {items.length}
-          </p>
+        {/* Content Wrapper */}
+        <div className="relative flex flex-col w-full p-0 m-0">
+          {/* Floating Close Button directly on top of the image */}
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-50 hover:bg-rose-100 text-rose-500 transition-colors shadow-sm"
+            className="absolute top-3 right-3 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md hover:bg-black/60 text-white shadow-md transition-all active:scale-95 border border-white/20"
             aria-label="إغلاق"
           >
             <X size={16} />
           </button>
-        </div>
 
-        {/* Content Wrapper */}
-        <div className="relative flex flex-col w-full p-0 m-0">
+          {/* Floating Image Counter Badge directly on top of the image */}
+          <span className="absolute top-3 left-3 z-30 px-3 py-1 text-xs font-semibold text-white/90 bg-black/40 backdrop-blur-md rounded-full shadow-md border border-white/20">
+            {activeIndex + 1} / {items.length}
+          </span>
+
           {/* Navigation Buttons overlay */}
           <button
             type="button"
@@ -100,7 +103,7 @@ export default function GalleryLightbox({
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.12}
@@ -113,13 +116,13 @@ export default function GalleryLightbox({
               }}
               className="flex w-full flex-col items-center p-0 m-0"
             >
-              {/* Image Container Edge-to-Edge without any padding or margin */}
-              <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-black/5">
+              {/* Image Container Edge-to-Edge */}
+              <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-black/10">
                 {item.image ? (
                   <img
                     src={item.image}
                     alt={item.text || 'ذكرى'}
-                    className="w-full h-auto max-h-[60dvh] object-cover block p-0 m-0 border-none shadow-none"
+                    className="w-full h-auto max-h-[62dvh] object-cover block p-0 m-0 border-none shadow-none"
                     style={{ objectPosition: item.objectPosition || 'center' }}
                     draggable={false}
                   />
