@@ -5,7 +5,7 @@ export default function SiteMeta() {
   const { content } = useContent()
 
   useEffect(() => {
-    const title = content?.siteName?.trim() || 'habibty'
+    const title = content?.siteName?.trim() || 'soulove'
     
     // 1. Update Document Title dynamically
     document.title = title
