@@ -5,8 +5,33 @@ export default function SiteMeta() {
   const { content } = useContent()
 
   useEffect(() => {
-    document.title = content.siteName || 'هدية حب'
-  }, [content.siteName])
+    const title = content?.siteName?.trim() || 'habibty'
+    
+    // 1. Update Document Title dynamically
+    document.title = title
+
+    // 2. Update <meta name="application-name">
+    let metaAppName = document.querySelector('meta[name="application-name"]')
+    if (metaAppName) {
+      metaAppName.setAttribute('content', title)
+    } else {
+      metaAppName = document.createElement('meta')
+      metaAppName.setAttribute('name', 'application-name')
+      metaAppName.setAttribute('content', title)
+      document.head.appendChild(metaAppName)
+    }
+
+    // 3. Update <meta property="og:title"> for social links
+    let metaOgTitle = document.querySelector('meta[property="og:title"]')
+    if (metaOgTitle) {
+      metaOgTitle.setAttribute('content', title)
+    } else {
+      metaOgTitle = document.createElement('meta')
+      metaOgTitle.setAttribute('property', 'og:title')
+      metaOgTitle.setAttribute('content', title)
+      document.head.appendChild(metaOgTitle)
+    }
+  }, [content?.siteName])
 
   return null
 }
