@@ -26,7 +26,7 @@ export default function GalleryLightbox({
 }) {
   const dragThreshold = 60
   const [direction, setDirection] = useState(0) // 1 = next, -1 = prev
-  
+
   const item = items[activeIndex]
   if (!item) return null
 
@@ -53,7 +53,7 @@ export default function GalleryLightbox({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4"
       onClick={onClose}
     >
       <motion.div
@@ -61,11 +61,11 @@ export default function GalleryLightbox({
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 15 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="relative w-full max-w-sm md:max-w-md bg-white/95 backdrop-blur-md border border-rose-100 rounded-3xl p-5 shadow-2xl flex flex-col pointer-events-auto gap-4"
+        className="relative w-full max-w-sm md:max-w-md bg-white/95 backdrop-blur-md border border-rose-100/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col pointer-events-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header (Top info and Close button) */}
-        <div className="flex shrink-0 items-center justify-between w-full h-8">
+        {/* Header Bar */}
+        <div className="flex shrink-0 items-center justify-between w-full px-4 py-3 bg-white/80 border-b border-rose-100/50">
           <p className="text-xs font-semibold text-rose-400">
             {activeIndex + 1} / {items.length}
           </p>
@@ -80,13 +80,13 @@ export default function GalleryLightbox({
         </div>
 
         {/* Content Wrapper */}
-        <div className="relative flex flex-col w-full">
-          {/* Navigation Buttons inside the card overlay */}
+        <div className="relative flex flex-col w-full p-0 m-0">
+          {/* Navigation Buttons overlay */}
           <button
             type="button"
             onClick={goNext}
             disabled={activeIndex === items.length - 1}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-rose-500 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 hover:bg-white text-rose-600 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
             aria-label="التالي"
           >
             <ChevronLeft size={20} />
@@ -111,28 +111,28 @@ export default function GalleryLightbox({
                   goNext()
                 }
               }}
-              className="flex w-full flex-col items-center"
+              className="flex w-full flex-col items-center p-0 m-0"
             >
-              {/* Image Container with auto height adjustment */}
-              <div className="w-full flex justify-center py-1">
+              {/* Image Container Edge-to-Edge without any padding or margin */}
+              <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-black/5">
                 {item.image ? (
                   <img
                     src={item.image}
                     alt={item.text || 'ذكرى'}
-                    className="theme-shadow-image w-full h-auto max-h-[45dvh] object-contain rounded-2xl border border-rose-100/50 shadow-sm"
+                    className="w-full h-auto max-h-[60dvh] object-cover block p-0 m-0 border-none shadow-none"
                     style={{ objectPosition: item.objectPosition || 'center' }}
                     draggable={false}
                   />
                 ) : (
-                  <div className="flex aspect-square w-full max-w-[240px] items-center justify-center rounded-2xl bg-gradient-to-br from-rose-100 to-pink-100 text-5xl text-rose-300">
+                  <div className="flex aspect-square w-full items-center justify-center bg-gradient-to-br from-rose-100 to-pink-100 text-6xl text-rose-300 py-12">
                     ♥
                   </div>
                 )}
               </div>
 
-              {/* Caption (Standard layout, no wide space) */}
+              {/* Caption */}
               {hasCaption && (
-                <div className="w-full text-center mt-3 px-2">
+                <div className="w-full text-center px-4 py-3.5 bg-white">
                   {formattedDate && (
                     <p className="text-xs font-semibold text-rose-400 mb-1">{formattedDate}</p>
                   )}
@@ -150,7 +150,7 @@ export default function GalleryLightbox({
             type="button"
             onClick={goPrev}
             disabled={activeIndex === 0}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 hover:bg-white text-rose-500 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 hover:bg-white text-rose-600 shadow-md disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
             aria-label="السابق"
           >
             <ChevronRight size={20} />
