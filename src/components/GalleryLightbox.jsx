@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 const slideVariants = {
   enter: (direction) => ({
-    x: direction > 0 ? '-30%' : direction < 0 ? '30%' : 0,
+    x: direction > 0 ? -40 : direction < 0 ? 40 : 0,
     opacity: 0,
   }),
   center: {
@@ -13,7 +13,7 @@ const slideVariants = {
     opacity: 1,
   },
   exit: (direction) => ({
-    x: direction > 0 ? '30%' : direction < 0 ? '-30%' : 0,
+    x: direction > 0 ? 40 : direction < 0 ? -40 : 0,
     opacity: 0,
   }),
 }
@@ -73,7 +73,7 @@ export default function GalleryLightbox({
         onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Content Wrapper */}
-        <div className="relative flex flex-col w-full p-0 m-0">
+        <div className="relative flex flex-col w-full p-0 m-0 overflow-hidden">
           {/* Floating Close Button directly on top of the image */}
           <button
             type="button"
@@ -100,7 +100,7 @@ export default function GalleryLightbox({
             <ChevronLeft size={20} />
           </button>
 
-          <AnimatePresence initial={false} custom={direction}>
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={item.id}
               custom={direction}
@@ -108,7 +108,7 @@ export default function GalleryLightbox({
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.1}
@@ -119,7 +119,7 @@ export default function GalleryLightbox({
                   goNext()
                 }
               }}
-              className="flex w-full flex-col items-center p-0 m-0 will-change-transform"
+              className="flex w-full flex-col items-center p-0 m-0"
             >
               {/* Image Container Edge-to-Edge */}
               <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-black/10">

@@ -5,7 +5,7 @@ function Waveform({ isPlaying }) {
   const bars = [0.45, 0.75, 1, 0.6, 0.85]
 
   return (
-    <div className="flex h-8 items-end gap-0.5" aria-hidden="true">
+    <div className="flex h-7 items-end gap-0.5" aria-hidden="true">
       {bars.map((scale, index) => (
         <span
           key={index}
@@ -46,45 +46,43 @@ export default function MusicPlayer() {
   return (
     <div
       dir="ltr"
-      className="theme-music-shell w-full rounded-full px-3 py-2.5 sm:px-4"
+      className="theme-music-shell w-full rounded-full px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-lg"
     >
-      <div className="flex items-center gap-2 sm:gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-rose-100 to-pink-200 ring-2 ring-white">
-          <Heart size={16} className="text-rose-500" fill="currentColor" />
-        </div>
-
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        {/* Controls (Left side) */}
         <button
           type="button"
           onClick={skipBackward}
           disabled={!hasSource}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 transition hover:bg-rose-50 disabled:opacity-40"
-          aria-label="رجوع 10 ثواني"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-rose-400 transition hover:bg-rose-50 active:scale-95 disabled:opacity-40"
+          aria-label="الأغنية السابقة"
         >
-          <SkipBack size={16} />
+          <SkipBack size={15} />
         </button>
 
         <button
           type="button"
           onClick={togglePlayback}
           disabled={!hasSource}
-          className="theme-music-play flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
+          className="theme-music-play flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white shadow-md transition hover:brightness-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
           aria-label={isPlaying ? 'إيقاف' : 'تشغيل'}
         >
-          {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+          {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
         </button>
 
         <button
           type="button"
           onClick={skipForward}
           disabled={!hasSource}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 transition hover:bg-rose-50 disabled:opacity-40"
-          aria-label="تقديم 10 ثواني"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-rose-400 transition hover:bg-rose-50 active:scale-95 disabled:opacity-40"
+          aria-label="الأغنية التالية"
         >
-          <SkipForward size={16} />
+          <SkipForward size={15} />
         </button>
 
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-right text-sm font-medium text-rose-900" dir="rtl">
+        {/* Track Title and Seekbar (Middle) */}
+        <div className="min-w-0 flex-1 px-1">
+          <p className="truncate text-right text-xs sm:text-sm font-medium text-rose-900 pt-1" dir="rtl">
             {hasSource ? musicTitle : 'ارفع ملف صوت من الداشبورد'}
           </p>
 
@@ -92,10 +90,10 @@ export default function MusicPlayer() {
             type="button"
             onClick={handleSeek}
             disabled={!hasSource}
-            className="mt-1.5 block w-full disabled:cursor-not-allowed"
+            className="mt-0.5 block w-full disabled:cursor-not-allowed"
             aria-label="شريط التقدم"
           >
-            <span className="block h-1 overflow-hidden rounded-full bg-rose-100">
+            <span className="block h-1 overflow-hidden rounded-full bg-rose-100/80">
               <span
                 className="block h-full rounded-full bg-rose-400 transition-[width] duration-150"
                 style={{ width: `${progress * 100}%` }}
@@ -103,14 +101,20 @@ export default function MusicPlayer() {
             </span>
           </button>
 
-          <div className="mt-1 flex items-center justify-between text-[10px] font-medium text-rose-400 sm:text-[11px]">
+          <div className="mt-0.5 flex items-center justify-between text-[10px] font-medium text-rose-400 sm:text-[11px]">
             <span>{currentTimeLabel}</span>
             <span>{durationLabel}</span>
           </div>
         </div>
 
+        {/* Waveform Animation */}
         <div className="hidden shrink-0 sm:block">
           <Waveform isPlaying={isPlaying && hasSource} />
+        </div>
+
+        {/* Heart Icon (Far right side) */}
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-rose-100 to-pink-200 ring-2 ring-white/90 shadow-sm">
+          <Heart size={15} className="text-rose-500" fill="currentColor" />
         </div>
       </div>
     </div>

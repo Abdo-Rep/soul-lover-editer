@@ -90,11 +90,15 @@ export function MusicProvider({ children }) {
   const nextTrack = useCallback(() => {
     if (tracks.length <= 1) return
     setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)
+    setIsPlaying(true)
+    sessionStorage.setItem(MUSIC_KEY, 'true')
   }, [tracks])
 
   const prevTrack = useCallback(() => {
     if (tracks.length <= 1) return
     setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
+    setIsPlaying(true)
+    sessionStorage.setItem(MUSIC_KEY, 'true')
   }, [tracks])
 
   useEffect(() => {
@@ -104,6 +108,8 @@ export function MusicProvider({ children }) {
     const onTimeUpdate = () => setCurrentTime(audio.currentTime)
     const onLoadedMetadata = () => setDuration(audio.duration || 0)
     const onDurationChange = () => setDuration(audio.duration || 0)
+    const onPlay = () => setIsPlaying(true)
+    const onPause = () => setIsPlaying(false)
     const onEnded = () => {
       if (tracks.length > 1) {
         nextTrack()
@@ -116,12 +122,16 @@ export function MusicProvider({ children }) {
     audio.addEventListener('timeupdate', onTimeUpdate)
     audio.addEventListener('loadedmetadata', onLoadedMetadata)
     audio.addEventListener('durationchange', onDurationChange)
+    audio.addEventListener('play', onPlay)
+    audio.addEventListener('pause', onPause)
     audio.addEventListener('ended', onEnded)
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate)
       audio.removeEventListener('loadedmetadata', onLoadedMetadata)
       audio.removeEventListener('durationchange', onDurationChange)
+      audio.removeEventListener('play', onPlay)
+      audio.removeEventListener('pause', onPause)
       audio.removeEventListener('ended', onEnded)
     }
   }, [activeMusicSrc, tracks, nextTrack])

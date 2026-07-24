@@ -136,11 +136,7 @@ export default function LoveTransition({ onCovered, onComplete, canExit }) {
         className="love-transition"
         aria-hidden="true"
         initial={{ opacity: 1 }}
-        animate={
-          phase === 'reveal'
-            ? { opacity: 0, backdropFilter: 'blur(0px)' }
-            : { opacity: 1, backdropFilter: 'blur(0px)' }
-        }
+        animate={{ opacity: phase === 'reveal' ? 0 : 1 }}
         transition={{
           duration: loveTransition.revealDuration,
           ease: REVEAL_EASE,
@@ -166,13 +162,13 @@ export default function LoveTransition({ onCovered, onComplete, canExit }) {
 
         <motion.div
           className="love-transition__veil"
-          initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+          initial={{ opacity: 0 }}
           animate={
             phase === 'reveal'
-              ? { opacity: 0, backdropFilter: 'blur(0px)' }
+              ? { opacity: 0 }
               : phase === 'covered'
-                ? { opacity: 1, backdropFilter: 'blur(10px)' }
-                : { opacity: 0.35, backdropFilter: 'blur(3px)' }
+                ? { opacity: 1 }
+                : { opacity: 0.35 }
           }
           transition={{
             duration: phase === 'reveal' ? loveTransition.revealDuration : 1.1,
