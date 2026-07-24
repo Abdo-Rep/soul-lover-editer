@@ -1,4 +1,5 @@
 import HeartBackground from './HeartBackground'
+import TouchHeartEffect from './TouchHeartEffect'
 
 /** خلفية موحّدة: التدرّج + القلوب المتحركة — تبقى ثابتة طوال الجلسة */
 export default function RomanticBackdrop({ children }) {
@@ -9,6 +10,7 @@ export default function RomanticBackdrop({ children }) {
         aria-hidden="true"
       />
       <HeartBackground className="z-1" />
+      <TouchHeartEffect />
       <div className="relative z-10 min-h-dvh">{children}</div>
     </div>
   )
