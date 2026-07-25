@@ -1,12 +1,22 @@
 export function formatDateLong(dateString) {
   if (!dateString) return null
 
+  const cleanDateStr = String(dateString).trim().split('T')[0]
+  const parts = cleanDateStr.split('-')
+
+  if (parts.length === 3) {
+    const [year, month, day] = parts
+    if (year && month && day && year.length === 4) {
+      return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+    }
+  }
+
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) return null
 
-  return new Intl.DateTimeFormat('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-  }).format(date)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+
+  return `${day}/${month}/${year}`
 }
