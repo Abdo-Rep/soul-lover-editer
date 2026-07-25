@@ -105,7 +105,10 @@ if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir, { recursive: true })
 }
 
-fs.writeFileSync(path.join(outDir, 'pwa-192x192.png'), generateHeartPNG(192, true))
-fs.writeFileSync(path.join(outDir, 'pwa-512x512.png'), generateHeartPNG(512, true))
+fs.writeFileSync(path.join(outDir, 'icon-192.png'), generateHeartPNG(192, true))
+fs.writeFileSync(path.join(outDir, 'icon-512.png'), generateHeartPNG(512, true))
 fs.writeFileSync(path.join(outDir, 'maskable-512x512.png'), generateHeartPNG(512, false))
-console.log('✓ Successfully generated transparent pwa-192x192.png, pwa-512x512.png, and maskable-512x512.png')
+fs.writeFileSync(path.join(outDir, 'favicon.png'), generateHeartPNG(64, true))
+fs.writeFileSync(path.join(outDir, 'apple-touch-icon.png'), generateHeartPNG(180, true))
+
+console.log('✓ Generated clean PWA icons (icon-192, icon-512, maskable-512, apple-touch-icon, favicon)')

@@ -1,10 +1,10 @@
 const CACHE = 'soulove-v1'
 const PRECACHE = [
   '/manifest.webmanifest',
-  '/icon.svg',
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
-  '/maskable-512x512.png',
+  '/favicon.png',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
 ]
 
 self.addEventListener('install', (event) => {
