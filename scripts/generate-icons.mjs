@@ -41,14 +41,13 @@ function makeChunk(type, data) {
 }
 
 function isInsideHeart(normX, normY) {
-  // Increased scale factor (3.6) so heart is smaller (~45% of canvas) with generous white padding
-  const x = (normX - 0.5) * 3.6
-  const y = -(normY - 0.52) * 3.6
+  const x = (normX - 0.5) * 3.2
+  const y = -(normY - 0.52) * 3.2
   const a = x * x + y * y - 0.75
   return a * a * a - x * x * y * y * y <= 0
 }
 
-function generateHeartPNG(size) {
+function generateHeartPNG(size, isTransparent = true) {
   const width = size
   const height = size
 
@@ -77,11 +76,17 @@ function generateHeartPNG(size) {
         rawData[offset++] = 0x1d
         rawData[offset++] = 0x48
         rawData[offset++] = 0xff
+      } else if (isTransparent) {
+        // 100% Transparent background (Heart only!)
+        rawData[offset++] = 0x00
+        rawData[offset++] = 0x00
+        rawData[offset++] = 0x00
+        rawData[offset++] = 0x00
       } else {
-        // Pure White background (#ffffff) for maximum clean padding
+        // Soft background (#fff1f2) for maskable
         rawData[offset++] = 0xff
-        rawData[offset++] = 0xff
-        rawData[offset++] = 0xff
+        rawData[offset++] = 0xf1
+        rawData[offset++] = 0xf2
         rawData[offset++] = 0xff
       }
     }
@@ -100,7 +105,7 @@ if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir, { recursive: true })
 }
 
-fs.writeFileSync(path.join(outDir, 'pwa-192x192.png'), generateHeartPNG(192))
-fs.writeFileSync(path.join(outDir, 'pwa-512x512.png'), generateHeartPNG(512))
-fs.writeFileSync(path.join(outDir, 'maskable-512x512.png'), generateHeartPNG(512))
-console.log('✓ Successfully generated pwa-192x192.png, pwa-512x512.png, and maskable-512x512.png in public/ with generous white padding')
+fs.writeFileSync(path.join(outDir, 'pwa-192x192.png'), generateHeartPNG(192, true))
+fs.writeFileSync(path.join(outDir, 'pwa-512x512.png'), generateHeartPNG(512, true))
+fs.writeFileSync(path.join(outDir, 'maskable-512x512.png'), generateHeartPNG(512, false))
+console.log('✓ Successfully generated transparent pwa-192x192.png, pwa-512x512.png, and maskable-512x512.png')

@@ -3,6 +3,7 @@
   "short_name": "soulove",
   "description": "موقع هدية حب خاص ومخصص",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#fff1f2",
   "theme_color": "#e11d48",
