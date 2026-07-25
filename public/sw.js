@@ -1,91 +1,51 @@
-const CACHE_NAME = 'soulove-pwa-v1'
-const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
+const CACHE = 'soulove-v1'
+const PRECACHE = [
   '/manifest.webmanifest',
-  '/manifest.json',
   '/icon.svg',
   '/pwa-192x192.png',
   '/pwa-512x512.png',
   '/maskable-512x512.png',
 ]
 
-// Install Event: Pre-cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS)
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()),
   )
 })
 
-// Activate Event: Clear outdated caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName)
-          }
-          return null
-        })
-      )
-    }).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
   )
 })
 
-// Fetch Event: Strategies (Network-First for Navigation, Cache-First for Assets)
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return
+  const { request } = event
+  if (request.method !== 'GET') return
 
-  const url = new URL(event.request.url)
+  const url = new URL(request.url)
+  if (url.origin !== self.location.origin) return
 
-  // 1. Navigation Strategy: Network-First with /index.html fallback for SPA routes
-  if (event.request.mode === 'navigate') {
+  // SPA: always network-first for page navigations (avoids stale blank shell)
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const responseClone = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone))
-          }
-          return response
-        })
-        .catch(() => {
-          return caches.match(event.request).then((cached) => {
-            return cached || caches.match('/index.html')
-          })
-        })
+      fetch(request).catch(() => caches.match('/index.html') ?? Response.error()),
     )
     return
   }
 
-  // 2. Static Assets Strategy: Cache-First for same-origin or fonts/images
-  if (
-    url.origin === location.origin ||
-    url.hostname.includes('fonts.googleapis.com') ||
-    url.hostname.includes('fonts.gstatic.com')
-  ) {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          fetch(event.request).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse))
-            }
-          }).catch(() => {})
-          return cachedResponse
-        }
-
-        return fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone))
-          }
-          return networkResponse
-        })
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached
+      return fetch(request).then((response) => {
+        if (!response.ok || response.type === 'opaque') return response
+        const copy = response.clone()
+        caches.open(CACHE).then((cache) => cache.put(request, copy))
+        return response
       })
-    )
-  }
+    }),
+  )
 })

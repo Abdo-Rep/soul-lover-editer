@@ -12,10 +12,10 @@ import App from './App.jsx'
 applyCachedSiteTheme()
 
 // Register Custom Vanilla Service Worker
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.error('ServiceWorker registration failed:', err)
+    void navigator.serviceWorker.register('/sw.js').catch(() => {
+      /* offline cache optional */
     })
   })
 }
