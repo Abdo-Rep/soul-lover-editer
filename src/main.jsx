@@ -11,6 +11,15 @@ import App from './App.jsx'
 
 applyCachedSiteTheme()
 
+// Register Custom Vanilla Service Worker
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.error('ServiceWorker registration failed:', err)
+    })
+  })
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>

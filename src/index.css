@@ -3,14 +3,15 @@
 @font-face {
   font-family: "NativeEmoji";
   src: local("Apple Color Emoji"), local("Segoe UI Emoji"), local("Noto Color Emoji"), local("Android Emoji"), local("EmojiOne Color"), local("Twemoji Mozilla"), local("Segoe UI Symbol");
+  font-display: swap;
   unicode-range: U+1F300-1F9FF, U+2600-26FF, U+2700-27BF, U+1F000-1F9FF, U+FE0F;
 }
 
 @theme {
-  --font-sans: "NativeEmoji", "Tajawal", "Cairo", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "Tajawal", "Cairo", "NativeEmoji", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
     emoji;
-  --font-display: "NativeEmoji", "Cairo", "Tajawal", ui-sans-serif, sans-serif,
+  --font-display: "Cairo", "Tajawal", "NativeEmoji", ui-sans-serif, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
     emoji;
 

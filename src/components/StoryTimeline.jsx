@@ -21,7 +21,7 @@ function DateBadge({ date, highlight = false, className = '' }) {
   return (
     <div className={`flex justify-center ${className}`}>
       <span
-        className={`rounded-full px-4 py-1.5 text-xs font-medium ${
+        className={`rounded-full px-4 py-1.5 text-xs font-medium inline-block ${
           highlight
             ? 'theme-shadow-badge bg-gradient-to-r from-rose-400 to-pink-400 text-white'
             : 'bg-rose-50 text-rose-500 ring-1 ring-rose-100'

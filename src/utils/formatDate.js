@@ -7,7 +7,7 @@ export function formatDateLong(dateString) {
   if (parts.length === 3) {
     const [year, month, day] = parts
     if (year && month && day && year.length === 4) {
-      return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+      return `${year}/${month.padStart(2, '0')}/${day.padStart(2, '0')}`
     }
   }
 
@@ -18,5 +18,5 @@ export function formatDateLong(dateString) {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = date.getFullYear()
 
-  return `${day}/${month}/${year}`
+  return `${year}/${month}/${day}`
 }
