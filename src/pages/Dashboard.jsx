@@ -372,7 +372,7 @@ export default function Dashboard() {
 
       case 'music':
         const rawTracks = content.music?.tracks || []
-        const tracksList = Array.from({ length: 5 }, (_, idx) => {
+        const tracksList = Array.from({ length: 20 }, (_, idx) => {
           if (rawTracks[idx]) return rawTracks[idx]
           if (idx === 0 && content.music?.src) {
             return {
@@ -393,7 +393,7 @@ export default function Dashboard() {
         return (
           <Section
             title="الموسيقى"
-            description="يمكنك رفع وتسمية حتى 5 ملفات صوتية تعمل كقائمة تشغيل متتالية"
+            description="يمكنك رفع وتسمية حتى 20 ملف صوتي تعمل كقائمة تشغيل متتالية"
           >
             <div className="space-y-6">
               {tracksList.map((track, idx) => (

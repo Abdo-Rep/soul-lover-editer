@@ -41,8 +41,9 @@ function makeChunk(type, data) {
 }
 
 function isInsideHeart(normX, normY) {
-  const x = (normX - 0.5) * 3.2
-  const y = -(normY - 0.52) * 3.2
+  // Scale 4.4 provides ample padding between the heart and icon boundaries
+  const x = (normX - 0.5) * 4.4
+  const y = -(normY - 0.52) * 4.4
   const a = x * x + y * y - 0.75
   return a * a * a - x * x * y * y * y <= 0
 }
@@ -77,7 +78,7 @@ function generateHeartPNG(size, isTransparent = true) {
         rawData[offset++] = 0x48
         rawData[offset++] = 0xff
       } else if (isTransparent) {
-        // 100% Transparent background (Heart only!)
+        // Transparent background
         rawData[offset++] = 0x00
         rawData[offset++] = 0x00
         rawData[offset++] = 0x00
@@ -111,4 +112,4 @@ fs.writeFileSync(path.join(outDir, 'maskable-512x512.png'), generateHeartPNG(512
 fs.writeFileSync(path.join(outDir, 'favicon.png'), generateHeartPNG(64, true))
 fs.writeFileSync(path.join(outDir, 'apple-touch-icon.png'), generateHeartPNG(180, true))
 
-console.log('✓ Generated clean PWA icons (icon-192, icon-512, maskable-512, apple-touch-icon, favicon)')
+console.log('✓ Generated clean PWA icons with ample boundary padding (icon-192, icon-512, maskable-512, apple-touch-icon, favicon)')

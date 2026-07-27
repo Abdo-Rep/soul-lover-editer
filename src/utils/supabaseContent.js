@@ -166,25 +166,37 @@ export async function uploadAsset(file, folder) {
     throw new Error('تعذّر رفع الملف')
   }
 
-  const prepared = file.type?.startsWith('image/')
-    ? await compressImageFile(file)
-    : file
+  const isImage = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|heic|svg)$/i.test(file.name)
+  let prepared = file
+
+  if (isImage) {
+    try {
+      prepared = await compressImageFile(file)
+    } catch (e) {
+      console.warn('Compress image failed, fallback to original:', e)
+    }
+  }
 
   let extension = prepared.name.split('.').pop()?.toLowerCase() || 'bin'
-  if (folder === 'music') {
-    extension = 'mp3'
-  }
-  const path = `${folder}/${crypto.randomUUID()}.${extension}`
   let contentType = guessMimeType(prepared)
 
-  if (folder === 'music') {
+  if (isImage) {
+    extension = 'webp'
+    contentType = 'image/webp'
+  } else if (folder === 'music') {
+    extension = 'mp3'
     contentType = 'audio/mpeg'
   }
+
+  const path = `${folder}/${crypto.randomUUID()}.${extension}`
 
   let uploadFile = prepared
   if (contentType) {
     try {
-      uploadFile = new File([prepared], prepared.name, { type: contentType })
+      const fileName = isImage
+        ? `${file.name.replace(/\.[^.]+$/, '') || 'image'}.webp`
+        : prepared.name
+      uploadFile = new File([prepared], fileName, { type: contentType })
     } catch (e) {
       console.warn('Failed to override File type, uploading original:', e)
     }
