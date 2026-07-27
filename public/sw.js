@@ -1,9 +1,8 @@
-const CACHE = 'soulove-pwa-v3'
+const CACHE = 'soulove-pwa-v4'
 const PRECACHE = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
-  '/manifest.json',
   '/favicon.png',
   '/icon-192.png',
   '/icon-512.png',
@@ -50,7 +49,7 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Fast cache-first for static assets, network-first for HTML
+  // Network-first for dynamic assets, cache fallback
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached
