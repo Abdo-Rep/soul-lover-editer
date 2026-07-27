@@ -29,13 +29,28 @@
     <script>
       (function () {
         try {
-          var raw = localStorage.getItem('romantic-site-theme-vars');
-          if (!raw) return;
-          var vars = JSON.parse(raw);
           var root = document.documentElement;
-          for (var key in vars) {
-            if (Object.prototype.hasOwnProperty.call(vars, key)) {
-              root.style.setProperty(key, vars[key]);
+          var appRaw = localStorage.getItem('romantic-site-appearance');
+          if (appRaw) {
+            var app = JSON.parse(appRaw);
+            var isDark = app && app.mode === 'dark';
+            if (isDark) {
+              root.classList.add('dark');
+            } else {
+              root.classList.remove('dark');
+            }
+            var metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+              metaTheme.setAttribute('content', isDark ? '#110a18' : '#fff1f2');
+            }
+          }
+          var raw = localStorage.getItem('romantic-site-theme-vars');
+          if (raw) {
+            var vars = JSON.parse(raw);
+            for (var key in vars) {
+              if (Object.prototype.hasOwnProperty.call(vars, key)) {
+                root.style.setProperty(key, vars[key]);
+              }
             }
           }
         } catch (e) {}

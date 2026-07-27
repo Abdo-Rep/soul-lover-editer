@@ -33,7 +33,7 @@ export default function SiteMeta() {
     }
 
     // 4. Update <meta name="theme-color"> to match background color
-    const bgColor = content?.appearance?.mode === 'dark' ? '#0f172a' : '#fff1f2'
+    const bgColor = content?.appearance?.mode === 'dark' ? '#110a18' : '#fff1f2'
     let metaTheme = document.querySelector('meta[name="theme-color"]')
     if (metaTheme) {
       metaTheme.setAttribute('content', bgColor)
