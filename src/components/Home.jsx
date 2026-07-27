@@ -4,9 +4,11 @@ import { config } from '../data/config'
 import { useAuth } from '../hooks/useAuth'
 import { useMusic } from '../context/MusicContext'
 import { getScreenMotion } from '../utils/motion'
+import { useContent } from '../context/ContentContext'
 import Enter from '../pages/Enter'
 import Final from '../pages/Final'
 import Gallery from '../pages/Gallery'
+import NotFound from '../pages/NotFound'
 import Story from '../pages/Story'
 import Welcome from '../pages/Welcome'
 import HeartExplosionTransition from './HeartExplosionTransition'
@@ -32,9 +34,14 @@ function shouldSkipLoginIntro() {
 }
 
 export default function Home() {
+  const { siteNotFound, isLoading } = useContent()
   const { isAuthenticated, login } = useAuth()
   const { requestMusicStart, playMusic } = useMusic()
   const [step, setStep] = useState(() => (isAuthenticated ? 'welcome' : 'enter'))
+
+  if (siteNotFound && !isLoading) {
+    return <NotFound />
+  }
   const [loginOverlay, setLoginOverlay] = useState(false)
   const [welcomeFadeDone, setWelcomeFadeDone] = useState(false)
   const [explosionTarget, setExplosionTarget] = useState(null)

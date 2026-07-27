@@ -131,10 +131,13 @@ export function ContentProvider({ children }) {
     return parts[0]
   }, [])
 
+  const [siteNotFound, setSiteNotFound] = useState(false)
+
   const loadFromDatabase = useCallback(async () => {
     const slug = getClientSlug()
     if (!slug) {
       setIsLoading(false)
+      setSiteNotFound(true)
       setSyncStatus('ready')
       return null
     }
@@ -145,12 +148,16 @@ export function ContentProvider({ children }) {
     try {
       const remote = await loadSiteContent(slug)
       if (remote) {
+        setSiteNotFound(false)
         applyLoadedContent(remote)
+      } else {
+        setSiteNotFound(true)
       }
       return remote
     } catch (error) {
       setSyncStatus('error')
       setSyncError(error.message || 'تعذّر تحميل المحتوى')
+      setSiteNotFound(true)
       throw error
     } finally {
       setIsLoading(false)
@@ -549,6 +556,7 @@ export function ContentProvider({ children }) {
       content,
       musicSrc,
       isLoading,
+      siteNotFound,
       isDirty,
       syncStatus,
       syncError,
