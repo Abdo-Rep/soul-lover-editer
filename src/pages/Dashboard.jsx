@@ -333,7 +333,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-3 rounded-2xl border border-rose-100 bg-rose-50/50 p-2.5">
-                  <label className="relative flex flex-1 cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-3 py-2 shadow-sm border border-rose-100">
+                  <label className="relative flex flex-1 cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-4 py-2.5 shadow-sm border border-rose-100">
                     <span className="text-xs font-semibold text-rose-700">🎨 عجلة الألوان باللمس</span>
                     <input
                       type="color"
@@ -344,12 +344,6 @@ export default function Dashboard() {
                       className="h-8 w-12 cursor-pointer rounded-lg border-none p-0 bg-transparent"
                     />
                   </label>
-                  <span
-                    className="inline-flex h-9 min-w-20 items-center justify-center rounded-xl text-xs font-bold text-white shadow-md"
-                    style={{ backgroundColor: content.appearance?.primaryColor || '#fb7185' }}
-                  >
-                    معاينة
-                  </span>
                 </div>
               </div>
             </Field>

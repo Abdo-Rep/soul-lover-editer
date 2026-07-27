@@ -116,14 +116,14 @@ export function buildPalette(primaryHex, isDark = false) {
 
   if (isDark) {
     return {
-      50: '#0f172a',
-      100: '#1e293b',
-      200: '#334155',
-      300: shadeFromPrimary(h, s, l, 65, 0.7),
+      50: '#110a18',
+      100: '#1d1228',
+      200: '#2d1b3c',
+      300: shadeFromPrimary(h, s, l, 70, 0.8),
       400: primaryHex,
-      500: shadeFromPrimary(h, s, l, clamp(l - 5, 30, 75)),
-      600: shadeFromPrimary(h, s, l, clamp(l - 12, 25, 65)),
-      700: '#f1f5f9',
+      500: shadeFromPrimary(h, s, l, clamp(l, 40, 75)),
+      600: shadeFromPrimary(h, s, l, clamp(l + 10, 50, 85)),
+      700: '#f8fafc',
       800: '#e2e8f0',
       900: '#ffffff',
       rgb: `${r}, ${g}, ${b}`,
