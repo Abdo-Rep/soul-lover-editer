@@ -11,6 +11,7 @@
   "theme_color": "#fff1f2",
   "dir": "rtl",
   "lang": "ar",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",

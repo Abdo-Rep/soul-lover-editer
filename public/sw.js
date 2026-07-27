@@ -1,7 +1,8 @@
-const CACHE = 'soulove-pwa-v4'
+const CACHE = 'soulove-pwa-v5'
 const PRECACHE = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/manifest.webmanifest',
   '/favicon.png',
   '/icon-192.png',
@@ -37,19 +38,19 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
-  // SPA navigation fallback for offline support
+  // SPA navigation fallback for visitor offline access
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
         caches
           .match(request)
-          .then((res) => res || caches.match('/index.html') || Response.error()),
+          .then((res) => res || caches.match('/') || caches.match('/index.html') || Response.error()),
       ),
     )
     return
   }
 
-  // Network-first for dynamic assets, cache fallback
+  // Network-first with cache fallback
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached

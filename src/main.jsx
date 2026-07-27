@@ -11,12 +11,15 @@ import App from './App.jsx'
 
 applyCachedSiteTheme()
 
-// Register Custom Vanilla Service Worker
+// Register Custom Vanilla Service Worker for Visitor PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js').catch(() => {
-      /* offline cache optional */
-    })
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/' })
+      .then((reg) => {
+        reg.update()
+      })
+      .catch(() => {})
   })
 }
 
