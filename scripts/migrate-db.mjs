@@ -39,17 +39,21 @@ async function run() {
     `)
     console.log('✅ Table public.super_admins verified!')
 
-    // 3. Seed Super Admin account from environment variables
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@saalove.com'
-    const adminPass = process.env.ADMIN_PASSWORD || 'Mohammedosha1#'
+    // 3. Seed Super Admin account ONLY if environment variables are provided
+    const adminEmail = process.env.ADMIN_EMAIL
+    const adminPass = process.env.ADMIN_PASSWORD
 
-    await client.query(
-      `INSERT INTO public.super_admins (email, password_hash)
-       VALUES ($1, $2)
-       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;`,
-      [adminEmail.toLowerCase(), adminPass],
-    )
-    console.log(`✅ Super Admin user (${adminEmail}) seeded in Database successfully!`)
+    if (adminEmail && adminPass) {
+      await client.query(
+        `INSERT INTO public.super_admins (email, password_hash)
+         VALUES ($1, $2)
+         ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;`,
+        [adminEmail.toLowerCase(), adminPass],
+      )
+      console.log(`✅ Super Admin user (${adminEmail}) seeded in Database successfully!`)
+    } else {
+      console.log('ℹ️ ADMIN_EMAIL or ADMIN_PASSWORD env not provided; skipping seeding.')
+    }
 
     const resSites = await client.query('SELECT COUNT(*) FROM public.user_sites;')
     const resAdmins = await client.query('SELECT COUNT(*) FROM public.super_admins;')

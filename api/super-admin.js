@@ -17,24 +17,25 @@ export default async function handler(req, res) {
   let isAuthorized = false
 
   if (token) {
-    // Check if token matches email:password combo or password against super_admins table
-    let email = req.headers['x-admin-email'] || req.query.email || 'admin@saalove.com'
+    let email = req.headers['x-admin-email'] || req.query.email || ''
     if (token.includes(':')) {
       const parts = token.split(':')
       email = parts[0]
       token = parts[1]
     }
 
-    try {
-      const adminRes = await pool.query(
-        'SELECT email FROM public.super_admins WHERE (LOWER(email) = LOWER($1) OR LOWER($1) = LOWER($2)) AND password_hash = $3;',
-        [email, 'admin@saalove.com', token],
-      )
-      if (adminRes.rows.length > 0) {
-        isAuthorized = true
+    if (email && token) {
+      try {
+        const adminRes = await pool.query(
+          'SELECT email FROM public.super_admins WHERE LOWER(email) = LOWER($1) AND password_hash = $2;',
+          [email, token],
+        )
+        if (adminRes.rows.length > 0) {
+          isAuthorized = true
+        }
+      } catch (e) {
+        console.error('Super Admin DB check error:', e)
       }
-    } catch (e) {
-      console.error('Super Admin DB check error:', e)
     }
   }
 
