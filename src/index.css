@@ -674,3 +674,17 @@ button, a, input, select, textarea {
     pointer-events: none !important;
   }
 }
+
+/* PWA Native Touch & Standalone Experience */
+@media all and (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
