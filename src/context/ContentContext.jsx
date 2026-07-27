@@ -51,6 +51,7 @@ export function ContentProvider({ children }) {
     isSupabaseConfigured ? '' : 'تعذّر الاتصال بالخادم',
   )
   const [musicUploadingIndex, setMusicUploadingIndex] = useState(null)
+  const [musicUploadError, setMusicUploadError] = useState(null)
   const contentRef = useRef(content)
   const persistedContentRef = useRef(content)
 
@@ -451,12 +452,21 @@ export function ContentProvider({ children }) {
 
   const uploadMusic = useCallback(
     async (file, index = 0) => {
+      const MAX_AUDIO_SIZE = 12 * 1024 * 1024 // 12 MB
+      if (file.size > MAX_AUDIO_SIZE) {
+        const message = 'حجم ملف الأغنية أكثر من 12 ميجابايت (الحد الأقصى 12 MB)'
+        setMusicUploadError({ index, message })
+        throw new Error(message)
+      }
+
       if (!isAudioFile(file)) {
-        throw new Error('الملف لازم يكون صوت (mp3, m4a, wav, ogg, flac...)')
+        const message = 'الملف لازم يكون صوت (mp3, m4a, wav, ogg, flac...)'
+        setMusicUploadError({ index, message })
+        throw new Error(message)
       }
 
       setMusicUploadingIndex(index)
-      setSyncError('')
+      setMusicUploadError(null)
 
       try {
         const url = await uploadAsset(file, 'music')
@@ -488,7 +498,7 @@ export function ContentProvider({ children }) {
         return url
       } catch (error) {
         const message = error.message || 'فشل رفع الأغنية'
-        setSyncError(message)
+        setMusicUploadError({ index, message })
         throw new Error(message)
       } finally {
         setMusicUploadingIndex(null)
@@ -560,6 +570,7 @@ export function ContentProvider({ children }) {
       syncError,
       isSupabaseConfigured,
       musicUploadingIndex,
+      musicUploadError,
       updateField,
       updateNestedField,
       updateRoot,
@@ -595,6 +606,7 @@ export function ContentProvider({ children }) {
       syncStatus,
       syncError,
       musicUploadingIndex,
+      musicUploadError,
       updateField,
       updateNestedField,
       updateRoot,

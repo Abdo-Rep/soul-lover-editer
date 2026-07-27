@@ -167,6 +167,7 @@ export default function Dashboard() {
     removeMusic,
     updateMusicTrackTitle,
     musicUploadingIndex,
+    musicUploadError,
     saveChanges,
     loadFromDatabase,
     verifyPassword,
@@ -428,9 +429,9 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {syncError && activeTab === 'music' ? (
-                        <p className="mb-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">
-                          {syncError}
+                      {musicUploadError?.index === idx && musicUploadError?.message ? (
+                        <p className="mb-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
+                          {musicUploadError.message}
                         </p>
                       ) : null}
                       <label

@@ -161,6 +161,17 @@ export function isAudioFile(file) {
   return true
 }
 
+function safeRandomUUID() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
 export async function uploadAsset(file, folder) {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error('تعذّر رفع الملف')
@@ -188,7 +199,7 @@ export async function uploadAsset(file, folder) {
     contentType = 'audio/mpeg'
   }
 
-  const path = `${folder}/${crypto.randomUUID()}.${extension}`
+  const path = `${folder}/${safeRandomUUID()}.${extension}`
 
   let uploadFile = prepared
   if (contentType) {
