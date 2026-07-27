@@ -16,7 +16,7 @@ async function run() {
     await client.connect()
     console.log('✅ Connected to Contabo PostgreSQL')
 
-    // 1. Create user_sites table
+    // 1. Create user_sites table (DO NOT OVERWRITE OR TOUCH EXISTING DATA)
     await client.query(`
       CREATE TABLE IF NOT EXISTS public.user_sites (
         slug TEXT PRIMARY KEY,
@@ -39,7 +39,7 @@ async function run() {
     `)
     console.log('✅ Table public.super_admins verified!')
 
-    // 3. Seed Super Admin account ONLY if environment variables are provided
+    // 3. Seed Super Admin account ONLY IF NOT ALREADY IN DATABASE (DO NOTHING ON CONFLICT)
     const adminEmail = process.env.ADMIN_EMAIL
     const adminPass = process.env.ADMIN_PASSWORD
 
@@ -47,12 +47,12 @@ async function run() {
       await client.query(
         `INSERT INTO public.super_admins (email, password_hash)
          VALUES ($1, $2)
-         ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;`,
+         ON CONFLICT (email) DO NOTHING;`,
         [adminEmail.toLowerCase(), adminPass],
       )
-      console.log(`✅ Super Admin user (${adminEmail}) seeded in Database successfully!`)
+      console.log(`✅ Super Admin user (${adminEmail}) verified in Database without overwriting!`)
     } else {
-      console.log('ℹ️ ADMIN_EMAIL or ADMIN_PASSWORD env not provided; skipping seeding.')
+      console.log('ℹ️ ADMIN_EMAIL or ADMIN_PASSWORD env not provided; skipping.')
     }
 
     const resSites = await client.query('SELECT COUNT(*) FROM public.user_sites;')

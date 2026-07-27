@@ -9,7 +9,6 @@ import {
 } from 'react'
 import { defaultContent } from '../data/defaultContent'
 import { musicAsset } from '../data/musicAsset'
-import { isSupabaseConfigured } from '../lib/supabase'
 import { getSeedContent, nextItemId } from '../utils/contentMerge'
 import { applySiteTheme } from '../utils/theme'
 import ThemeApplier from '../components/ThemeApplier'
