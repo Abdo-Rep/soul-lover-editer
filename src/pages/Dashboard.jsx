@@ -21,6 +21,7 @@ import MemoryEditor from '../components/dashboard/MemoryEditor'
 import {
   DateInput,
   Field,
+  PasswordInput,
   Section,
   TextArea,
   TextInput,
@@ -100,14 +101,13 @@ function AdminLoginForm({ onLogin }) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="كلمة المرور">
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value)
+                onChange={(v) => {
+                  setPassword(v)
                   setError('')
                 }}
-                className="w-full rounded-xl border border-rose-100 px-3 py-2.5 text-sm outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                placeholder="أدخل كلمة المرور"
               />
             </Field>
             {error ? (
@@ -268,7 +268,7 @@ export default function Dashboard() {
               label="كلمة مرور الموقع (للزوار)"
               hint="الكلمة التي يستخدمها شريكك لفتح الهدية"
             >
-              <TextInput
+              <PasswordInput
                 value={content.password}
                 onChange={(v) => {
                   updateRoot('password', v)
@@ -278,8 +278,7 @@ export default function Dashboard() {
             <Field
               label="كلمة مرور لوحة التحكم (الداشبورد)"
             >
-              <TextInput
-                type="password"
+              <PasswordInput
                 value={content.adminPassword || ''}
                 onChange={(v) => {
                   updateRoot('adminPassword', v)

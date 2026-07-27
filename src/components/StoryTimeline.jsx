@@ -63,11 +63,7 @@ export function TimelineLoveConfession({
     <>
       <RevealItem as="div" role="listitem" className="mx-auto w-full">
         <article className="content-card">
-          <div className="theme-shadow-card-sm mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white">
-            <span className="text-xl text-rose-500">♥</span>
-          </div>
-
-          <DateBadge date={date} highlight className="mb-4" />
+          <DateBadge date={date} className="mb-4" />
           <p className="text-sm font-medium text-rose-400">{label}</p>
           <p className="mt-4 text-sm leading-relaxed text-rose-600">{message}</p>
         </article>

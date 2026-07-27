@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
+
 export function Field({ label, hint, children }) {
   return (
     <div className="block">
@@ -20,6 +23,31 @@ export function TextInput({ value, onChange, ...props }) {
       className={inputClass}
       {...props}
     />
+  )
+}
+
+export function PasswordInput({ value, onChange, placeholder, ...props }) {
+  const [showPassword, setShowPassword] = useState(false)
+
+  return (
+    <div className="relative w-full">
+      <input
+        type={showPassword ? 'text' : 'password'}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`${inputClass} pl-10`}
+        {...props}
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword((prev) => !prev)}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400 hover:text-rose-600 transition p-1"
+        title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+      >
+        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
   )
 }
 
