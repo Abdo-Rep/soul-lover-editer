@@ -1,22 +1,25 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import Home from './components/Home'
 import RomanticBackdrop from './components/RomanticBackdrop'
 import Dashboard from './pages/Dashboard'
+import SuperAdmin from './pages/SuperAdmin'
 
 export default function App() {
   return (
     <RomanticBackdrop>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Dashboard />} />
+        {/* Super Admin Control Panel at / */}
+        <Route path="/" element={<SuperAdmin />} />
 
-        <Route path="/enter" element={<Navigate to="/" replace />} />
-        <Route path="/welcome" element={<Navigate to="/" replace />} />
-        <Route path="/story" element={<Navigate to="/" replace />} />
-        <Route path="/gallery" element={<Navigate to="/" replace />} />
-        <Route path="/final" element={<Navigate to="/" replace />} />
+        {/* Client Dashboard */}
+        <Route path="/:clientSlug/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Client Visitor Gift Site at /:clientSlug */}
+        <Route path="/:clientSlug" element={<Home />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Home />} />
       </Routes>
     </RomanticBackdrop>
   )

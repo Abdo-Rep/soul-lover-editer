@@ -129,39 +129,47 @@ export function ContentProvider({ children }) {
     setSyncError('')
   }, [])
 
+  const getClientSlug = useCallback(() => {
+    if (typeof window === 'undefined') return ''
+    const parts = window.location.pathname.split('/').filter(Boolean)
+    if (parts.length === 0) return ''
+    return parts[0]
+  }, [])
+
   const loadFromDatabase = useCallback(async () => {
-    if (!isSupabaseConfigured) {
-      throw new Error('Supabase غير مُعدّ')
+    const slug = getClientSlug()
+    if (!slug) {
+      setIsLoading(false)
+      setSyncStatus('ready')
+      return null
     }
 
     setSyncStatus('loading')
     setSyncError('')
 
     try {
-      const remote = await loadSiteContent()
-      applyLoadedContent(remote)
+      const remote = await loadSiteContent(slug)
+      if (remote) {
+        applyLoadedContent(remote)
+      }
       return remote
     } catch (error) {
       setSyncStatus('error')
-      setSyncError(error.message || 'تعذّر تحميل المحتوى من Supabase')
+      setSyncError(error.message || 'تعذّر تحميل المحتوى')
       throw error
     } finally {
       setIsLoading(false)
     }
-  }, [applyLoadedContent])
+  }, [applyLoadedContent, getClientSlug])
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setIsLoading(false)
-      return
-    }
-
     loadFromDatabase().catch(() => { })
   }, [loadFromDatabase])
 
   const saveChanges = useCallback(async (password) => {
-    if (!isSupabaseConfigured) {
-      const message = 'Supabase غير مُعدّ — لا يمكن الحفظ'
+    const slug = getClientSlug()
+    if (!slug) {
+      const message = 'معرف الموقع غير موضح في الرابط'
       setSyncError(message)
       throw new Error(message)
     }
@@ -177,7 +185,7 @@ export function ContentProvider({ children }) {
     setSyncError('')
 
     try {
-      await saveRemoteContent(snapshot, password)
+      await saveRemoteContent(snapshot, password, slug)
       persistedContentRef.current = snapshot
       setPersistedContent(snapshot)
 
