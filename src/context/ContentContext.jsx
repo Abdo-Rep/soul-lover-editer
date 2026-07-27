@@ -52,12 +52,13 @@ export function ContentProvider({ children }) {
   const [musicUploadingIndex, setMusicUploadingIndex] = useState(null)
   const [musicUploadError, setMusicUploadError] = useState(null)
   const contentRef = useRef(content)
+  const [persistedContent, setPersistedContent] = useState(content)
   const persistedContentRef = useRef(content)
 
   const isDirty = useMemo(() => {
-    if (!content || !persistedContentRef.current) return false
-    return JSON.stringify(content) !== JSON.stringify(persistedContentRef.current)
-  }, [content])
+    if (!content || !persistedContent) return false
+    return JSON.stringify(content) !== JSON.stringify(persistedContent)
+  }, [content, persistedContent])
 
   useEffect(() => {
     contentRef.current = content
@@ -122,6 +123,7 @@ export function ContentProvider({ children }) {
     applySiteTheme(remote.appearance)
     contentRef.current = remote
     persistedContentRef.current = remote
+    setPersistedContent(remote)
     setContent(remote)
     setSyncStatus('ready')
     setSyncError('')
@@ -177,6 +179,7 @@ export function ContentProvider({ children }) {
     try {
       await saveRemoteContent(snapshot, password)
       persistedContentRef.current = snapshot
+      setPersistedContent(snapshot)
 
       let nextLoginPassword = null
       if (snapshot.adminPassword) {

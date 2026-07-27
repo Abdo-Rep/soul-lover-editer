@@ -105,7 +105,14 @@ export function MusicProvider({ children }) {
     const audio = audioRef.current
     if (!audio) return undefined
 
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime)
+    let lastTimeUpdate = 0
+    const onTimeUpdate = () => {
+      const now = performance.now()
+      if (now - lastTimeUpdate > 250) {
+        lastTimeUpdate = now
+        setCurrentTime(audio.currentTime)
+      }
+    }
     const onLoadedMetadata = () => setDuration(audio.duration || 0)
     const onDurationChange = () => setDuration(audio.duration || 0)
     const onPlay = () => setIsPlaying(true)

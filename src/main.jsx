@@ -11,17 +11,7 @@ import App from './App.jsx'
 
 applyCachedSiteTheme()
 
-// Register Custom Vanilla Service Worker for Visitor PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js', { scope: '/' })
-      .then((reg) => {
-        reg.update()
-      })
-      .catch(() => {})
-  })
-}
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
