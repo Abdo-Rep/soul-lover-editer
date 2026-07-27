@@ -193,7 +193,6 @@ export function ContentProvider({ children }) {
         setAdminPasswordForSync(nextLoginPassword)
       }
 
-      setIsDirty(false)
       setSyncStatus('ready')
       return { nextLoginPassword }
     } catch (error) {
