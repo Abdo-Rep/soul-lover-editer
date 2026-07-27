@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Copy, Check } from 'lucide-react'
 
 export function Field({ label, hint, children }) {
   return (
@@ -26,8 +26,18 @@ export function TextInput({ value, onChange, ...props }) {
   )
 }
 
-export function PasswordInput({ value, onChange, placeholder, ...props }) {
+export function PasswordInput({ value, onChange, placeholder, showCopy = true, ...props }) {
   const [showPassword, setShowPassword] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    if (!value) return
+    try {
+      await navigator.clipboard.writeText(value)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {}
+  }
 
   return (
     <div className="relative w-full">
@@ -36,17 +46,30 @@ export function PasswordInput({ value, onChange, placeholder, ...props }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`${inputClass} pl-10`}
+        className={`${inputClass} ${showCopy ? 'pl-20' : 'pl-10'}`}
         {...props}
       />
-      <button
-        type="button"
-        onClick={() => setShowPassword((prev) => !prev)}
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400 hover:text-rose-600 transition p-1"
-        title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-      >
-        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        {showCopy && value ? (
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="text-rose-400 hover:text-rose-600 transition p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-slate-800"
+            title={copied ? 'تم النسخ!' : 'نسخ كلمة المرور'}
+          >
+            {copied ? <Check size={17} className="text-emerald-500" /> : <Copy size={17} />}
+          </button>
+        ) : null}
+
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="text-rose-400 hover:text-rose-600 transition p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-slate-800"
+          title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
     </div>
   )
 }

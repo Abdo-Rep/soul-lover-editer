@@ -1,15 +1,22 @@
-const CACHE = 'soulove-v1'
+const CACHE = 'soulove-pwa-v3'
 const PRECACHE = [
+  '/',
+  '/index.html',
   '/manifest.webmanifest',
+  '/manifest.json',
   '/favicon.png',
   '/icon-192.png',
   '/icon-512.png',
+  '/maskable-512x512.png',
   '/apple-touch-icon.png',
 ]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()),
+    caches
+      .open(CACHE)
+      .then((cache) => cache.addAll(PRECACHE))
+      .then(() => self.skipWaiting()),
   )
 })
 
@@ -17,7 +24,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+      )
       .then(() => self.clients.claim()),
   )
 })
@@ -29,14 +38,19 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
-  // SPA: always network-first for page navigations (avoids stale blank shell)
+  // SPA navigation fallback for offline support
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match('/index.html') ?? Response.error()),
+      fetch(request).catch(() =>
+        caches
+          .match(request)
+          .then((res) => res || caches.match('/index.html') || Response.error()),
+      ),
     )
     return
   }
 
+  // Fast cache-first for static assets, network-first for HTML
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached

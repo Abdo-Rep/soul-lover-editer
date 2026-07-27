@@ -6,24 +6,13 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
   "orientation": "portrait",
   "background_color": "#fff1f2",
   "theme_color": "#fff1f2",
   "dir": "rtl",
   "lang": "ar",
   "categories": ["lifestyle", "social", "entertainment"],
-  "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
-  },
-  "handle_links": "preferred",
   "icons": [
-    {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
@@ -47,22 +36,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "قصتنا",
-      "short_name": "القصة",
-      "description": "انتقل مباشرة إلى قصة ذكرياتنا",
-      "url": "/#story",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "معرض الصور",
-      "short_name": "المعرض",
-      "description": "تصفح الصور والذكريات الجميلة",
-      "url": "/#gallery",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

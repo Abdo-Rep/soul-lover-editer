@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, Eye, EyeOff } from 'lucide-react'
 import ContentLoadingHearts from '../components/ContentLoadingHearts'
 import FlowPage from '../components/FlowPage'
 import { RevealGroup, RevealItem } from '../components/Reveal'
@@ -7,6 +7,7 @@ import { useContent } from '../context/ContentContext'
 
 export default function Enter({ onLogin }) {
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -72,18 +73,28 @@ export default function Enter({ onLogin }) {
                   <KeyRound size={16} className="text-rose-400" />
                   {content.login.passwordLabel}
                 </span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value)
-                    setError('')
-                  }}
-                  placeholder={content.login.placeholder}
-                  className="w-full rounded-2xl border border-rose-100 bg-white px-4 py-3.5 text-center text-rose-800 shadow-inner outline-none transition placeholder:text-rose-300 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
-                  autoComplete="current-password"
-                  disabled={submitting}
-                />
+                <div className="relative w-full">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value)
+                      setError('')
+                    }}
+                    placeholder={content.login.placeholder}
+                    className="w-full rounded-2xl border border-rose-100 bg-white px-4 py-3.5 pl-10 text-center text-rose-800 shadow-inner outline-none transition placeholder:text-rose-300 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
+                    autoComplete="current-password"
+                    disabled={submitting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400 hover:text-rose-600 transition p-1"
+                    title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </label>
 
               {error ? (
