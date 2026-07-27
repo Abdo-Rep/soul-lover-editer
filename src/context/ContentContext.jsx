@@ -364,28 +364,14 @@ export function ContentProvider({ children }) {
 
   const toggleWishlistItem = useCallback(
     (id) => {
-      let updated
-      setContent((prev) => {
-        const nextList = (prev.wishlist ?? []).map((item) =>
-          item.id === id ? { ...item, completed: !item.completed } : item
-        )
-        const next = { ...prev, wishlist: nextList }
-        contentRef.current = next
-        updated = next
-        return next
-      })
-      if (pass && isSupabaseConfigured) {
-        saveRemoteContent(updated, pass)
-          .then((saved) => {
-            persistedContentRef.current = saved
-            setSyncStatus('ready')
-          })
-          .catch((err) => {
-            console.error('Failed to auto-sync wishlist toggle:', err)
-          })
-      }
+      patchContent((prev) => ({
+        ...prev,
+        wishlist: (prev.wishlist ?? []).map((item) =>
+          item.id === id ? { ...item, completed: !item.completed } : item,
+        ),
+      }))
     },
-    [isSupabaseConfigured],
+    [patchContent],
   )
 
 

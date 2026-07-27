@@ -117,13 +117,13 @@ export async function seedRemoteContentIfEmpty() {
   const existing = await fetchRemoteContent()
   if (existing) return existing
 
-  const seed = getSeedContent()
-  await saveRemoteContent(seed, seed.password)
-  return mergeContent(seed)
+  return mergeContent(getSeedContent())
 }
 
 export async function loadSiteContent() {
-  return (await fetchRemoteContent()) ?? seedRemoteContentIfEmpty()
+  const remote = await fetchRemoteContent()
+  if (remote) return remote
+  return mergeContent(getSeedContent())
 }
 
 function guessMimeType(file) {
