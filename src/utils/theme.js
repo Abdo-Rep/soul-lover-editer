@@ -2,6 +2,7 @@ const DEFAULT_PRIMARY = '#fb7185'
 const DEFAULT_BACKGROUND_HEART = '#be123c'
 
 const DEFAULT_APPEARANCE = {
+  mode: 'light',
   primaryColor: DEFAULT_PRIMARY,
   backgroundHeartColor: DEFAULT_BACKGROUND_HEART,
   heartOpacity: 0.65,
@@ -23,6 +24,7 @@ export function normalizeAppearance(appearance = {}) {
     DEFAULT_BACKGROUND_HEART
 
   return {
+    mode: appearance.mode === 'dark' ? 'dark' : 'light',
     primaryColor: /^#[0-9a-fA-F]{6}$/.test(primary) ? primary : DEFAULT_PRIMARY,
     backgroundHeartColor: /^#[0-9a-fA-F]{6}$/.test(backgroundHeart)
       ? backgroundHeart
@@ -108,9 +110,25 @@ function shadeFromPrimary(h, s, l, targetL, saturationScale = 1) {
   return rgbToHex(r, g, b)
 }
 
-export function buildPalette(primaryHex) {
+export function buildPalette(primaryHex, isDark = false) {
   const { r, g, b } = hexToRgb(primaryHex)
   const { h, s, l } = rgbToHsl(r, g, b)
+
+  if (isDark) {
+    return {
+      50: '#0f172a',
+      100: '#1e293b',
+      200: '#334155',
+      300: shadeFromPrimary(h, s, l, 65, 0.7),
+      400: primaryHex,
+      500: shadeFromPrimary(h, s, l, clamp(l - 5, 30, 75)),
+      600: shadeFromPrimary(h, s, l, clamp(l - 12, 25, 65)),
+      700: shadeFromPrimary(h, s, l, clamp(l - 20, 20, 55)),
+      800: shadeFromPrimary(h, s, l, clamp(l - 28, 15, 45)),
+      900: shadeFromPrimary(h, s, l, clamp(l - 35, 10, 35)),
+      rgb: `${r}, ${g}, ${b}`,
+    }
+  }
 
   return {
     50: shadeFromPrimary(h, s, l, 97, 0.35),
@@ -205,7 +223,8 @@ export function applySiteTheme(appearanceInput) {
   if (typeof document === 'undefined') return
 
   const appearance = normalizeAppearance(appearanceInput)
-  const palette = buildPalette(appearance.primaryColor)
+  const isDark = appearance.mode === 'dark'
+  const palette = buildPalette(appearance.primaryColor, isDark)
   const hearts = heartOpacityBounds(appearance.heartOpacity)
   const backgroundHeart = hexToRgb(appearance.backgroundHeartColor)
   const backgroundHeartRgb = `${backgroundHeart.r}, ${backgroundHeart.g}, ${backgroundHeart.b}`
@@ -215,6 +234,12 @@ export function applySiteTheme(appearanceInput) {
   Object.entries(vars).forEach(([key, value]) => {
     root.style.setProperty(key, String(value))
   })
+
+  if (isDark) {
+    root.classList.add('dark')
+  } else {
+    root.classList.remove('dark')
+  }
 
   writeThemeCache(appearance, vars)
 }

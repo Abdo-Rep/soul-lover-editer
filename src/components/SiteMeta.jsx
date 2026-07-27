@@ -31,7 +31,14 @@ export default function SiteMeta() {
       metaOgTitle.setAttribute('content', title)
       document.head.appendChild(metaOgTitle)
     }
-  }, [content?.siteName])
+
+    // 4. Update <meta name="theme-color"> to match background color
+    const bgColor = content?.appearance?.mode === 'dark' ? '#0f172a' : '#fff1f2'
+    let metaTheme = document.querySelector('meta[name="theme-color"]')
+    if (metaTheme) {
+      metaTheme.setAttribute('content', bgColor)
+    }
+  }, [content?.siteName, content?.appearance])
 
   return null
 }

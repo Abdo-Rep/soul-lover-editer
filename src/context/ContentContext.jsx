@@ -43,7 +43,6 @@ function resolveMusicSrc(content) {
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(createInitialContent)
   const [isLoading, setIsLoading] = useState(isSupabaseConfigured)
-  const [isDirty, setIsDirty] = useState(false)
   const [syncStatus, setSyncStatus] = useState(
     isSupabaseConfigured ? 'loading' : 'error',
   )
@@ -54,6 +53,11 @@ export function ContentProvider({ children }) {
   const [musicUploadError, setMusicUploadError] = useState(null)
   const contentRef = useRef(content)
   const persistedContentRef = useRef(content)
+
+  const isDirty = useMemo(() => {
+    if (!content || !persistedContentRef.current) return false
+    return JSON.stringify(content) !== JSON.stringify(persistedContentRef.current)
+  }, [content])
 
   useEffect(() => {
     contentRef.current = content
@@ -90,7 +94,6 @@ export function ContentProvider({ children }) {
       setHistoryIndex(prevIndex)
       setContent(history[prevIndex])
       contentRef.current = history[prevIndex]
-      setIsDirty(true)
     }
   }, [history, historyIndex])
 
@@ -100,7 +103,6 @@ export function ContentProvider({ children }) {
       setHistoryIndex(nextIndex)
       setContent(history[nextIndex])
       contentRef.current = history[nextIndex]
-      setIsDirty(true)
     }
   }, [history, historyIndex])
 
@@ -113,7 +115,6 @@ export function ContentProvider({ children }) {
       contentRef.current = next
       return next
     })
-    setIsDirty(true)
     setSyncStatus((status) => (status === 'error' ? 'error' : 'ready'))
   }, [])
 
@@ -122,7 +123,6 @@ export function ContentProvider({ children }) {
     contentRef.current = remote
     persistedContentRef.current = remote
     setContent(remote)
-    setIsDirty(false)
     setSyncStatus('ready')
     setSyncError('')
   }, [])
@@ -374,17 +374,10 @@ export function ContentProvider({ children }) {
         updated = next
         return next
       })
-      setIsDirty(true)
-
-      const pass =
-        sessionStorage.getItem('romantic-site-visitor-password') ||
-        sessionStorage.getItem('romantic-site-admin-password') ||
-        ''
-
       if (pass && isSupabaseConfigured) {
         saveRemoteContent(updated, pass)
-          .then(() => {
-            setIsDirty(false)
+          .then((saved) => {
+            persistedContentRef.current = saved
             setSyncStatus('ready')
           })
           .catch((err) => {

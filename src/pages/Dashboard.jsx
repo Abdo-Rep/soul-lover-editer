@@ -253,7 +253,6 @@ export default function Dashboard() {
             </Field>
             <Field
               label="كلمة مرور لوحة التحكم (الداشبورد)"
-              hint="الكلمة التي تستخدمها لتسجيل الدخول إلى لوحة التحكم هذه وتعديل الموقع"
             >
               <TextInput
                 type="password"
@@ -264,47 +263,98 @@ export default function Dashboard() {
               />
             </Field>
 
-
-            <div className="my-6 border-t border-rose-100 pt-6">
-              <h3 className="font-display text-base font-semibold text-rose-900">
+            <div>
+              <h3 className="text-sm font-bold text-rose-700">
                 الهوية البصرية
               </h3>
               <p className="mt-1 text-xs text-rose-400">
-                اختر لون الموقع — باقي الدرجات تتولّد تلقائياً منه
+                اختر نمط ولون الموقع — باقي الدرجات تتولّد تلقائياً منه
               </p>
             </div>
 
             <Field
-              label="اللون الرئيسي"
-              hint="يُطبَّق على الأزرار، النصوص، والخلفية"
+              label="نمط خلفية الموقع"
+              hint="اختر بين المظهر الفاتح الرومانسي أو المظهر الداكن الفخم"
             >
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  type="color"
-                  value={content.appearance?.primaryColor || '#fb7185'}
-                  onChange={(e) => {
-                    updateField('appearance', 'primaryColor', e.target.value)
-                  }}
-                  className="h-11 w-14 cursor-pointer rounded-xl border border-rose-100 bg-white p-1"
-                />
-                <TextInput
-                  value={content.appearance?.primaryColor || '#fb7185'}
-                  onChange={(v) => {
-                    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-                      updateField('appearance', 'primaryColor', v)
-                    }
-                  }}
-                />
-                <span
-                  className="inline-flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-xs font-semibold text-white"
-                  style={{ backgroundColor: content.appearance?.primaryColor || '#fb7185' }}
+              <div className="grid grid-cols-2 gap-3 max-w-xs">
+                <button
+                  type="button"
+                  onClick={() => updateField('appearance', 'mode', 'light')}
+                  className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-xs font-semibold border transition ${
+                    (content.appearance?.mode ?? 'light') === 'light'
+                      ? 'border-rose-400 bg-rose-50 text-rose-600 shadow-sm'
+                      : 'border-rose-100 bg-white text-rose-400 hover:bg-rose-50/50'
+                  }`}
                 >
-                  معاينة
-                </span>
+                  <span>☀️</span>
+                  <span>فاتح (Light)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateField('appearance', 'mode', 'dark')}
+                  className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-xs font-semibold border transition ${
+                    content.appearance?.mode === 'dark'
+                      ? 'border-rose-400 bg-slate-900 text-rose-300 shadow-sm'
+                      : 'border-rose-100 bg-white text-rose-400 hover:bg-rose-50/50'
+                  }`}
+                >
+                  <span>🌙</span>
+                  <span>داكن (Dark)</span>
+                </button>
               </div>
             </Field>
 
+            <Field
+              label="اللون الرئيسي"
+              hint="اضغط على أيقونة اللمس لاختيار أي لون باللمس أو اختر من لوحة الألوان المخصصة"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex items-center justify-center">
+                    <input
+                      type="color"
+                      value={content.appearance?.primaryColor || '#fb7185'}
+                      onChange={(e) => {
+                        updateField('appearance', 'primaryColor', e.target.value)
+                      }}
+                      className="h-10 w-12 cursor-pointer rounded-xl border-2 border-rose-200 p-0 overflow-hidden bg-transparent"
+                    />
+                  </div>
+                  <span className="text-xs font-medium text-rose-500">
+                    لوحة الألوان باللمس
+                  </span>
+                  <span
+                    className="inline-flex h-8 min-w-16 items-center justify-center rounded-full px-3 text-xs font-bold text-white shadow-sm mr-auto"
+                    style={{ backgroundColor: content.appearance?.primaryColor || '#fb7185' }}
+                  >
+                    معاينة
+                  </span>
+                </div>
 
+                <div className="flex flex-wrap gap-2.5 pt-1">
+                  {[
+                    '#e11d48', '#fb7185', '#f472b6', '#e879f9', '#c084fc', '#818cf8',
+                    '#38bdf8', '#2dd4bf', '#34d399', '#fbbf24', '#f97316', '#ef4444'
+                  ].map((color) => {
+                    const isSelected = (content.appearance?.primaryColor || '#fb7185').toLowerCase() === color.toLowerCase()
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => {
+                          updateField('appearance', 'primaryColor', color)
+                        }}
+                        className={`h-9 w-9 rounded-full border-2 border-white shadow-sm transition-all duration-200 active:scale-95 ${
+                          isSelected ? 'ring-2 ring-rose-500 ring-offset-2 scale-110' : 'hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        aria-label={`اختيار ${color}`}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            </Field>
 
             <Field
               label="شفافية القلوب الطائرة"
@@ -351,23 +401,6 @@ export default function Dashboard() {
                 maxLength={5}
               />
             </Field>
-
-            <div className="flex flex-wrap gap-2">
-              {['#fb7185', '#f472b6', '#e879f9', '#c084fc', '#f97316', '#38bdf8'].map(
-                (color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => {
-                      updateField('appearance', 'primaryColor', color)
-                    }}
-                    className="h-8 w-8 rounded-full border-2 border-white shadow-sm ring-1 ring-rose-100 transition hover:scale-110"
-                    style={{ backgroundColor: color }}
-                    aria-label={`اختيار ${color}`}
-                  />
-                ),
-              )}
-            </div>
           </Section>
         )
 
