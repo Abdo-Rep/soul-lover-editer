@@ -1,8 +1,10 @@
 import pg from 'pg'
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://romantic_user:Mohammedosha1%23@31.220.93.65:5433/romantic_saas'
+const connectionString = process.env.DATABASE_URL
+
+if (!connectionString) {
+  throw new Error('❌ DATABASE_URL environment variable is required.')
+}
 
 const client = new pg.Client({
   connectionString,
@@ -37,7 +39,7 @@ async function run() {
     `)
     console.log('✅ Table public.super_admins verified!')
 
-    // 3. Seed Super Admin account from .env (admin@saalove.com / Mohammedosha1#)
+    // 3. Seed Super Admin account from environment variables
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@saalove.com'
     const adminPass = process.env.ADMIN_PASSWORD || 'Mohammedosha1#'
 

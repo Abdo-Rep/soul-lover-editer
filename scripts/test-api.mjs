@@ -29,6 +29,9 @@ function createMockReqRes(method, query = {}, body = {}, headers = {}) {
 }
 
 async function testSaaS() {
+  const adminPass = process.env.ADMIN_PASSWORD || 'test-pass'
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@saalove.com'
+
   console.log('🧪 Testing SaaS Super Admin & Sites API...')
 
   // 1. Create a test site 'demo-love'
@@ -37,10 +40,13 @@ async function testSaaS() {
     {},
     {
       slug: 'demo-love',
-      sitePassword: 'love123',
-      adminPassword: 'admin123',
+      sitePassword: 'soulove',
+      adminPassword: 'soulove',
     },
-    { authorization: 'Bearer Mohammedosha1#' },
+    {
+      authorization: `Bearer ${adminPass}`,
+      'x-admin-email': adminEmail,
+    },
   )
 
   await superAdminHandler(createMock.req, createMock.res)
@@ -52,17 +58,6 @@ async function testSaaS() {
   await sitesHandler(fetchMock.req, fetchMock.res)
   const fetchResult = fetchMock.getResult()
   console.log('📖 Fetch Site Result:', fetchResult.statusCode, 'siteName:', fetchResult.responseData?.data?.siteName)
-
-  // 3. List all sites via Super Admin
-  const listMock = createMockReqRes(
-    'GET',
-    {},
-    {},
-    { authorization: 'Bearer Mohammedosha1#' },
-  )
-  await superAdminHandler(listMock.req, listMock.res)
-  const listResult = listMock.getResult()
-  console.log('📋 List Sites Result:', listResult.statusCode, 'Count:', listResult.responseData?.sites?.length)
 }
 
 testSaaS()

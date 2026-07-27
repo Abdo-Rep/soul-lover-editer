@@ -1,8 +1,10 @@
 import pg from 'pg'
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://romantic_user:Mohammedosha1%23@31.220.93.65:5433/romantic_saas'
+const connectionString = process.env.DATABASE_URL
+
+if (!connectionString) {
+  console.warn('⚠️ DATABASE_URL is missing. Please set DATABASE_URL in environment variables.')
+}
 
 const pool = new pg.Pool({
   connectionString,
