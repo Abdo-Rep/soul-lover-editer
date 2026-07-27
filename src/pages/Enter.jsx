@@ -11,17 +11,12 @@ export default function Enter({ onLogin }) {
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const { content, isLoading, isSupabaseConfigured, verifyPassword } = useContent()
+  const { content, isLoading, verifyPassword } = useContent()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
 
     if (isLoading || submitting) return
-
-    if (!isSupabaseConfigured) {
-      setError('تعذّر الاتصال بالخادم — تحقق من إعدادات Supabase')
-      return
-    }
 
     setSubmitting(true)
     setError('')

@@ -59,4 +59,9 @@ function apiPlugin() {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), apiPlugin()],
+  server: {
+    hmr: {
+      overlay: false,
+    },
+  },
 })

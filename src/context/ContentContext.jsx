@@ -41,13 +41,9 @@ function resolveMusicSrc(content) {
 
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(createInitialContent)
-  const [isLoading, setIsLoading] = useState(isSupabaseConfigured)
-  const [syncStatus, setSyncStatus] = useState(
-    isSupabaseConfigured ? 'loading' : 'error',
-  )
-  const [syncError, setSyncError] = useState(
-    isSupabaseConfigured ? '' : 'تعذّر الاتصال بالخادم',
-  )
+  const [isLoading, setIsLoading] = useState(true)
+  const [syncStatus, setSyncStatus] = useState('loading')
+  const [syncError, setSyncError] = useState('')
   const [musicUploadingIndex, setMusicUploadingIndex] = useState(null)
   const [musicUploadError, setMusicUploadError] = useState(null)
   const contentRef = useRef(content)
@@ -556,7 +552,6 @@ export function ContentProvider({ children }) {
       isDirty,
       syncStatus,
       syncError,
-      isSupabaseConfigured,
       musicUploadingIndex,
       musicUploadError,
       updateField,

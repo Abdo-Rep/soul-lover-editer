@@ -42,7 +42,7 @@ const TABS = [
 ]
 
 function AdminLoginForm({ onLogin }) {
-  const { content, isLoading, isSupabaseConfigured, verifyPassword } = useContent()
+  const { content, isLoading, verifyPassword } = useContent()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -51,11 +51,6 @@ function AdminLoginForm({ onLogin }) {
     event.preventDefault()
 
     if (isLoading || submitting) return
-
-    if (!isSupabaseConfigured) {
-      setError('تعذّر الاتصال بالخادم')
-      return
-    }
 
     setSubmitting(true)
     setError('')
@@ -148,7 +143,6 @@ export default function Dashboard() {
     isDirty,
     syncStatus,
     syncError,
-    isSupabaseConfigured,
     updateField,
     updateNestedField,
     updateRoot,
@@ -925,18 +919,12 @@ export default function Dashboard() {
                 (isDirty
                   ? '● لديك تغييرات غير محفوظة — اضغط «حفظ»'
                   : '✓ المحتوى محفوظ على قاعدة البيانات')}
-              {isSupabaseConfigured ? (
-                <span className="mt-1 block text-xs">
-                  {syncStatus === 'loading' && '⏳ جاري التحميل من قاعدة البيانات...'}
-                  {syncStatus === 'saving' && '💾 جاري الحفظ...'}
-                  {syncStatus === 'error' && '⚠️ مشكلة في الاتصال'}
-                  {syncError ? ` — ${syncError}` : ''}
-                </span>
-              ) : (
-                <span className="mt-1 block text-xs text-rose-400">
-                  Supabase غير مُعدّ — راجع ملف .env
-                </span>
-              )}
+              <span className="mt-1 block text-xs">
+                {syncStatus === 'loading' && '⏳ جاري التحميل من قاعدة البيانات...'}
+                {syncStatus === 'saving' && '💾 جاري الحفظ...'}
+                {syncStatus === 'error' && '⚠️ مشكلة في الاتصال'}
+                {syncError ? ` — ${syncError}` : ''}
+              </span>
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
