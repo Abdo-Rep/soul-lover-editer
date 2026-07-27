@@ -29,6 +29,13 @@ export async function fetchRemoteContent(slug) {
     return null
   }
 
+  const contentType = res.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    const text = await res.text().catch(() => '')
+    console.warn('Non-JSON response from /api/sites:', text.slice(0, 100))
+    return null
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(err.error || 'تعذّر الاتصال بالخادم')
@@ -63,6 +70,12 @@ export async function saveRemoteContent(content, password, slug) {
       content,
     }),
   })
+
+  const contentType = res.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`خطأ من الخادم (${res.status}): ${text.slice(0, 80)}`)
+  }
 
   if (!res.ok) {
     const errJson = await res.json().catch(() => ({}))
