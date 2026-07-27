@@ -306,32 +306,10 @@ export default function Dashboard() {
 
             <Field
               label="اللون الرئيسي"
-              hint="اضغط على أيقونة اللمس لاختيار أي لون باللمس أو اختر من لوحة الألوان المخصصة"
+              hint="اختر من درجات الألوان الجاهزة أو اضغط زر عجلة الألوان باللمس لاختيار أي لون"
             >
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="relative flex items-center justify-center">
-                    <input
-                      type="color"
-                      value={content.appearance?.primaryColor || '#fb7185'}
-                      onChange={(e) => {
-                        updateField('appearance', 'primaryColor', e.target.value)
-                      }}
-                      className="h-10 w-12 cursor-pointer rounded-xl border-2 border-rose-200 p-0 overflow-hidden bg-transparent"
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-rose-500">
-                    لوحة الألوان باللمس
-                  </span>
-                  <span
-                    className="inline-flex h-8 min-w-16 items-center justify-center rounded-full px-3 text-xs font-bold text-white shadow-sm mr-auto"
-                    style={{ backgroundColor: content.appearance?.primaryColor || '#fb7185' }}
-                  >
-                    معاينة
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-2.5 pt-1">
+              <div className="space-y-4">
+                <div className="grid grid-cols-6 gap-3 pt-1">
                   {[
                     '#e11d48', '#fb7185', '#f472b6', '#e879f9', '#c084fc', '#818cf8',
                     '#38bdf8', '#2dd4bf', '#34d399', '#fbbf24', '#f97316', '#ef4444'
@@ -344,7 +322,7 @@ export default function Dashboard() {
                         onClick={() => {
                           updateField('appearance', 'primaryColor', color)
                         }}
-                        className={`h-9 w-9 rounded-full border-2 border-white shadow-sm transition-all duration-200 active:scale-95 ${
+                        className={`h-11 w-11 rounded-2xl border-2 border-white shadow-md transition-all duration-200 active:scale-90 ${
                           isSelected ? 'ring-2 ring-rose-500 ring-offset-2 scale-110' : 'hover:scale-105'
                         }`}
                         style={{ backgroundColor: color }}
@@ -352,6 +330,26 @@ export default function Dashboard() {
                       />
                     )
                   })}
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl border border-rose-100 bg-rose-50/50 p-2.5">
+                  <label className="relative flex flex-1 cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-3 py-2 shadow-sm border border-rose-100">
+                    <span className="text-xs font-semibold text-rose-700">🎨 عجلة الألوان باللمس</span>
+                    <input
+                      type="color"
+                      value={content.appearance?.primaryColor || '#fb7185'}
+                      onChange={(e) => {
+                        updateField('appearance', 'primaryColor', e.target.value)
+                      }}
+                      className="h-8 w-12 cursor-pointer rounded-lg border-none p-0 bg-transparent"
+                    />
+                  </label>
+                  <span
+                    className="inline-flex h-9 min-w-20 items-center justify-center rounded-xl text-xs font-bold text-white shadow-md"
+                    style={{ backgroundColor: content.appearance?.primaryColor || '#fb7185' }}
+                  >
+                    معاينة
+                  </span>
                 </div>
               </div>
             </Field>
