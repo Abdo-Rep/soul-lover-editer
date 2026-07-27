@@ -689,7 +689,9 @@ button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Complete Clean Dark Mode Styling */
+/* ==========================================================================
+   Complete Clean Dark Mode Styling System
+   ========================================================================== */
 html.dark {
   color-scheme: dark;
 }
@@ -699,26 +701,94 @@ html.dark body {
   color: #f8fafc;
 }
 
+/* Background gradient for main site in dark mode */
 html.dark .romantic-bg {
   background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgb(var(--theme-rgb) / 0.22), transparent),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgb(var(--theme-rgb) / 0.18), transparent),
-    radial-gradient(ellipse 70% 50% at 50% 100%, rgb(var(--theme-rgb) / 0.14), transparent),
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgb(var(--theme-rgb) / 0.25), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgb(var(--theme-rgb) / 0.20), transparent),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgb(var(--theme-rgb) / 0.16), transparent),
     linear-gradient(180deg, var(--theme-50, #110a18) 0%, color-mix(in srgb, var(--theme-100, #1d1228) 85%, #0c0612) 50%, #07030a 100%);
 }
 
+/* Glass cards & panels in dark mode */
 html.dark .glass-card,
 html.dark .glass-panel {
-  background: rgba(17, 10, 24, 0.76);
+  background: rgba(22, 14, 32, 0.78);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px -2px rgb(var(--theme-rgb) / 0.2);
+  box-shadow: 0 10px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px -2px rgb(var(--theme-rgb) / 0.2);
   color: #f8fafc;
 }
 
 html.dark .enter-card {
-  background: rgba(17, 10, 24, 0.65);
+  background: rgba(22, 14, 32, 0.70);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f8fafc;
+}
+
+/* Override hardcoded bg-white cards and modals in dark mode */
+html.dark .bg-white,
+html.dark .bg-white\/70,
+html.dark .bg-white\/80,
+html.dark .bg-white\/90,
+html.dark .bg-white\/95 {
+  background-color: rgba(26, 17, 38, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc;
+}
+
+/* Override hardcoded light rose backgrounds in dark mode */
+html.dark .bg-rose-50,
+html.dark .bg-rose-50\/50,
+html.dark .bg-rose-50\/80 {
+  background-color: rgba(35, 23, 50, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9;
+}
+
+/* Inputs, textareas, date pickers in dark mode */
+html.dark input[type="text"],
+html.dark input[type="password"],
+html.dark input[type="date"],
+html.dark textarea,
+html.dark select {
+  background-color: rgba(18, 11, 26, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f8fafc !important;
+}
+
+html.dark input[type="text"]::placeholder,
+html.dark input[type="password"]::placeholder,
+html.dark textarea::placeholder {
+  color: rgba(248, 250, 252, 0.45) !important;
+}
+
+/* Text color contrast adjustments in dark mode */
+html.dark .text-rose-900,
+html.dark .text-rose-800,
+html.dark .text-rose-700,
+html.dark .text-slate-800,
+html.dark .text-slate-900,
+html.dark .text-gray-800,
+html.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-rose-600,
+html.dark .text-rose-500 {
+  color: var(--theme-300, #fda4af) !important;
+}
+
+html.dark .text-rose-400 {
+  color: rgba(248, 250, 252, 0.75) !important;
+}
+
+/* Borders in dark mode */
+html.dark .border-rose-50,
+html.dark .border-rose-100,
+html.dark .border-rose-200 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }

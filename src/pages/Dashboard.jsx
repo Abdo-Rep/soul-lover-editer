@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ContentLoadingHearts from '../components/ContentLoadingHearts'
+import FeedbackModal from '../components/FeedbackModal'
 import MemoryEditor from '../components/dashboard/MemoryEditor'
 import {
   DateInput,
@@ -179,12 +180,17 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('general')
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    type: 'success',
+    title: '',
+    message: '',
+  })
 
   const handleAdminLogin = async (password) => {
     adminLoginWithPassword(password)
     await loadFromDatabase()
   }
-
 
   const handleSave = async () => {
     if (!adminPassword) {
@@ -200,11 +206,29 @@ export default function Dashboard() {
       if (result?.nextLoginPassword) {
         updateAdminPassword(result.nextLoginPassword)
       }
-      setSaveMessage('تم الحفظ على قاعدة البيانات')
-      window.setTimeout(() => setSaveMessage(''), 2500)
+      setFeedbackModal({
+        isOpen: true,
+        type: 'success',
+        title: 'تم حفظ البيانات بنجاح 💖',
+        message: 'تم حفظ جميع التعديلات والتغييرات على خادم البيانات بنجاح!',
+      })
     } catch (error) {
-      if (error?.code === 'invalid_password') {
+      const isPassError = error?.code === 'invalid_password' || error?.message?.includes('invalid_password')
+      if (isPassError) {
         adminLogout()
+        setFeedbackModal({
+          isOpen: true,
+          type: 'error',
+          title: 'كلمة المرور غير صحيحة ⚠️',
+          message: 'يرجى إعادة تسجيل الدخول بكلمة المرور الحالية لحفظ البيانات.',
+        })
+      } else {
+        setFeedbackModal({
+          isOpen: true,
+          type: 'error',
+          title: 'فشل حفظ التعديلات ⚠️',
+          message: error?.message || 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.',
+        })
       }
     } finally {
       setIsSaving(false)
@@ -993,6 +1017,14 @@ export default function Dashboard() {
             الدومين الرئيسي
           </Link>
         </p>
+
+        <FeedbackModal
+          isOpen={feedbackModal.isOpen}
+          onClose={() => setFeedbackModal((prev) => ({ ...prev, isOpen: false }))}
+          type={feedbackModal.type}
+          title={feedbackModal.title}
+          message={feedbackModal.message}
+        />
       </div>
     </div>
   )
