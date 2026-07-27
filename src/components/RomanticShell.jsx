@@ -45,7 +45,7 @@ export default function RomanticShell({
                 <button
                   type="button"
                   onClick={onHomeClick}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/75 backdrop-blur-md border border-white/80 text-rose-600 shadow-md hover:bg-white hover:text-rose-700 transition-all active:scale-95"
+                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-500 shadow-md transition-all hover:scale-105 active:scale-95"
                   title="الرجوع للترحيب"
                 >
                   <Home size={20} />
@@ -56,7 +56,7 @@ export default function RomanticShell({
                 <button
                   type="button"
                   onClick={onGalleryToggle}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/75 backdrop-blur-md border border-white/80 text-rose-600 shadow-md hover:bg-white hover:text-rose-700 transition-all active:scale-95"
+                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-500 shadow-md transition-all hover:scale-105 active:scale-95"
                   title={isGalleryOpen ? "إغلاق ذكرياتنا" : "ذكرياتنا"}
                 >
                   {isGalleryOpen ? <X size={20} /> : <Image size={20} />}
@@ -67,7 +67,7 @@ export default function RomanticShell({
                 <button
                   type="button"
                   onClick={onWishlistToggle}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/75 backdrop-blur-md border border-white/80 text-rose-600 shadow-md hover:bg-white hover:text-rose-700 transition-all active:scale-95"
+                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-500 shadow-md transition-all hover:scale-105 active:scale-95"
                   title={isWishlistOpen ? "إغلاق قائمة الأمنيات" : "قائمة الأمنيات"}
                 >
                   {isWishlistOpen ? <X size={20} /> : <Sparkles size={20} />}

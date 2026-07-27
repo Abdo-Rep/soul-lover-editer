@@ -113,7 +113,7 @@ export default function MusicPlayer() {
         </div>
 
         {/* Heart Icon (Far right side) */}
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-rose-100 to-pink-200 ring-2 ring-white/90 shadow-sm">
+        <div className="glass-card flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full ring-2 ring-rose-300/30 shadow-sm">
           <Heart size={15} className="text-rose-500" fill="currentColor" />
         </div>
       </div>
