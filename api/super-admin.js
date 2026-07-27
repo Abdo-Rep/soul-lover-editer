@@ -1,7 +1,5 @@
 import pool from './db.js'
 
-const SUPER_ADMIN_SECRET = process.env.SUPER_ADMIN_PASSWORD || 'Mohammedosha1#'
-
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -12,10 +10,35 @@ export default async function handler(req, res) {
     return res.status(200).end()
   }
 
+  // 1. Authenticate against database table public.super_admins
   const authHeader = req.headers.authorization || ''
-  const token = authHeader.replace(/^Bearer\s+/i, '').trim() || req.query.token
+  let token = authHeader.replace(/^Bearer\s+/i, '').trim() || req.query.token
 
-  if (token !== SUPER_ADMIN_SECRET) {
+  let isAuthorized = false
+
+  if (token) {
+    // Check if token matches email:password combo or password against super_admins table
+    let email = req.headers['x-admin-email'] || req.query.email || 'admin@saalove.com'
+    if (token.includes(':')) {
+      const parts = token.split(':')
+      email = parts[0]
+      token = parts[1]
+    }
+
+    try {
+      const adminRes = await pool.query(
+        'SELECT email FROM public.super_admins WHERE (LOWER(email) = LOWER($1) OR LOWER($1) = LOWER($2)) AND password_hash = $3;',
+        [email, 'admin@saalove.com', token],
+      )
+      if (adminRes.rows.length > 0) {
+        isAuthorized = true
+      }
+    } catch (e) {
+      console.error('Super Admin DB check error:', e)
+    }
+  }
+
+  if (!isAuthorized) {
     return res.status(401).json({ error: 'unauthorized_super_admin' })
   }
 
@@ -28,7 +51,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { slug, sitePassword = 'soulove', adminPassword = '', initialData } = req.body || {}
+      const { slug, sitePassword = 'soulove', adminPassword = 'soulove', initialData } = req.body || {}
 
       if (!slug || !slug.trim()) {
         return res.status(400).json({ error: 'slug_required' })
@@ -57,8 +80,8 @@ export default async function handler(req, res) {
 
       const defaultData = initialData || {
         siteName: cleanSlug,
-        password: sitePassword,
-        adminPassword: adminPassword,
+        password: sitePassword || 'soulove',
+        adminPassword: adminPassword || 'soulove',
         appearance: {
           mode: 'light',
           primaryColor: '#ff8ccd',
@@ -123,7 +146,7 @@ export default async function handler(req, res) {
         `INSERT INTO public.user_sites (slug, site_password, admin_password, data)
          VALUES ($1, $2, $3, $4)
          RETURNING slug, site_password, admin_password, created_at;`,
-        [cleanSlug, sitePassword, adminPassword, JSON.stringify(defaultData)],
+        [cleanSlug, sitePassword || 'soulove', adminPassword || 'soulove', JSON.stringify(defaultData)],
       )
 
       return res.status(201).json({

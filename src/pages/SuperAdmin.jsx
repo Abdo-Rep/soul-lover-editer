@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Copy, ExternalLink, Key, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw } from 'lucide-react'
+import { Check, Copy, ExternalLink, Key, Mail, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw } from 'lucide-react'
 
 export default function SuperAdmin() {
+  const [email, setEmail] = useState(() => localStorage.getItem('super_admin_email') || 'admin@saalove.com')
   const [token, setToken] = useState(() => localStorage.getItem('super_admin_token') || '')
   const [inputPassword, setInputPassword] = useState('')
   const [authError, setAuthError] = useState('')
@@ -15,7 +16,7 @@ export default function SuperAdmin() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newSlug, setNewSlug] = useState('')
   const [newSitePass, setNewSitePass] = useState('soulove')
-  const [newAdminPass, setNewAdminPass] = useState('admin123')
+  const [newAdminPass, setNewAdminPass] = useState('soulove')
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
 
@@ -28,20 +29,21 @@ export default function SuperAdmin() {
     setTimeout(() => setCopiedKey(''), 2000)
   }
 
-  const fetchSites = useCallback(async (authToken) => {
+  const fetchSites = useCallback(async (authToken, adminEmail) => {
     setIsLoading(true)
     setFetchError('')
     try {
       const res = await fetch(`/api/super-admin`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
+          'X-Admin-Email': adminEmail,
         },
       })
       if (!res.ok) {
         if (res.status === 401) {
           localStorage.removeItem('super_admin_token')
           setToken('')
-          setAuthError('كلمة المرور غير صحيحة')
+          setAuthError('بيانات الدخول غير صحيحة أو غير مسجلة بقاعدة البيانات')
           return
         }
         throw new Error('فشل جلب قائمة المواقع')
@@ -57,27 +59,31 @@ export default function SuperAdmin() {
 
   useEffect(() => {
     if (token) {
-      fetchSites(token)
+      fetchSites(token, email)
     }
-  }, [token, fetchSites])
+  }, [token, email, fetchSites])
 
   const handleLogin = (e) => {
     e.preventDefault()
-    if (!inputPassword.trim()) return
+    if (!inputPassword.trim() || !email.trim()) return
     setIsLoggingIn(true)
     setAuthError('')
 
-    // Test token with API
+    // Verify against DB super_admins table via API
     fetch(`/api/super-admin`, {
-      headers: { Authorization: `Bearer ${inputPassword}` },
+      headers: {
+        Authorization: `Bearer ${inputPassword}`,
+        'X-Admin-Email': email,
+      },
     })
       .then((res) => {
         if (res.ok) {
+          localStorage.setItem('super_admin_email', email)
           localStorage.setItem('super_admin_token', inputPassword)
           setToken(inputPassword)
           setInputPassword('')
         } else {
-          setAuthError('كلمة مرور السوبر أدمن غير صحيحة')
+          setAuthError('البريد الإلكتروني أو كلمة المرور غير مسجلة بقاعدة البيانات')
         }
       })
       .catch(() => setAuthError('تعذّر الاتصال بالخادم'))
@@ -100,11 +106,12 @@ export default function SuperAdmin() {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
+          'X-Admin-Email': email,
         },
         body: JSON.stringify({
           slug: newSlug,
-          sitePassword: newSitePass,
-          adminPassword: newAdminPass,
+          sitePassword: newSitePass || 'soulove',
+          adminPassword: newAdminPass || 'soulove',
         }),
       })
 
@@ -120,8 +127,8 @@ export default function SuperAdmin() {
       setShowCreateModal(false)
       setNewSlug('')
       setNewSitePass('soulove')
-      setNewAdminPass('admin123')
-      fetchSites(token)
+      setNewAdminPass('soulove')
+      fetchSites(token, email)
     } catch (err) {
       setCreateError(err.message)
     } finally {
@@ -135,10 +142,13 @@ export default function SuperAdmin() {
     try {
       const res = await fetch(`/api/super-admin?slug=${encodeURIComponent(slug)}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Admin-Email': email,
+        },
       })
       if (res.ok) {
-        fetchSites(token)
+        fetchSites(token, email)
       } else {
         alert('فشل حذف الموقع')
       }
@@ -156,14 +166,31 @@ export default function SuperAdmin() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 mb-4 border border-rose-500/30">
               <ShieldCheck className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Super Admin Control Panel</h1>
-            <p className="text-sm text-rose-200/70">منصة إدارة مواقع العملاء وخدمة الـ SaaS</p>
+            <h1 className="text-2xl font-bold text-white mb-2">Super Admin Dashboard</h1>
+            <p className="text-sm text-rose-200/70">تسجيل الدخول من داتابيز Contabo PostgreSQL</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-rose-200/80 mb-2">
-                كلمة مرور المالك (Master Password)
+              <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+                البريد الإلكتروني (Admin Email)
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@saalove.com"
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
+                  required
+                />
+                <Mail className="absolute left-3 top-3.5 w-4 h-4 text-white/40" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+                كلمة المرور المسجلة بالداتابيز (Master Password)
               </label>
               <div className="relative">
                 <input
@@ -171,14 +198,15 @@ export default function SuperAdmin() {
                   value={inputPassword}
                   onChange={(e) => setInputPassword(e.target.value)}
                   placeholder="أدخل كلمة المرور..."
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-rose-500 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
+                  required
                 />
-                <Key className="absolute left-3 top-3.5 w-5 h-5 text-white/40" />
+                <Key className="absolute left-3 top-3.5 w-4 h-4 text-white/40" />
               </div>
             </div>
 
             {authError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm text-center">
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center">
                 {authError}
               </div>
             )}
@@ -186,7 +214,7 @@ export default function SuperAdmin() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-semibold shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-semibold shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
             >
               {isLoggingIn ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'دخول لوحة التحكم 🚀'}
             </button>
@@ -210,14 +238,14 @@ export default function SuperAdmin() {
             <div>
               <h1 className="text-2xl font-bold text-white">SaaS Client Websites</h1>
               <p className="text-xs text-rose-200/60 mt-0.5">
-                Contabo PostgreSQL: <span className="text-emerald-400 font-semibold">31.220.93.65 (Connected ✅)</span>
+                Contabo DB Authenticated: <span className="text-emerald-400 font-semibold">{email} (Verified ✅)</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => fetchSites(token)}
+              onClick={() => fetchSites(token, email)}
               className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
               title="تحديث البيانات"
             >
@@ -226,7 +254,7 @@ export default function SuperAdmin() {
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-medium shadow-lg shadow-rose-500/20 flex items-center gap-2 transition-all"
+              className="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-medium shadow-lg shadow-rose-500/20 flex items-center gap-2 transition-all text-sm"
             >
               <Plus className="w-5 h-5" />
               إنشاء موقع عميل جديد
@@ -300,8 +328,8 @@ export default function SuperAdmin() {
                         <span className="text-rose-300 font-semibold">{site.site_password}</span>
                       </div>
                       <div>
-                        <span className="text-white/40 block">كلمة سر الأدمن:</span>
-                        <span className="text-amber-300 font-semibold">{site.admin_password || 'غير محددة'}</span>
+                        <span className="text-white/40 block">كلمة سر الداشبورد:</span>
+                        <span className="text-amber-300 font-semibold">{site.admin_password || 'soulove'}</span>
                       </div>
                     </div>
 

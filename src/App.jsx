@@ -8,14 +8,15 @@ export default function App() {
   return (
     <RomanticBackdrop>
       <Routes>
-        {/* Super Admin Control Panel at / */}
-        <Route path="/" element={<SuperAdmin />} />
+        {/* Dedicated Super Admin Control Panel */}
+        <Route path="/soulove-admin" element={<SuperAdmin />} />
 
         {/* Client Dashboard */}
         <Route path="/:clientSlug/dashboard" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Client Visitor Gift Site at /:clientSlug */}
+        {/* Root Visitor Page & Dynamic Client Site at /:clientSlug */}
+        <Route path="/" element={<Home />} />
         <Route path="/:clientSlug" element={<Home />} />
 
         {/* Fallback */}

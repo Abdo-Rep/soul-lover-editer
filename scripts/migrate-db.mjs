@@ -1,6 +1,8 @@
 import pg from 'pg'
 
-const connectionString = 'postgresql://romantic_user:Mohammedosha1%23@31.220.93.65:5433/romantic_saas'
+const connectionString =
+  process.env.DATABASE_URL ||
+  'postgresql://romantic_user:Mohammedosha1%23@31.220.93.65:5433/romantic_saas'
 
 const client = new pg.Client({
   connectionString,
@@ -12,23 +14,44 @@ async function run() {
     await client.connect()
     console.log('✅ Connected to Contabo PostgreSQL')
 
-    // Create user_sites table
+    // 1. Create user_sites table
     await client.query(`
       CREATE TABLE IF NOT EXISTS public.user_sites (
         slug TEXT PRIMARY KEY,
         site_password TEXT NOT NULL DEFAULT 'soulove',
-        admin_password TEXT NOT NULL DEFAULT '',
+        admin_password TEXT NOT NULL DEFAULT 'soulove',
         data JSONB NOT NULL DEFAULT '{}'::jsonb,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `)
+    console.log('✅ Table public.user_sites verified!')
 
-    console.log('✅ Table user_sites created or verified successfully!')
+    // 2. Create super_admins table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS public.super_admins (
+        email TEXT PRIMARY KEY,
+        password_hash TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+    `)
+    console.log('✅ Table public.super_admins verified!')
 
-    // Insert super admin master config if needed or test row
-    const res = await client.query('SELECT COUNT(*) FROM public.user_sites;')
-    console.log(`📊 Current user_sites row count: ${res.rows[0].count}`)
+    // 3. Seed Super Admin account from .env (admin@saalove.com / Mohammedosha1#)
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@saalove.com'
+    const adminPass = process.env.ADMIN_PASSWORD || 'Mohammedosha1#'
+
+    await client.query(
+      `INSERT INTO public.super_admins (email, password_hash)
+       VALUES ($1, $2)
+       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;`,
+      [adminEmail.toLowerCase(), adminPass],
+    )
+    console.log(`✅ Super Admin user (${adminEmail}) seeded in Database successfully!`)
+
+    const resSites = await client.query('SELECT COUNT(*) FROM public.user_sites;')
+    const resAdmins = await client.query('SELECT COUNT(*) FROM public.super_admins;')
+    console.log(`📊 DB Summary: ${resSites.rows[0].count} client sites, ${resAdmins.rows[0].count} super admin accounts.`)
 
   } catch (err) {
     console.error('❌ Migration Error:', err.message)
