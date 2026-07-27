@@ -177,21 +177,20 @@ export default function SuperAdmin() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 mb-4 border border-rose-500/30">
               <ShieldCheck className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Super Admin Control</h1>
-            <p className="text-sm text-rose-200/70">تسجيل الدخول من داتابيز Contabo PostgreSQL</p>
+            <h1 className="text-xl font-bold text-white">تسجيل الدخول</h1>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
-                البريد الإلكتروني (Admin Email)
+                البريد الإلكتروني
               </label>
               <div className="relative">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="أدخل بريد السوبر أدمن..."
+                  placeholder="Email"
                   className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
                   required
                 />
@@ -201,14 +200,14 @@ export default function SuperAdmin() {
 
             <div>
               <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
-                كلمة المرور المسجلة بالداتابيز (Master Password)
+                كلمة المرور
               </label>
               <div className="relative">
                 <input
                   type="password"
                   value={inputPassword}
                   onChange={(e) => setInputPassword(e.target.value)}
-                  placeholder="أدخل كلمة المرور..."
+                  placeholder="Password"
                   className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
                   required
                 />
@@ -227,7 +226,7 @@ export default function SuperAdmin() {
               disabled={isLoggingIn}
               className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-semibold shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
             >
-              {isLoggingIn ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'دخول لوحة التحكم 🚀'}
+              {isLoggingIn ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'دخول 🚀'}
             </button>
           </form>
         </div>
@@ -247,9 +246,9 @@ export default function SuperAdmin() {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">SaaS Client Websites</h1>
+              <h1 className="text-2xl font-bold text-white">لوحة التحكم</h1>
               <p className="text-xs text-rose-200/60 mt-0.5">
-                Contabo DB Authenticated: <span className="text-emerald-400 font-semibold">{email} (Verified ✅)</span>
+                البريد: <span className="text-emerald-400 font-semibold">{email}</span>
               </p>
             </div>
           </div>
