@@ -721,6 +721,36 @@ html.dark .glass-panel {
   color: #f8fafc;
 }
 
+html.dark .theme-music-shell {
+  background: rgba(22, 14, 32, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 32px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+html.dark .content-card {
+  background: linear-gradient(
+    135deg,
+    rgba(32, 20, 46, 0.90) 0%,
+    rgba(22, 14, 32, 0.92) 50%,
+    rgba(17, 10, 24, 0.95) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+html.dark .love-transition {
+  background:
+    radial-gradient(circle at 50% 50%, rgb(var(--theme-rgb) / 0.18), transparent 55%),
+    linear-gradient(
+      180deg,
+      var(--theme-50, #110a18) 0%,
+      color-mix(in srgb, var(--theme-100, #1d1228) 85%, #0c0612) 100%
+    ) !important;
+}
+
 html.dark .enter-card {
   background: rgba(22, 14, 32, 0.70);
   backdrop-filter: blur(12px);

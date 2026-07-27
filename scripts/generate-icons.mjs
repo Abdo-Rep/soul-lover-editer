@@ -48,7 +48,7 @@ function isInsideHeart(normX, normY) {
   return a * a * a - x * x * y * y * y <= 0
 }
 
-function generateHeartPNG(size, isTransparent = true) {
+function generateHeartPNG(size, isTransparent = false) {
   const width = size
   const height = size
 
@@ -72,7 +72,7 @@ function generateHeartPNG(size, isTransparent = true) {
       const normX = x / width
 
       if (isInsideHeart(normX, normY)) {
-        // Red heart (#e11d48)
+        // Vibrant red heart (#e11d48)
         rawData[offset++] = 0xe1
         rawData[offset++] = 0x1d
         rawData[offset++] = 0x48
@@ -84,7 +84,7 @@ function generateHeartPNG(size, isTransparent = true) {
         rawData[offset++] = 0x00
         rawData[offset++] = 0x00
       } else {
-        // Soft background (#fff1f2) for maskable
+        // Soft romantic background (#fff1f2) for clean tab icon card
         rawData[offset++] = 0xff
         rawData[offset++] = 0xf1
         rawData[offset++] = 0xf2
@@ -106,10 +106,10 @@ if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir, { recursive: true })
 }
 
-fs.writeFileSync(path.join(outDir, 'icon-192.png'), generateHeartPNG(192, true))
-fs.writeFileSync(path.join(outDir, 'icon-512.png'), generateHeartPNG(512, true))
+fs.writeFileSync(path.join(outDir, 'icon-192.png'), generateHeartPNG(192, false))
+fs.writeFileSync(path.join(outDir, 'icon-512.png'), generateHeartPNG(512, false))
 fs.writeFileSync(path.join(outDir, 'maskable-512x512.png'), generateHeartPNG(512, false))
-fs.writeFileSync(path.join(outDir, 'favicon.png'), generateHeartPNG(64, true))
-fs.writeFileSync(path.join(outDir, 'apple-touch-icon.png'), generateHeartPNG(180, true))
+fs.writeFileSync(path.join(outDir, 'favicon.png'), generateHeartPNG(64, false))
+fs.writeFileSync(path.join(outDir, 'apple-touch-icon.png'), generateHeartPNG(180, false))
 
-console.log('✓ Generated clean PWA icons with ample boundary padding (icon-192, icon-512, maskable-512, apple-touch-icon, favicon)')
+console.log('✓ Generated clean PWA & Favicon icons with solid #fff1f2 background card')
