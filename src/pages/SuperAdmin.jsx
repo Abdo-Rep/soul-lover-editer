@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Copy, ExternalLink, Key, Mail, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw } from 'lucide-react'
+import { Check, Copy, ExternalLink, Key, Mail, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw, AlertTriangle } from 'lucide-react'
 
 export default function SuperAdmin() {
-  const [email, setEmail] = useState(() => localStorage.getItem('super_admin_email') || 'admin@saalove.com')
+  const [email, setEmail] = useState(() => localStorage.getItem('super_admin_email') || '')
   const [token, setToken] = useState(() => localStorage.getItem('super_admin_token') || '')
   const [inputPassword, setInputPassword] = useState('')
   const [authError, setAuthError] = useState('')
@@ -19,6 +19,10 @@ export default function SuperAdmin() {
   const [newAdminPass, setNewAdminPass] = useState('soulove')
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
+
+  // Delete Confirm Modal State
+  const [deleteTargetSlug, setDeleteTargetSlug] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Copy Feedback Toast
   const [copiedKey, setCopiedKey] = useState('')
@@ -65,7 +69,10 @@ export default function SuperAdmin() {
 
   const handleLogin = (e) => {
     e.preventDefault()
-    if (!inputPassword.trim() || !email.trim()) return
+    if (!inputPassword.trim() || !email.trim()) {
+      setAuthError('يرجى إدخال البريد الإلكتروني وكلمة المرور المسجلة بالداتابيز')
+      return
+    }
     setIsLoggingIn(true)
     setAuthError('')
 
@@ -83,7 +90,7 @@ export default function SuperAdmin() {
           setToken(inputPassword)
           setInputPassword('')
         } else {
-          setAuthError('البريد الإلكتروني أو كلمة المرور غير مسجلة بقاعدة البيانات')
+          setAuthError('بيانات الدخول غير مسجلة بقاعدة البيانات')
         }
       })
       .catch(() => setAuthError('تعذّر الاتصال بالخادم'))
@@ -136,11 +143,12 @@ export default function SuperAdmin() {
     }
   }
 
-  const handleDeleteSite = async (slug) => {
-    if (!window.confirm(`هل أنت تأكد من حذف موقع العميل (${slug}) بالكامل؟`)) return
+  const confirmDeleteSite = async () => {
+    if (!deleteTargetSlug) return
+    setIsDeleting(true)
 
     try {
-      const res = await fetch(`/api/super-admin?slug=${encodeURIComponent(slug)}`, {
+      const res = await fetch(`/api/super-admin?slug=${encodeURIComponent(deleteTargetSlug)}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -148,12 +156,15 @@ export default function SuperAdmin() {
         },
       })
       if (res.ok) {
+        setDeleteTargetSlug(null)
         fetchSites(token, email)
       } else {
-        alert('فشل حذف الموقع')
+        setFetchError('فشل حذف الموقع من الخادم')
       }
     } catch (err) {
-      alert('خطأ أثناء الحذف: ' + err.message)
+      setFetchError('خطأ أثناء الحذف: ' + err.message)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -166,7 +177,7 @@ export default function SuperAdmin() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 mb-4 border border-rose-500/30">
               <ShieldCheck className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Super Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">Super Admin Control</h1>
             <p className="text-sm text-rose-200/70">تسجيل الدخول من داتابيز Contabo PostgreSQL</p>
           </div>
 
@@ -180,7 +191,7 @@ export default function SuperAdmin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@saalove.com"
+                  placeholder="أدخل بريد السوبر أدمن..."
                   className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
                   required
                 />
@@ -314,7 +325,7 @@ export default function SuperAdmin() {
                         <h3 className="text-lg font-bold text-white capitalize">{site.slug}</h3>
                       </div>
                       <button
-                        onClick={() => handleDeleteSite(site.slug)}
+                        onClick={() => setDeleteTargetSlug(site.slug)}
                         className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 opacity-80 group-hover:opacity-100 transition-opacity"
                         title="حذف الموقع"
                       >
@@ -462,6 +473,38 @@ export default function SuperAdmin() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Branded Delete Confirmation Modal */}
+      {deleteTargetSlug && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-[#180d26] border border-rose-500/30 p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-200">
+            <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white">تأكيد حذف موقع العميل</h4>
+              <p className="text-xs text-rose-200/70">
+                هل أنت تأكد من حذف موقع العميل (<span className="text-rose-300 font-mono font-bold">/{deleteTargetSlug}</span>) بالكامل من داتابيز Contabo؟
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setDeleteTargetSlug(null)}
+                className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm transition-colors"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={confirmDeleteSite}
+                disabled={isDeleting}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2"
+              >
+                {isDeleting ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'نعم، احذف الموقع'}
+              </button>
+            </div>
           </div>
         </div>
       )}
