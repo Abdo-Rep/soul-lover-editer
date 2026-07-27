@@ -26,7 +26,7 @@ export function TextInput({ value, onChange, ...props }) {
   )
 }
 
-export function PasswordInput({ value, onChange, placeholder, showCopy = true, ...props }) {
+export function PasswordInput({ value, onChange, placeholder, showCopy = false, ...props }) {
   const [showPassword, setShowPassword] = useState(false)
   const [copied, setCopied] = useState(false)
 

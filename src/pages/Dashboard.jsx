@@ -269,6 +269,7 @@ export default function Dashboard() {
               hint="الكلمة التي يستخدمها شريكك لفتح الهدية"
             >
               <PasswordInput
+                showCopy={true}
                 value={content.password}
                 onChange={(v) => {
                   updateRoot('password', v)
@@ -279,6 +280,7 @@ export default function Dashboard() {
               label="كلمة مرور لوحة التحكم (الداشبورد)"
             >
               <PasswordInput
+                showCopy={true}
                 value={content.adminPassword || ''}
                 onChange={(v) => {
                   updateRoot('adminPassword', v)
