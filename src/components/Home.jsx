@@ -46,133 +46,15 @@ export default function Home() {
   const [showGallery, setShowGallery] = useState(false)
   const pendingStepRef = useRef(null)
 
-  if (siteNotFound && !isLoading) {
-    return <NotFound />
-  }
-
-  const isTransitioning = loginOverlay || explosionTarget !== null
-
-  const canGoBack =
-    isAuthenticated && Boolean(PREVIOUS_STEP[step]) && !isTransitioning
-
-  const showHome =
-    isAuthenticated &&
-    !isTransitioning &&
-    (step !== 'welcome' || showWishlist || showGallery)
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [step, showWishlist, showGallery])
-
-  const triggerPageFade = useCallback(() => {
-    setPageFadeTick((tick) => tick + 1)
-  }, [])
-
-  const goTo = useCallback((nextStep, withFade = true) => {
-    if (!STEPS.includes(nextStep) || nextStep === step) return
-    setStep(nextStep)
-    if (withFade) triggerPageFade()
-  }, [step, triggerPageFade])
-
-  const navigateWithExplosion = useCallback((nextStep) => {
-    if (isTransitioning || nextStep === step || !STEPS.includes(nextStep)) return
-
-    if (prefersReducedMotion()) {
-      goTo(nextStep)
-      return
-    }
-
-    pendingStepRef.current = nextStep
-    setExplosionTarget(nextStep)
-  }, [goTo, isTransitioning, step])
-
-  const handleBack = useCallback(() => {
-    const previous = PREVIOUS_STEP[step]
-    if (previous) navigateWithExplosion(previous)
-  }, [navigateWithExplosion, step])
-
-  const handleGalleryToggle = useCallback(() => {
-    setShowGallery((prev) => !prev)
-    setShowWishlist(false)
-  }, [])
-
-  const handleWishlistToggle = useCallback(() => {
-    setShowWishlist((prev) => !prev)
-    setShowGallery(false)
-  }, [])
-
-  const handleHomeClick = useCallback(() => {
-    setStep('welcome')
-    setShowWishlist(false)
-    setShowGallery(false)
-    triggerPageFade()
-  }, [triggerPageFade])
-
-  const handleLogin = useCallback(() => {
-    if (shouldSkipLoginIntro()) {
-      sessionStorage.removeItem(skipIntroKey)
-      login()
-      requestMusicStart()
-      void playMusic()
-      goTo('welcome')
-      return
-    }
-
-    setWelcomeFadeDone(false)
-    login()
-    requestMusicStart()
-    void playMusic()
-    setLoginOverlay(true)
-  }, [goTo, login, requestMusicStart, playMusic])
-
-  const handleLoveCovered = useCallback(() => {
-    startTransition(() => {
-      setStep('welcome')
-      triggerPageFade()
-      setWelcomeFadeDone(true)
-    })
-  }, [triggerPageFade])
-
-  const handleLoveComplete = useCallback(() => {
-    setLoginOverlay(false)
-    setWelcomeFadeDone(false)
-  }, [])
-
-  const handleExplosionSwap = useCallback(() => {
-    const nextStep = pendingStepRef.current
-    if (nextStep) {
-      startTransition(() => {
-        setStep(nextStep)
-        triggerPageFade()
-      })
-    }
-  }, [triggerPageFade])
-
-  const handleExplosionComplete = useCallback(() => {
-    pendingStepRef.current = null
-    setExplosionTarget(null)
-  }, [])
-
-  const renderStep = (key) => {
-    switch (key) {
-      case 'enter':
-        return loginOverlay ? null : <Enter onLogin={handleLogin} />
-      case 'welcome':
-        return <Welcome onNext={() => navigateWithExplosion('story')} />
-      case 'story':
-        return <Story onNext={() => navigateWithExplosion('final')} />
-      case 'final':
-        return <Final />
-      default:
-        return null
-    }
-  }
-
   const showMusic =
     isAuthenticated &&
     (step !== 'enter' || loginOverlay)
 
   const pageFadeClass = 'screen-fade-in'
+
+  if (siteNotFound && !isLoading) {
+    return <NotFound />
+  }
 
   return (
     <RomanticShell
