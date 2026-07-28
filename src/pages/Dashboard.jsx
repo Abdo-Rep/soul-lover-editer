@@ -160,6 +160,7 @@ export default function Dashboard() {
     uploadMemoryImage,
     uploadGalleryImage,
     uploadMusic,
+    addMusicTrack,
     removeMusic,
     updateMusicTrackTitle,
     musicUploadingIndex,
@@ -427,44 +428,31 @@ export default function Dashboard() {
 
       case 'music':
         const rawTracks = content.music?.tracks || []
-        const tracksList = Array.from({ length: 20 }, (_, idx) => {
-          if (rawTracks[idx]) return rawTracks[idx]
-          if (idx === 0 && content.music?.src) {
-            return {
-              id: 'default',
-              title: content.music.title || 'أغنيتنا',
-              fileName: content.music.fileName || 'romantic.mp3',
-              src: content.music.src,
-            }
-          }
-          return {
-            id: `slot-${idx}`,
-            title: `أغنية ${idx + 1}`,
-            fileName: '',
-            src: '',
-          }
-        })
+        const tracksList = rawTracks.length > 0
+          ? rawTracks
+          : (content.music?.src
+            ? [{ id: 'default', title: content.music.title || 'أغنيتنا', fileName: content.music.fileName || 'romantic.mp3', src: content.music.src }]
+            : [{ id: 'track-1', title: 'أغنية 1', fileName: '', src: '' }])
 
         return (
           <Section
             title="الموسيقى"
-            description="يمكنك رفع وتسمية حتى 20 ملف صوتي تعمل كقائمة تشغيل متتالية"
+            description="يمكنك رفع وتسمية حتى 10 ملفات صوتية تعمل كقائمة تشغيل متتالية (الحد الأقصى لكل أغنية 7 ميجابايت)"
           >
             <div className="space-y-6">
               {tracksList.map((track, idx) => (
                 <div key={track.id || idx} className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-rose-400">الأغنية رقم {idx + 1}</span>
-                    {track.src && (
-                      <button
-                        type="button"
-                        onClick={() => removeMusic(idx)}
-                        className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
-                      >
-                        <Trash2 size={12} />
-                        حذف الملف
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeMusic(idx)}
+                      className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
+                      title="حذف هذه الأغنية"
+                    >
+                      <Trash2 size={12} />
+                      حذف الأغنية
+                    </button>
                   </div>
                   
                   <Field label="عنوان الأغنية">
@@ -502,7 +490,7 @@ export default function Dashboard() {
                         ) : (
                           <>
                             <Music2 size={14} />
-                            <span>اضغط لرفع ملف صوتي لهذه الأغنية</span>
+                            <span>اضغط لرفع ملف صوتي للأغنية (الحد الأقصى 7MB)</span>
                           </>
                         )}
                         <input
@@ -523,6 +511,21 @@ export default function Dashboard() {
                   )}
                 </div>
               ))}
+
+              {tracksList.length < 10 ? (
+                <button
+                  type="button"
+                  onClick={addMusicTrack}
+                  className="w-full rounded-xl border border-dashed border-rose-200 py-3.5 text-sm font-medium text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-2"
+                >
+                  <Plus size={16} />
+                  + إضافة أغنية جديدة (حتى 10 أغاني)
+                </button>
+              ) : (
+                <p className="text-xs text-center text-rose-500 font-semibold py-2">
+                  وصلت للحد الأقصى للموسيقى (10 أغاني)
+                </p>
+              )}
             </div>
           </Section>
         )

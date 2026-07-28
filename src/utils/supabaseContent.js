@@ -121,7 +121,70 @@ export function isAudioFile() {
   return true
 }
 
+// Canvas-based image compression before base64 generation
+function compressImage(file, maxWidth = 1200, maxHeight = 1200, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      let { width, height } = img
+
+      if (width > maxWidth || height > maxHeight) {
+        if (width / height > maxWidth / maxHeight) {
+          height = Math.round((height * maxWidth) / width)
+          width = maxWidth
+        } else {
+          width = Math.round((width * maxHeight) / height)
+          height = maxHeight
+        }
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, width, height)
+
+      const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
+      resolve(compressedBase64)
+    }
+
+    img.onerror = (err) => {
+      URL.revokeObjectURL(url)
+      reject(new Error('فشل معالجة وضغط الصورة'))
+    }
+
+    img.src = url
+  })
+}
+
 export async function uploadAsset(file) {
+  if (!file) throw new Error('لم يتم اختيار ملف')
+
+  const isAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i)
+  const isImage = file.type.startsWith('image/') || file.name.match(/\.(jpg|jpeg|png|webp|gif|svg)$/i)
+
+  // 1. Enforce 7MB max size for audio files
+  if (isAudio) {
+    const MAX_AUDIO_SIZE = 7 * 1024 * 1024 // 7MB
+    if (file.size > MAX_AUDIO_SIZE) {
+      throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 7 ميجابايت (الحد الأقصى 7 MB)')
+    }
+  }
+
+  // 2. Compress image files using Canvas
+  if (isImage && !file.type.includes('svg')) {
+    try {
+      return await compressImage(file)
+    } catch (e) {
+      console.warn('Compression fallback to raw reader:', e)
+    }
+  }
+
+  // 3. Fallback FileReader
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result)

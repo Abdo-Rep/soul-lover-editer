@@ -422,35 +422,48 @@ export function ContentProvider({ children }) {
 
   const getInitialTracks = useCallback((musicObj) => {
     const tracks = musicObj?.tracks || []
-    const result = []
-    const targetCount = Math.max(20, tracks.length)
-    for (let i = 0; i < targetCount; i++) {
-      if (tracks[i]) {
-        result.push(tracks[i])
-      } else if (i === 0 && musicObj?.src) {
-        result.push({
-          id: 'default',
-          title: musicObj.title || 'أغنيتنا',
-          fileName: musicObj.fileName || 'romantic.mp3',
-          src: musicObj.src,
-        })
-      } else {
-        result.push({
-          id: `track-slot-${i}`,
-          title: `أغنية ${i + 1}`,
-          fileName: '',
-          src: '',
-        })
-      }
+    if (tracks.length > 0) return [...tracks]
+    if (musicObj?.src) {
+      return [{
+        id: 'default',
+        title: musicObj.title || 'أغنيتنا',
+        fileName: musicObj.fileName || 'romantic.mp3',
+        src: musicObj.src,
+      }]
     }
-    return result
+    return [{
+      id: 'track-1',
+      title: 'أغنية 1',
+      fileName: '',
+      src: '',
+    }]
   }, [])
+
+  const addMusicTrack = useCallback(() => {
+    patchContent((prev) => {
+      const currentTracks = getInitialTracks(prev.music)
+      if (currentTracks.length >= 10) return prev
+      const newTrack = {
+        id: `track-${Date.now()}`,
+        title: `أغنية ${currentTracks.length + 1}`,
+        fileName: '',
+        src: '',
+      }
+      return {
+        ...prev,
+        music: {
+          ...prev.music,
+          tracks: [...currentTracks, newTrack],
+        },
+      }
+    })
+  }, [patchContent, getInitialTracks])
 
   const uploadMusic = useCallback(
     async (file, index = 0) => {
-      const MAX_AUDIO_SIZE = 12 * 1024 * 1024 // 12 MB
+      const MAX_AUDIO_SIZE = 7 * 1024 * 1024 // 7 MB
       if (file.size > MAX_AUDIO_SIZE) {
-        const message = 'حجم ملف الأغنية أكثر من 12 ميجابايت (الحد الأقصى 12 MB)'
+        const message = 'حجم ملف الأغنية أكثر من 7 ميجابايت (الحد الأقصى 7 MB)'
         setMusicUploadError({ index, message })
         throw new Error(message)
       }
@@ -507,15 +520,8 @@ export function ContentProvider({ children }) {
     (index = 0) => {
       patchContent((prev) => {
         const currentTracks = getInitialTracks(prev.music)
-        if (currentTracks[index]) {
-          currentTracks[index] = {
-            ...currentTracks[index],
-            fileName: '',
-            src: '',
-          }
-        }
-
-        const firstActiveTrack = currentTracks.find((t) => t.src)
+        const updated = currentTracks.filter((_, idx) => idx !== index)
+        const firstActiveTrack = updated.find((t) => t.src)
         return {
           ...prev,
           music: {
@@ -523,7 +529,7 @@ export function ContentProvider({ children }) {
             src: firstActiveTrack ? firstActiveTrack.src : '',
             fileName: firstActiveTrack ? firstActiveTrack.fileName : '',
             title: firstActiveTrack ? firstActiveTrack.title : '',
-            tracks: currentTracks,
+            tracks: updated.length > 0 ? updated : [{ id: 'track-1', title: 'أغنية 1', fileName: '', src: '' }],
           },
         }
       })
@@ -585,6 +591,7 @@ export function ContentProvider({ children }) {
       toggleWishlistItem,
       uploadMemoryImage,
       uploadGalleryImage,
+      addMusicTrack,
       uploadMusic,
       removeMusic,
       updateMusicTrackTitle,
