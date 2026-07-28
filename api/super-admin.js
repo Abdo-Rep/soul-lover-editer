@@ -1,10 +1,13 @@
 import pool from './db.js'
 
 export default async function handler(req, res) {
-  // CORS
+  // CORS and Cache Control
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Email, x-admin-email')
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end()

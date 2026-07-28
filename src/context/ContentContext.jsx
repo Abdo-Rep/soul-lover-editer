@@ -170,6 +170,7 @@ export function ContentProvider({ children }) {
 
   useEffect(() => {
     setIsLoading(true)
+    setSiteNotFound(false)
     loadFromDatabase().catch(() => { })
   }, [location.pathname, loadFromDatabase])
 

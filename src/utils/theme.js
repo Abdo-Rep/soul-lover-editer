@@ -173,50 +173,26 @@ function collectThemeVars(palette, hearts, backgroundHeartRgb) {
   return vars
 }
 
-function writeThemeCache(appearance, vars) {
+function writeThemeCache() {
   if (typeof localStorage === 'undefined') return
-
   try {
-    localStorage.setItem(THEME_VARS_CACHE_KEY, JSON.stringify(vars))
-    localStorage.setItem(
-      THEME_APPEARANCE_CACHE_KEY,
-      JSON.stringify(normalizeAppearance(appearance)),
-    )
-  } catch {
-    // ignore quota / private mode
-  }
+    localStorage.removeItem(THEME_VARS_CACHE_KEY)
+    localStorage.removeItem(THEME_APPEARANCE_CACHE_KEY)
+  } catch {}
 }
 
 export function readCachedAppearance() {
-  if (typeof localStorage === 'undefined') return null
-
-  try {
-    const raw = localStorage.getItem(THEME_APPEARANCE_CACHE_KEY)
-    if (!raw) return null
-    return normalizeAppearance(JSON.parse(raw))
-  } catch {
-    return null
-  }
+  return null
 }
 
 export function applyCachedSiteTheme() {
-  if (typeof document === 'undefined') return false
-
-  try {
-    const raw = localStorage.getItem(THEME_VARS_CACHE_KEY)
-    if (!raw) return false
-
-    const vars = JSON.parse(raw)
-    const root = document.documentElement
-
-    Object.entries(vars).forEach(([key, value]) => {
-      root.style.setProperty(key, String(value))
-    })
-
-    return true
-  } catch {
-    return false
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.removeItem(THEME_VARS_CACHE_KEY)
+      localStorage.removeItem(THEME_APPEARANCE_CACHE_KEY)
+    } catch {}
   }
+  return false
 }
 
 export function applySiteTheme(appearanceInput) {
