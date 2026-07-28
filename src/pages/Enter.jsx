@@ -22,9 +22,9 @@ export default function Enter({ onLogin }) {
     setError('')
 
     try {
-      const isValid = password === content.password
+      const isValid = await verifyPassword(password)
       if (!isValid) {
-        setError(content.login.error)
+        setError(content.login?.error || 'كلمة المرور غير صحيحة')
         setShake(true)
         window.setTimeout(() => setShake(false), 450)
         return

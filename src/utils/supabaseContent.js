@@ -45,11 +45,34 @@ export async function fetchRemoteContent(slug) {
   return mergeContent(json.data)
 }
 
+// 100% Server-Side Visitor Password Verification
 export async function verifySitePassword(password, slug) {
   if (!slug) return true
-  const data = await fetchRemoteContent(slug)
-  if (!data) return false
-  return data.password === password
+  try {
+    const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, action: 'verify_visitor' }),
+    })
+    return res.ok
+  } catch (e) {
+    return false
+  }
+}
+
+// 100% Server-Side Admin Dashboard Password Verification
+export async function verifyAdminPassword(password, slug) {
+  if (!slug) return false
+  try {
+    const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, action: 'verify_admin' }),
+    })
+    return res.ok
+  } catch (e) {
+    return false
+  }
 }
 
 export async function saveRemoteContent(content, password, slug) {
@@ -101,7 +124,6 @@ export function isAudioFile() {
 }
 
 export async function uploadAsset(file) {
-  // Convert image/audio file to base64 data URL for self-contained serverless storage
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result)

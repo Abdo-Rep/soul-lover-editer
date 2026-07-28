@@ -19,6 +19,7 @@ import {
   setAdminPasswordForSync,
   uploadAsset,
   verifySitePassword,
+  verifyAdminPassword,
 } from '../utils/supabaseContent'
 
 const ContentContext = createContext(null)
@@ -562,6 +563,8 @@ export function ContentProvider({ children }) {
       syncError,
       musicUploadingIndex,
       musicUploadError,
+      verifyPassword: (pass) => verifySitePassword(pass, getClientSlug()),
+      verifyAdminPassword: (pass) => verifyAdminPassword(pass, getClientSlug()),
       updateField,
       updateNestedField,
       updateRoot,

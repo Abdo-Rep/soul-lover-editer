@@ -42,7 +42,7 @@ const TABS = [
 ]
 
 function AdminLoginForm({ onLogin }) {
-  const { content, isLoading, verifyPassword } = useContent()
+  const { isLoading, verifyAdminPassword } = useContent()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -56,7 +56,7 @@ function AdminLoginForm({ onLogin }) {
     setError('')
 
     try {
-      const isValid = await verifyPassword(password)
+      const isValid = await verifyAdminPassword(password)
       if (!isValid) {
         setError('كلمة المرور غير صحيحة')
         return
