@@ -83,33 +83,46 @@ export async function saveRemoteContent(content, password, slug) {
     throw new Error('كلمة المرور مطلوبة للحفظ')
   }
 
-  const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      password,
-      content,
-    }),
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 12000)
 
-  const contentType = res.headers.get('content-type') || ''
-  if (!contentType.includes('application/json')) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`خطأ من الخادم (${res.status}): ${text.slice(0, 80)}`)
-  }
+  try {
+    const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        password,
+        content,
+      }),
+    })
+    clearTimeout(timeoutId)
 
-  if (!res.ok) {
-    const errJson = await res.json().catch(() => ({}))
-    if (res.status === 401 || errJson.error === 'invalid_password') {
-      throw new Error('invalid_password')
+    const contentType = res.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      const text = await res.text().catch(() => '')
+      throw new Error(`خطأ من الخادم (${res.status}): ${text.slice(0, 80)}`)
     }
-    throw new Error(errJson.error || 'فشل حفظ التعديلات على الخادم')
-  }
 
-  const resData = await res.json()
-  return mergeContent(resData.data)
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}))
+      if (res.status === 401 || errJson.error === 'invalid_password') {
+        throw new Error('invalid_password')
+      }
+      throw new Error(errJson.error || 'فشل حفظ التعديلات على الخادم')
+    }
+
+    const resData = await res.json()
+    return mergeContent(resData.data)
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (error.name === 'AbortError') {
+      throw new Error('استغرق الحفظ وقتًا طويلاً. يُرجى التحقق من الاتصال والمحاولة مرة أخرى.')
+    }
+    throw error
+  }
 }
 
 export async function loadSiteContent(slug) {

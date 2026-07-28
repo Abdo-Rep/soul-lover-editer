@@ -116,9 +116,9 @@ export function buildPalette(primaryHex, isDark = false) {
 
   if (isDark) {
     return {
-      50: '#110a18',
-      100: '#1d1228',
-      200: '#2d1b3c',
+      50: shadeFromPrimary(h, s, l, 6, 0.35),
+      100: shadeFromPrimary(h, s, l, 10, 0.4),
+      200: shadeFromPrimary(h, s, l, 16, 0.45),
       300: shadeFromPrimary(h, s, l, 70, 0.8),
       400: primaryHex,
       500: shadeFromPrimary(h, s, l, clamp(l, 40, 75)),
