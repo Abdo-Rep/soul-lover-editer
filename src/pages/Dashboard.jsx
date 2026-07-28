@@ -8,6 +8,7 @@ import {
   KeyRound,
   LogOut,
   Music2,
+  Plus,
   Undo,
   Redo,
   Save,
