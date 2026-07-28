@@ -438,7 +438,7 @@ export default function Dashboard() {
         return (
           <Section
             title="الموسيقى"
-            description="يمكنك رفع وتسمية حتى 10 ملفات صوتية تعمل كقائمة تشغيل متتالية (الحد الأقصى لكل أغنية 7 ميجابايت)"
+            description="يمكنك رفع وتسمية ملفات صوتية تعمل كقائمة تشغيل متتالية (الحد الأقصى لكل أغنية 7 ميجابايت)"
           >
             <div className="space-y-6">
               {tracksList.map((track, idx) => (
@@ -513,19 +513,15 @@ export default function Dashboard() {
                 </div>
               ))}
 
-              {tracksList.length < 10 ? (
+              {tracksList.length < 10 && (
                 <button
                   type="button"
                   onClick={addMusicTrack}
                   className="w-full rounded-xl border border-dashed border-rose-200 py-3.5 text-sm font-medium text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-2"
                 >
                   <Plus size={16} />
-                  + إضافة أغنية جديدة (حتى 10 أغاني)
+                  + إضافة أغنية جديدة
                 </button>
-              ) : (
-                <p className="text-xs text-center text-rose-500 font-semibold py-2">
-                  وصلت للحد الأقصى للموسيقى (10 أغاني)
-                </p>
               )}
             </div>
           </Section>
