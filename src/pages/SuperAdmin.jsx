@@ -491,8 +491,14 @@ export default function SuperAdmin() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
-          <div className="w-full max-w-md rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl space-y-5 text-right">
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          dir="rtl"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCreateModal(false)
+          }}
+        >
+          <div className="w-full max-w-md rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl space-y-5 text-right cursor-default">
             <div className="flex items-center justify-between pb-3 border-b border-[#19213d]">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <PlusSvg className="w-5 h-5 text-[#ff3b68]" />
@@ -580,8 +586,14 @@ export default function SuperAdmin() {
 
       {/* Delete Confirmation Modal */}
       {deleteTargetSlug && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
-          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4">
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          dir="rtl"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDeleteTargetSlug(null)
+          }}
+        >
+          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4 cursor-default">
             <div className="w-14 h-14 rounded-2xl bg-[#281125] text-[#ff3b68] border border-[#4a1835] flex items-center justify-center mx-auto">
               <AlertSvg className="w-7 h-7" />
             </div>
@@ -614,8 +626,14 @@ export default function SuperAdmin() {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
-          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4">
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          dir="rtl"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowLogoutModal(false)
+          }}
+        >
+          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4 cursor-default">
             <div className="w-14 h-14 rounded-2xl bg-[#281125] text-[#ff3b68] border border-[#4a1835] flex items-center justify-center mx-auto">
               <LogoutSvg className="w-7 h-7" />
             </div>
