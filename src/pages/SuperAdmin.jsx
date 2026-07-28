@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 
 // Custom Inline SVG Icons
-const ShieldSvg = ({ className = "w-6 h-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    <path d="m9 12 2 2 4-4" />
+const HeartSvg = ({ className = "w-6 h-6 text-[#ff3b68]" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
   </svg>
 )
 
-const PlusSvg = ({ className = "w-5 h-5" }) => (
+const PlusSvg = ({ className = "w-4 h-4" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
@@ -251,11 +250,11 @@ export default function SuperAdmin() {
   // Login Screen if not logged in
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#060713] text-white flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#0b0e20] border border-[#19213d] rounded-3xl p-8 shadow-2xl">
+      <div className="min-h-screen bg-[#060713] text-white flex items-center justify-center p-4 font-sans" dir="rtl">
+        <div className="w-full max-w-md bg-[#0b0e20] border border-[#19213d] rounded-3xl p-8 shadow-2xl text-right">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#261128] text-[#ff3b68] mb-4 border border-[#4a1835]">
-              <ShieldSvg className="w-8 h-8" />
+              <HeartSvg className="w-8 h-8 text-[#ff3b68]" />
             </div>
             <h1 className="text-xl font-bold text-white">السوبر أدمن (SaaS)</h1>
             <p className="text-xs text-[#7786a5] mt-1">تسجيل الدخول لإدارة لوحة النظام</p>
@@ -318,78 +317,76 @@ export default function SuperAdmin() {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
   return (
-    <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans">
-      <div className="max-w-6xl mx-auto space-y-5">
+    <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans" dir="rtl">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-5">
         
-        {/* Top Header matching exact reference design */}
-        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#0b0e20] border border-[#19213d]">
-          {/* Action buttons (left side in RTL) */}
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setShowLogoutModal(true)}
-              className="p-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
-              title="تسجيل الخروج"
-              aria-label="تسجيل الخروج"
-            >
-              <LogoutSvg className="w-5 h-5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowCreateModal(true)}
-              className="px-5 py-2.5 rounded-full bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition-colors shadow-md shadow-[#ff3b68]/20"
-            >
-              <PlusSvg className="w-4 h-4" />
-              <span>إضافة موقع</span>
-            </button>
-          </div>
-
-          {/* Title & Badge (right side in RTL) */}
-          <div className="flex items-center gap-3 justify-between sm:justify-end">
-            <div className="text-right">
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-wide">
+        {/* Top Header matching reference image: Title on Right, Buttons on Left */}
+        <div className="flex flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#0b0e20] border border-[#19213d]">
+          {/* Right Side (RTL): Heart icon (NO BACKGROUND) + Title */}
+          <div className="flex items-center gap-2.5 sm:gap-3 text-right">
+            <HeartSvg className="w-6 h-6 sm:w-7 sm:h-7 text-[#ff3b68] shrink-0" />
+            <div>
+              <h1 className="text-base sm:text-xl font-bold text-white tracking-wide">
                 السوبر أدمن (SaaS)
               </h1>
               <p className="text-[11px] sm:text-xs text-[#7786a5] mt-0.5">
                 إدارة شبكة مواقع الهدايا والرومانسية
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#261128] border border-[#4a1835] flex items-center justify-center text-[#ff3b68] shrink-0">
-              <ShieldSvg className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
+          </div>
+
+          {/* Left Side (RTL): Actions */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-colors shadow-md shadow-[#ff3b68]/20"
+            >
+              <PlusSvg className="w-4 h-4" />
+              <span>إضافة موقع</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowLogoutModal(true)}
+              className="p-2 sm:p-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
+            >
+              <LogoutSvg className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
           </div>
         </div>
 
-        {/* 3 Stat Cards Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Card 1: Created Sites */}
-          <div className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] text-center space-y-1">
-            <span className="text-xs text-[#7786a5] font-medium block">المواقع المنشأة</span>
-            <span className="text-2xl sm:text-3xl font-bold text-[#ff3b68] block">{sites.length}</span>
+        {/* 3 Stat Cards Row: Mobile-First 3 Columns aligned to the RIGHT */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {/* Card 1: Sites */}
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right space-y-0.5">
+            <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">المواقع المنشأة</span>
+            <span className="text-base sm:text-2xl font-bold text-[#ff3b68] block">{sites.length}</span>
           </div>
 
           {/* Card 2: Server Status */}
-          <div className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] text-center space-y-1">
-            <span className="text-xs text-[#7786a5] font-medium block">حالة السيرفر</span>
-            <span className="text-xs sm:text-sm font-bold text-[#10b981] flex items-center justify-center gap-1.5 pt-1">
-              <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
-              متصل (VPS)
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right space-y-0.5">
+            <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">حالة السيرفر</span>
+            <span className="text-[11px] sm:text-sm font-bold text-[#10b981] flex items-center gap-1 pt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse shrink-0"></span>
+              <span className="truncate">متصل (VPS)</span>
             </span>
           </div>
 
           {/* Card 3: System Type */}
-          <div className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] text-center space-y-1">
-            <span className="text-xs text-[#7786a5] font-medium block">نوع النظام</span>
-            <span className="text-xs sm:text-sm font-bold text-white block pt-1">SaaS نسخه محسنه</span>
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right space-y-0.5">
+            <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">نوع النظام</span>
+            <span className="text-[11px] sm:text-sm font-bold text-white block pt-0.5 truncate">SaaS نسخه محسنه</span>
           </div>
         </div>
 
-        {/* Main Sites Section */}
-        <div className="rounded-2xl sm:rounded-3xl bg-[#080b1a] border border-[#19213d] p-4 sm:p-5 space-y-4">
+        {/* Main Sites Container */}
+        <div className="rounded-2xl sm:rounded-3xl bg-[#080b1a] border border-[#19213d] p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-[#19213d]/60">
-            <h2 className="text-base sm:text-lg font-bold text-white">
+            <h2 className="text-sm sm:text-base font-bold text-white">
               المواقع المسجلة ({sites.length})
             </h2>
             <button
@@ -403,13 +400,13 @@ export default function SuperAdmin() {
           </div>
 
           {fetchError && (
-            <div className="p-4 rounded-2xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs">
+            <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs">
               {fetchError}
             </div>
           )}
 
           {sites.length === 0 && !isLoading ? (
-            <div className="p-10 text-center rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
+            <div className="p-8 sm:p-10 text-center rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
               <GlobeSvg className="w-10 h-10 text-[#7786a5]/30 mx-auto" />
               <p className="text-[#7786a5] text-xs">لا يوجد مواقع عملاء أنشئت بعد.</p>
               <button
@@ -422,14 +419,14 @@ export default function SuperAdmin() {
             </div>
           ) : (
             <>
-              {/* Mobile View (Cards) */}
+              {/* Mobile Card View (< md) */}
               <div className="block md:hidden space-y-3">
                 {sites.map((site) => {
                   const visitorUrl = `${baseUrl}/${site.slug}`
                   const dashboardUrl = `${baseUrl}/${site.slug}/dashboard`
 
                   return (
-                    <div key={site.slug} className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
+                    <div key={site.slug} className="p-3.5 rounded-xl bg-[#0b0e20] border border-[#19213d] space-y-3">
                       <div className="flex items-start justify-between">
                         <button
                           type="button"
@@ -440,27 +437,27 @@ export default function SuperAdmin() {
                           <TrashSvg className="w-4 h-4" />
                         </button>
                         <div className="text-right">
-                          <h3 className="text-base font-bold text-white">{site.slug}</h3>
+                          <h3 className="text-sm font-bold text-white">{site.slug}</h3>
                           <span className="text-xs text-[#ff3b68] font-mono">{site.slug}/</span>
                         </div>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-[#060814] border border-[#151b33] grid grid-cols-2 gap-2 text-center text-xs">
+                      <div className="p-2.5 rounded-lg bg-[#060814] border border-[#151b33] grid grid-cols-2 gap-2 text-center text-xs">
                         <div>
-                          <span className="text-[#7786a5] block text-[11px]">كلمة سر الزائر:</span>
+                          <span className="text-[#7786a5] block text-[10px]">كلمة سر الزائر:</span>
                           <span className="text-white font-mono font-bold">{site.site_password}</span>
                         </div>
                         <div>
-                          <span className="text-[#7786a5] block text-[11px]">كلمة سر الداشبورد:</span>
+                          <span className="text-[#7786a5] block text-[10px]">كلمة سر الداشبورد:</span>
                           <span className="text-white font-mono font-bold">{site.admin_password || 'soulove'}</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-1">
+                      <div className="flex items-center gap-2 pt-0.5">
                         <button
                           type="button"
                           onClick={() => copyToClipboard(visitorUrl, `${site.slug}-m-copy`)}
-                          className="p-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
+                          className="p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
                           title="نسخ الرابط"
                         >
                           {copiedKey === `${site.slug}-m-copy` ? <CheckSvg className="w-4 h-4 text-emerald-400" /> : <CopySvg className="w-4 h-4" />}
@@ -469,7 +466,7 @@ export default function SuperAdmin() {
                           href={dashboardUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex-1 py-2 px-3 rounded-xl bg-[#121c38] border border-[#203058] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                          className="flex-1 py-2 px-2.5 rounded-lg bg-[#121c38] border border-[#203058] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                         >
                           <KeySvg className="w-3.5 h-3.5 text-[#ff3b68]" />
                           الداشبورد
@@ -478,7 +475,7 @@ export default function SuperAdmin() {
                           href={visitorUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex-1 py-2 px-3 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                          className="flex-1 py-2 px-2.5 rounded-lg bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                         >
                           <GlobeSvg className="w-3.5 h-3.5" />
                           موقع الزائر
@@ -489,15 +486,15 @@ export default function SuperAdmin() {
                 })}
               </div>
 
-              {/* Desktop Table View */}
-              <div className="hidden md:block overflow-hidden rounded-2xl border border-[#19213d] bg-[#0b0e20]">
-                <table className="w-full text-right border-collapse">
+              {/* Desktop Table View (>= md) */}
+              <div className="hidden md:block overflow-hidden rounded-xl border border-[#19213d] bg-[#0b0e20]">
+                <table className="w-full text-right border-collapse" dir="rtl">
                   <thead>
                     <tr className="border-b border-[#19213d] bg-[#0f142d] text-xs text-[#7786a5] font-semibold">
-                      <th className="py-3 px-4">اسم الموقع / العميل</th>
-                      <th className="py-3 px-4">الرابط (Slug)</th>
-                      <th className="py-3 px-4">كلمة مرور الزائر</th>
-                      <th className="py-3 px-4">كلمة مرور الداشبورد</th>
+                      <th className="py-3 px-4 text-right">اسم الموقع / العميل</th>
+                      <th className="py-3 px-4 text-right">الرابط (Slug)</th>
+                      <th className="py-3 px-4 text-right">كلمة مرور الزائر</th>
+                      <th className="py-3 px-4 text-right">كلمة مرور الداشبورد</th>
                       <th className="py-3 px-4 text-center">الروابط والإجراءات</th>
                     </tr>
                   </thead>
@@ -508,10 +505,10 @@ export default function SuperAdmin() {
 
                       return (
                         <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
-                          <td className="py-3 px-4 font-bold text-white">{site.slug}</td>
-                          <td className="py-3 px-4 font-mono text-[#ff3b68]">{site.slug}/</td>
-                          <td className="py-3 px-4 font-mono text-white/90">{site.site_password}</td>
-                          <td className="py-3 px-4 font-mono text-white/90">{site.admin_password || 'soulove'}</td>
+                          <td className="py-3 px-4 font-bold text-white text-right">{site.slug}</td>
+                          <td className="py-3 px-4 font-mono text-[#ff3b68] text-right">{site.slug}/</td>
+                          <td className="py-3 px-4 font-mono text-white/90 text-right">{site.site_password}</td>
+                          <td className="py-3 px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
                           <td className="py-3 px-4">
                             <div className="flex items-center justify-center gap-2">
                               <a
@@ -564,8 +561,8 @@ export default function SuperAdmin() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
+          <div className="w-full max-w-md rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl space-y-5 text-right">
             <div className="flex items-center justify-between pb-3 border-b border-[#19213d]">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <PlusSvg className="w-5 h-5 text-[#ff3b68]" />
@@ -653,7 +650,7 @@ export default function SuperAdmin() {
 
       {/* Delete Confirmation Modal */}
       {deleteTargetSlug && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
           <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-[#281125] text-[#ff3b68] border border-[#4a1835] flex items-center justify-center mx-auto">
               <AlertSvg className="w-7 h-7" />
@@ -687,7 +684,7 @@ export default function SuperAdmin() {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
           <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-[#281125] text-[#ff3b68] border border-[#4a1835] flex items-center justify-center mx-auto">
               <LogoutSvg className="w-7 h-7" />
