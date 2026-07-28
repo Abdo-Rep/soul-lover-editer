@@ -576,7 +576,7 @@ export default function SuperAdmin() {
                   disabled={isCreating}
                   className="px-6 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
-                  {isCreating ? <RefreshSvg className="w-4 h-4 animate-spin" /> : 'توليد الموقع الآن 🚀'}
+                  {isCreating ? <RefreshSvg className="w-4 h-4 animate-spin" /> : 'توليد'}
                 </button>
               </div>
             </form>
