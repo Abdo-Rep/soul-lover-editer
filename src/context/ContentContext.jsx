@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import {
   createContext,
   useCallback,
@@ -125,13 +126,14 @@ export function ContentProvider({ children }) {
     setSyncError('')
   }, [])
 
+  const location = useLocation()
+
   const getClientSlug = useCallback(() => {
-    if (typeof window === 'undefined') return ''
-    const parts = window.location.pathname.split('/').filter(Boolean)
+    const parts = location.pathname.split('/').filter(Boolean)
     if (parts.length === 0) return ''
     if (parts[0] === 'soulove-admin' || parts[0] === 'api' || parts[0] === 'dashboard') return ''
     return parts[0]
-  }, [])
+  }, [location.pathname])
 
   const [siteNotFound, setSiteNotFound] = useState(false)
 
@@ -167,8 +169,9 @@ export function ContentProvider({ children }) {
   }, [applyLoadedContent, getClientSlug])
 
   useEffect(() => {
+    setIsLoading(true)
     loadFromDatabase().catch(() => { })
-  }, [loadFromDatabase])
+  }, [location.pathname, loadFromDatabase])
 
   const saveChanges = useCallback(async (password) => {
     const slug = getClientSlug()

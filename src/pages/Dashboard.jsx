@@ -258,7 +258,7 @@ export default function Dashboard() {
         return (
           <Section
             title="إعدادات عامة"
-            description="اسم الموقع، كلمة المرور، والتواريخ المهمة"
+            description="اسم الموقع، وكلمة المرور"
           >
             <Field label="اسم الموقع" hint="يظهر في تبويب المتصفح ولوحة التحكم">
               <TextInput
