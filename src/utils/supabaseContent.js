@@ -113,10 +113,8 @@ export async function saveRemoteContent(content, password, slug) {
 }
 
 export async function loadSiteContent(slug) {
-  if (!slug) return mergeContent(getSeedContent())
-  const remote = await fetchRemoteContent(slug)
-  if (remote) return remote
-  return mergeContent(getSeedContent())
+  if (!slug) return null
+  return await fetchRemoteContent(slug)
 }
 
 export function isAudioFile() {

@@ -129,6 +129,7 @@ export function ContentProvider({ children }) {
     if (typeof window === 'undefined') return ''
     const parts = window.location.pathname.split('/').filter(Boolean)
     if (parts.length === 0) return ''
+    if (parts[0] === 'soulove-admin' || parts[0] === 'api') return ''
     return parts[0]
   }, [])
 
