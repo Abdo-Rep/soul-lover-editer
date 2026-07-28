@@ -418,84 +418,15 @@ export default function SuperAdmin() {
               </button>
             </div>
           ) : (
-            <>
-              {/* Mobile Card View (< md) */}
-              <div className="block md:hidden space-y-3">
-                {sites.map((site) => {
-                  const visitorUrl = `${baseUrl}/${site.slug}`
-                  const dashboardUrl = `${baseUrl}/${site.slug}/dashboard`
-
-                  return (
-                    <div key={site.slug} className="p-3.5 rounded-xl bg-[#0b0e20] border border-[#19213d] space-y-3">
-                      <div className="flex items-start justify-between">
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTargetSlug(site.slug)}
-                          className="text-[#7786a5] hover:text-[#ff3b68] p-1.5 rounded-lg transition-colors"
-                          title="حذف الموقع"
-                        >
-                          <TrashSvg className="w-4 h-4" />
-                        </button>
-                        <div className="text-right">
-                          <h3 className="text-sm font-bold text-white">{site.slug}</h3>
-                          <span className="text-xs text-[#ff3b68] font-mono">{site.slug}/</span>
-                        </div>
-                      </div>
-
-                      <div className="p-2.5 rounded-lg bg-[#060814] border border-[#151b33] grid grid-cols-2 gap-2 text-center text-xs">
-                        <div>
-                          <span className="text-[#7786a5] block text-[10px]">كلمة سر الزائر:</span>
-                          <span className="text-white font-mono font-bold">{site.site_password}</span>
-                        </div>
-                        <div>
-                          <span className="text-[#7786a5] block text-[10px]">كلمة سر الداشبورد:</span>
-                          <span className="text-white font-mono font-bold">{site.admin_password || 'soulove'}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-0.5">
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(visitorUrl, `${site.slug}-m-copy`)}
-                          className="p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
-                          title="نسخ الرابط"
-                        >
-                          {copiedKey === `${site.slug}-m-copy` ? <CheckSvg className="w-4 h-4 text-emerald-400" /> : <CopySvg className="w-4 h-4" />}
-                        </button>
-                        <a
-                          href={dashboardUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex-1 py-2 px-2.5 rounded-lg bg-[#121c38] border border-[#203058] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                        >
-                          <KeySvg className="w-3.5 h-3.5 text-[#ff3b68]" />
-                          الداشبورد
-                        </a>
-                        <a
-                          href={visitorUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex-1 py-2 px-2.5 rounded-lg bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                        >
-                          <GlobeSvg className="w-3.5 h-3.5" />
-                          موقع الزائر
-                        </a>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Desktop Table View (>= md) */}
-              <div className="hidden md:block overflow-hidden rounded-xl border border-[#19213d] bg-[#0b0e20]">
-                <table className="w-full text-right border-collapse" dir="rtl">
+            <div className="overflow-x-auto rounded-xl border border-[#19213d] bg-[#0b0e20]">
+                <table className="w-full min-w-[620px] text-right border-collapse" dir="rtl">
                   <thead>
-                    <tr className="border-b border-[#19213d] bg-[#0f142d] text-xs text-[#7786a5] font-semibold">
-                      <th className="py-3 px-4 text-right">اسم الموقع / العميل</th>
-                      <th className="py-3 px-4 text-right">الرابط (Slug)</th>
-                      <th className="py-3 px-4 text-right">كلمة مرور الزائر</th>
-                      <th className="py-3 px-4 text-right">كلمة مرور الداشبورد</th>
-                      <th className="py-3 px-4 text-center">الروابط والإجراءات</th>
+                    <tr className="border-b border-[#19213d] bg-[#0f142d] text-[11px] sm:text-xs text-[#7786a5] font-semibold">
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">اسم الموقع / العميل</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">الرابط (Slug)</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الزائر</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الداشبورد</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">الروابط والإجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#19213d]/60 text-xs">
@@ -505,17 +436,17 @@ export default function SuperAdmin() {
 
                       return (
                         <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
-                          <td className="py-3 px-4 font-bold text-white text-right">{site.slug}</td>
-                          <td className="py-3 px-4 font-mono text-[#ff3b68] text-right">{site.slug}/</td>
-                          <td className="py-3 px-4 font-mono text-white/90 text-right">{site.site_password}</td>
-                          <td className="py-3 px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center justify-center gap-2">
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-bold text-white text-right">{site.slug}</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-[#ff3b68] text-right">{site.slug}/</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.site_password}</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4">
+                            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                               <a
                                 href={visitorUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="py-1.5 px-3 rounded-lg bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-medium flex items-center gap-1.5 transition-colors"
+                                className="py-1.5 px-2.5 sm:px-3 rounded-lg bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-[11px] sm:text-xs font-medium flex items-center gap-1 transition-colors shrink-0"
                               >
                                 <GlobeSvg className="w-3.5 h-3.5" />
                                 الزائر
@@ -524,23 +455,23 @@ export default function SuperAdmin() {
                                 href={dashboardUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="py-1.5 px-3 rounded-lg bg-[#121c38] border border-[#203058] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+                                className="py-1.5 px-2.5 sm:px-3 rounded-lg bg-[#121c38] border border-[#203058] text-white text-[11px] sm:text-xs font-medium flex items-center gap-1 transition-colors shrink-0"
                               >
                                 <KeySvg className="w-3.5 h-3.5 text-[#ff3b68]" />
                                 الداشبورد
                               </a>
                               <button
                                 type="button"
-                                onClick={() => copyToClipboard(visitorUrl, `${site.slug}-d-copy`)}
-                                className="p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
+                                onClick={() => copyToClipboard(visitorUrl, `${site.slug}-copy`)}
+                                className="p-1.5 sm:p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors shrink-0"
                                 title="نسخ رابط الزائر"
                               >
-                                {copiedKey === `${site.slug}-d-copy` ? <CheckSvg className="w-3.5 h-3.5 text-emerald-400" /> : <CopySvg className="w-3.5 h-3.5" />}
+                                {copiedKey === `${site.slug}-copy` ? <CheckSvg className="w-3.5 h-3.5 text-emerald-400" /> : <CopySvg className="w-3.5 h-3.5" />}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setDeleteTargetSlug(site.slug)}
-                                className="p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-[#7786a5] hover:text-[#ff3b68] transition-colors"
+                                className="p-1.5 sm:p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-[#7786a5] hover:text-[#ff3b68] transition-colors shrink-0"
                                 title="حذف الموقع"
                               >
                                 <TrashSvg className="w-3.5 h-3.5" />
@@ -553,7 +484,6 @@ export default function SuperAdmin() {
                   </tbody>
                 </table>
               </div>
-            </>
           )}
         </div>
 
