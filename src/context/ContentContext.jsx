@@ -129,7 +129,7 @@ export function ContentProvider({ children }) {
     if (typeof window === 'undefined') return ''
     const parts = window.location.pathname.split('/').filter(Boolean)
     if (parts.length === 0) return ''
-    if (parts[0] === 'soulove-admin' || parts[0] === 'api') return ''
+    if (parts[0] === 'soulove-admin' || parts[0] === 'api' || parts[0] === 'dashboard') return ''
     return parts[0]
   }, [])
 
@@ -587,7 +587,6 @@ export function ContentProvider({ children }) {
       updateMusicTrackTitle,
       saveChanges,
       loadFromDatabase,
-      verifyPassword,
       undo,
       redo,
       canUndo,
@@ -623,7 +622,6 @@ export function ContentProvider({ children }) {
       updateMusicTrackTitle,
       saveChanges,
       loadFromDatabase,
-      verifyPassword,
       undo,
       redo,
       canUndo,

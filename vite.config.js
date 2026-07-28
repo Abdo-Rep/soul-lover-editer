@@ -32,15 +32,7 @@ function apiPlugin() {
 
         req.query = Object.fromEntries(url.searchParams)
 
-        let body = ''
-        req.on('data', (chunk) => (body += chunk))
-        req.on('end', async () => {
-          if (body) {
-            try {
-              req.body = JSON.parse(body)
-            } catch (e) {}
-          }
-
+        const handleRequest = async () => {
           try {
             if (url.pathname === '/api/sites') {
               await sitesHandler(req, res)
@@ -51,7 +43,22 @@ function apiPlugin() {
             console.error('Vite API Plugin error:', err)
             res.status(500).json({ error: err.message })
           }
-        })
+        }
+
+        if (req.readableEnded) {
+          handleRequest()
+        } else {
+          let body = ''
+          req.on('data', (chunk) => (body += chunk))
+          req.on('end', () => {
+            if (body) {
+              try {
+                req.body = JSON.parse(body)
+              } catch (e) {}
+            }
+            handleRequest()
+          })
+        }
       })
     },
   }

@@ -43,7 +43,7 @@ const TABS = [
 ]
 
 function AdminLoginForm({ onLogin }) {
-  const { isLoading, verifyAdminPassword } = useContent()
+  const { content, isLoading, verifyAdminPassword } = useContent()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -88,7 +88,7 @@ function AdminLoginForm({ onLogin }) {
               <KeyRound className="text-rose-400" size={22} />
             </div>
             <h1 className="font-display text-2xl font-bold text-rose-900">
-              {content.siteName}
+              {content?.siteName || 'لوحة التحكم'}
             </h1>
             <p className="mt-2 text-sm text-rose-500">
               لوحة التحكم — أدخل كلمة المرور لإدارة المحتوى
@@ -171,6 +171,7 @@ export default function Dashboard() {
     redo,
     canUndo,
     canRedo,
+    siteNotFound,
   } = useContent()
   const [activeTab, setActiveTab] = useState('general')
   const [isSaving, setIsSaving] = useState(false)
@@ -232,10 +233,11 @@ export default function Dashboard() {
 
   const handlePreview = () => {
     grantVisitorPreviewAccess()
-    window.open('/', '_blank')
+    const parts = window.location.pathname.split('/').filter(Boolean)
+    const slug = parts[0] && parts[0] !== 'soulove-admin' && parts[0] !== 'api' ? parts[0] : ''
+    const targetUrl = slug ? `/${slug}` : '/'
+    window.open(targetUrl, '_blank')
   }
-
-  const { siteNotFound } = useContent()
 
   if (siteNotFound && !isLoading) {
     return <NotFound />

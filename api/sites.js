@@ -61,16 +61,16 @@ export default async function handler(req, res) {
       const row = dbRes.rows[0]
 
       if (action === 'verify_admin') {
-        const expectedAdminPass = row.admin_password || row.site_password
-        if (password !== expectedAdminPass) {
+        const expectedAdminPass = (row.admin_password || row.site_password || '').trim()
+        if (String(password).trim() !== expectedAdminPass) {
           return res.status(401).json({ error: 'invalid_password', success: false })
         }
         return res.status(200).json({ success: true, role: 'admin' })
       }
 
       // Default: verify visitor password
-      const expectedSitePass = row.site_password || 'soulove'
-      if (password !== expectedSitePass) {
+      const expectedSitePass = (row.site_password || 'soulove').trim()
+      if (String(password).trim() !== expectedSitePass) {
         return res.status(401).json({ error: 'invalid_password', success: false })
       }
       return res.status(200).json({ success: true, role: 'visitor' })
