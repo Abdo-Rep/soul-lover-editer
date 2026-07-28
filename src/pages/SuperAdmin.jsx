@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Copy, ExternalLink, Key, Mail, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw, AlertTriangle } from 'lucide-react'
+import { Check, Copy, ExternalLink, Key, Mail, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw, AlertTriangle, LogOut } from 'lucide-react'
 
 export default function SuperAdmin() {
   const [email, setEmail] = useState(() => localStorage.getItem('super_admin_email') || '')
@@ -14,6 +14,7 @@ export default function SuperAdmin() {
 
   // Modal State
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [newSlug, setNewSlug] = useState('')
   const [newSitePass, setNewSitePass] = useState('soulove')
   const [newAdminPass, setNewAdminPass] = useState('soulove')
@@ -240,44 +241,44 @@ export default function SuperAdmin() {
     <div className="min-h-screen bg-[#0e0714] text-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl bg-[#160c22] border border-white/10 shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20">
-              <Sparkles className="w-6 h-6 text-white" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#160c22] border border-white/10 shadow-xl">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">لوحة التحكم</h1>
-              <p className="text-xs text-rose-200/60 mt-0.5">
+              <h1 className="text-xl sm:text-2xl font-bold text-white">لوحة التحكم</h1>
+              <p className="text-[11px] sm:text-xs text-rose-200/60 mt-0.5 truncate max-w-[200px] sm:max-w-xs">
                 البريد: <span className="text-emerald-400 font-semibold">{email}</span>
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => fetchSites(token, email)}
-              className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
+              className="p-2.5 sm:p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
               title="تحديث البيانات"
             >
-              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-medium shadow-lg shadow-rose-500/20 flex items-center gap-2 transition-all text-sm"
+              className="flex-1 sm:flex-initial px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-medium shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2 transition-all text-xs sm:text-sm"
             >
-              <Plus className="w-5 h-5" />
-              إنشاء موقع عميل جديد
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>إنشاء موقع جديد</span>
             </button>
 
             <button
-              onClick={() => {
-                localStorage.removeItem('super_admin_token')
-                setToken('')
-              }}
-              className="px-4 py-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-sm transition-colors"
+              type="button"
+              onClick={() => setShowLogoutModal(true)}
+              className="p-2.5 sm:p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 transition-colors"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
             >
-              خروج
+              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
@@ -502,6 +503,43 @@ export default function SuperAdmin() {
                 className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2"
               >
                 {isDeleting ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'نعم، احذف الموقع'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-[#180d26] border border-rose-500/30 p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-200">
+            <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto">
+              <LogOut className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white">تأكيد تسجيل الخروج</h4>
+              <p className="text-xs text-rose-200/70">
+                هل أنت تأكد من رغبتك في تسجيل الخروج من لوحة التحكم؟
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm font-medium transition-colors"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLogoutModal(false)
+                  localStorage.removeItem('super_admin_token')
+                  setToken('')
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-2"
+              >
+                تسجيل الخروج
               </button>
             </div>
           </div>

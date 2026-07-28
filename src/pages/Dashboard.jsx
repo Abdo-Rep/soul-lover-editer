@@ -176,6 +176,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('general')
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
     type: 'success',
@@ -936,7 +937,7 @@ export default function Dashboard() {
               </span>
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={redo}
@@ -959,7 +960,7 @@ export default function Dashboard() {
               type="button"
               onClick={handleSave}
               disabled={isSaving || syncStatus === 'loading' || !isDirty}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={14} />
               {isSaving ? 'جاري الحفظ...' : 'حفظ'}
@@ -968,17 +969,19 @@ export default function Dashboard() {
               type="button"
               onClick={handlePreview}
               className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
+              title="معاينة الموقع"
             >
               <ExternalLink size={14} />
-              معاينة الموقع
+              <span className="hidden sm:inline">معاينة</span>
             </button>
             <button
               type="button"
-              onClick={adminLogout}
-              className="flex items-center gap-1.5 rounded-xl bg-rose-100 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-200"
+              onClick={() => setShowLogoutModal(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
             >
-              <LogOut size={14} />
-              خروج
+              <LogOut size={16} />
             </button>
           </div>
         </header>
@@ -1015,6 +1018,39 @@ export default function Dashboard() {
             الدومين الرئيسي
           </Link>
         </p>
+
+        {showLogoutModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="w-full max-w-sm rounded-3xl bg-white border border-rose-100 p-6 text-center shadow-2xl space-y-4">
+              <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center mx-auto">
+                <LogOut size={24} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-rose-900">تأكيد تسجيل الخروج</h3>
+                <p className="text-xs text-rose-500 mt-1">هل أنت متأكد من رغبتك في الخروج من لوحة التحكم؟</p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutModal(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLogoutModal(false)
+                    adminLogout()
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-500 text-white text-xs font-semibold shadow-md transition-all hover:from-rose-500 hover:to-pink-600"
+                >
+                  تسجيل الخروج
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <FeedbackModal
           isOpen={feedbackModal.isOpen}
