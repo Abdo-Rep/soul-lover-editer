@@ -38,10 +38,6 @@ export default function Home() {
   const { isAuthenticated, login } = useAuth()
   const { requestMusicStart, playMusic } = useMusic()
   const [step, setStep] = useState(() => (isAuthenticated ? 'welcome' : 'enter'))
-
-  if (siteNotFound && !isLoading) {
-    return <NotFound />
-  }
   const [loginOverlay, setLoginOverlay] = useState(false)
   const [welcomeFadeDone, setWelcomeFadeDone] = useState(false)
   const [explosionTarget, setExplosionTarget] = useState(null)
@@ -49,6 +45,10 @@ export default function Home() {
   const [showWishlist, setShowWishlist] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
   const pendingStepRef = useRef(null)
+
+  if (siteNotFound && !isLoading) {
+    return <NotFound />
+  }
 
   const isTransitioning = loginOverlay || explosionTarget !== null
 
