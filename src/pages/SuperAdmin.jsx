@@ -1,5 +1,85 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Copy, ExternalLink, Key, Mail, Plus, ShieldCheck, Trash2, Globe, Sparkles, RefreshCw, AlertTriangle, LogOut } from 'lucide-react'
+
+// Custom Inline SVG Icons
+const ShieldSvg = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+)
+
+const PlusSvg = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+)
+
+const LogoutSvg = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+)
+
+const GlobeSvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+)
+
+const KeySvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 2l-2 2m-1.5 1.5l-3 3m-2.5 2.5l-5.5 5.5A2.83 2.83 0 0 1 4 17.5V20h2.5c.8 0 1.5-.3 2.1-.9l5.5-5.5m2.5-2.5l3-3m1.5-1.5L22 2z" />
+    <circle cx="7.5" cy="16.5" r="1.5" />
+  </svg>
+)
+
+const TrashSvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+)
+
+const CopySvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+  </svg>
+)
+
+const CheckSvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const RefreshSvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 4v6h-6" />
+    <path d="M1 20v-6h6" />
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+  </svg>
+)
+
+const MailSvg = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </svg>
+)
+
+const AlertSvg = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+)
 
 export default function SuperAdmin() {
   const [email, setEmail] = useState(() => localStorage.getItem('super_admin_email') || '')
@@ -77,7 +157,6 @@ export default function SuperAdmin() {
     setIsLoggingIn(true)
     setAuthError('')
 
-    // Verify against DB super_admins table via API
     fetch(`/api/super-admin`, {
       headers: {
         Authorization: `Bearer ${inputPassword}`,
@@ -169,21 +248,22 @@ export default function SuperAdmin() {
     }
   }
 
-  // Render Login Screen if not authenticated
+  // Login Screen if not logged in
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#110a18] text-white flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#1a0f28]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+      <div className="min-h-screen bg-[#060713] text-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#0b0e20] border border-[#19213d] rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-400 mb-4 border border-rose-500/30">
-              <ShieldCheck className="w-8 h-8" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#261128] text-[#ff3b68] mb-4 border border-[#4a1835]">
+              <ShieldSvg className="w-8 h-8" />
             </div>
-            <h1 className="text-xl font-bold text-white">تسجيل الدخول</h1>
+            <h1 className="text-xl font-bold text-white">السوبر أدمن (SaaS)</h1>
+            <p className="text-xs text-[#7786a5] mt-1">تسجيل الدخول لإدارة لوحة النظام</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+              <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
                 البريد الإلكتروني
               </label>
               <div className="relative">
@@ -192,15 +272,15 @@ export default function SuperAdmin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full px-4 py-3 rounded-xl bg-[#060814] border border-[#19213d] text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
-                <Mail className="absolute left-3 top-3.5 w-4 h-4 text-white/40" />
+                <MailSvg className="absolute left-3 top-3.5 w-4 h-4 text-[#7786a5]" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+              <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
                 كلمة المرور
               </label>
               <div className="relative">
@@ -209,15 +289,15 @@ export default function SuperAdmin() {
                   value={inputPassword}
                   onChange={(e) => setInputPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full px-4 py-3 rounded-xl bg-[#060814] border border-[#19213d] text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
-                <Key className="absolute left-3 top-3.5 w-4 h-4 text-white/40" />
+                <KeySvg className="absolute left-3 top-3.5 w-4 h-4 text-[#7786a5]" />
               </div>
             </div>
 
             {authError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center">
+              <div className="p-3 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs text-center">
                 {authError}
               </div>
             )}
@@ -225,9 +305,9 @@ export default function SuperAdmin() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-semibold shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold shadow-lg shadow-[#ff3b68]/20 disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
             >
-              {isLoggingIn ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'دخول 🚀'}
+              {isLoggingIn ? <RefreshSvg className="w-5 h-5 animate-spin" /> : 'دخول 🚀'}
             </button>
           </form>
         </div>
@@ -238,169 +318,263 @@ export default function SuperAdmin() {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
   return (
-    <div className="min-h-screen bg-[#0e0714] text-white p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#160c22] border border-white/10 shadow-xl">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white">لوحة التحكم</h1>
-              <p className="text-[11px] sm:text-xs text-rose-200/60 mt-0.5 truncate max-w-[200px] sm:max-w-xs">
-                البريد: <span className="text-emerald-400 font-semibold">{email}</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+    <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans">
+      <div className="max-w-6xl mx-auto space-y-5">
+        
+        {/* Top Header matching exact reference design */}
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#0b0e20] border border-[#19213d]">
+          {/* Action buttons (left side in RTL) */}
+          <div className="flex items-center gap-2.5">
             <button
-              onClick={() => fetchSites(token, email)}
-              className="p-2.5 sm:p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 transition-colors"
-              title="تحديث البيانات"
+              type="button"
+              onClick={() => setShowLogoutModal(true)}
+              className="p-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
             >
-              <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${isLoading ? 'animate-spin' : ''}`} />
-            </button>
-
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex-1 sm:flex-initial px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-medium shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2 transition-all text-xs sm:text-sm"
-            >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span>إنشاء موقع جديد</span>
+              <LogoutSvg className="w-5 h-5" />
             </button>
 
             <button
               type="button"
-              onClick={() => setShowLogoutModal(true)}
-              className="p-2.5 sm:p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 transition-colors"
-              title="تسجيل الخروج"
-              aria-label="تسجيل الخروج"
+              onClick={() => setShowCreateModal(true)}
+              className="px-5 py-2.5 rounded-full bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition-colors shadow-md shadow-[#ff3b68]/20"
             >
-              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+              <PlusSvg className="w-4 h-4" />
+              <span>إضافة موقع</span>
             </button>
+          </div>
+
+          {/* Title & Badge (right side in RTL) */}
+          <div className="flex items-center gap-3 justify-between sm:justify-end">
+            <div className="text-right">
+              <h1 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                السوبر أدمن (SaaS)
+              </h1>
+              <p className="text-[11px] sm:text-xs text-[#7786a5] mt-0.5">
+                إدارة شبكة مواقع الهدايا والرومانسية
+              </p>
+            </div>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#261128] border border-[#4a1835] flex items-center justify-center text-[#ff3b68] shrink-0">
+              <ShieldSvg className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
           </div>
         </div>
 
-        {/* Sites List */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white/90">
-              مواقع العملاء الحالية ({sites.length})
+        {/* 3 Stat Cards Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Card 1: Created Sites */}
+          <div className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] text-center space-y-1">
+            <span className="text-xs text-[#7786a5] font-medium block">المواقع المنشأة</span>
+            <span className="text-2xl sm:text-3xl font-bold text-[#ff3b68] block">{sites.length}</span>
+          </div>
+
+          {/* Card 2: Server Status */}
+          <div className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] text-center space-y-1">
+            <span className="text-xs text-[#7786a5] font-medium block">حالة السيرفر</span>
+            <span className="text-xs sm:text-sm font-bold text-[#10b981] flex items-center justify-center gap-1.5 pt-1">
+              <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
+              متصل (VPS)
+            </span>
+          </div>
+
+          {/* Card 3: System Type */}
+          <div className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] text-center space-y-1">
+            <span className="text-xs text-[#7786a5] font-medium block">نوع النظام</span>
+            <span className="text-xs sm:text-sm font-bold text-white block pt-1">SaaS نسخه محسنه</span>
+          </div>
+        </div>
+
+        {/* Main Sites Section */}
+        <div className="rounded-2xl sm:rounded-3xl bg-[#080b1a] border border-[#19213d] p-4 sm:p-5 space-y-4">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-[#19213d]/60">
+            <h2 className="text-base sm:text-lg font-bold text-white">
+              المواقع المسجلة ({sites.length})
             </h2>
+            <button
+              type="button"
+              onClick={() => fetchSites(token, email)}
+              className="text-xs font-semibold text-[#ff3b68] hover:underline flex items-center gap-1 transition-colors"
+            >
+              <RefreshSvg className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+              تحديث القائمة
+            </button>
           </div>
 
           {fetchError && (
-            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm">
+            <div className="p-4 rounded-2xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs">
               {fetchError}
             </div>
           )}
 
           {sites.length === 0 && !isLoading ? (
-            <div className="p-12 text-center rounded-3xl bg-[#160c22]/50 border border-white/5 space-y-4">
-              <Globe className="w-12 h-12 text-white/20 mx-auto" />
-              <p className="text-white/60 text-sm">لا يوجد مواقع عملاء أنشئت بعد.</p>
+            <div className="p-10 text-center rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
+              <GlobeSvg className="w-10 h-10 text-[#7786a5]/30 mx-auto" />
+              <p className="text-[#7786a5] text-xs">لا يوجد مواقع عملاء أنشئت بعد.</p>
               <button
+                type="button"
                 onClick={() => setShowCreateModal(true)}
-                className="px-6 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-sm font-medium transition-colors"
+                className="px-5 py-2 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-bold transition-colors"
               >
                 إضافة أول عميل بضغطة زر 🚀
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sites.map((site) => {
-                const visitorUrl = `${baseUrl}/${site.slug}`
-                const dashboardUrl = `${baseUrl}/${site.slug}/dashboard`
+            <>
+              {/* Mobile View (Cards) */}
+              <div className="block md:hidden space-y-3">
+                {sites.map((site) => {
+                  const visitorUrl = `${baseUrl}/${site.slug}`
+                  const dashboardUrl = `${baseUrl}/${site.slug}/dashboard`
 
-                return (
-                  <div
-                    key={site.slug}
-                    className="p-5 rounded-2xl bg-[#160c22] border border-white/10 hover:border-rose-500/40 transition-all space-y-4 shadow-lg group"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-xs text-rose-400 font-mono font-medium">/{site.slug}</span>
-                        <h3 className="text-lg font-bold text-white capitalize">{site.slug}</h3>
+                  return (
+                    <div key={site.slug} className="p-4 rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
+                      <div className="flex items-start justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTargetSlug(site.slug)}
+                          className="text-[#7786a5] hover:text-[#ff3b68] p-1.5 rounded-lg transition-colors"
+                          title="حذف الموقع"
+                        >
+                          <TrashSvg className="w-4 h-4" />
+                        </button>
+                        <div className="text-right">
+                          <h3 className="text-base font-bold text-white">{site.slug}</h3>
+                          <span className="text-xs text-[#ff3b68] font-mono">{site.slug}/</span>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => setDeleteTargetSlug(site.slug)}
-                        className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 opacity-80 group-hover:opacity-100 transition-opacity"
-                        title="حذف الموقع"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-2 p-3 rounded-xl bg-black/40 text-xs text-white/70 font-mono">
-                      <div>
-                        <span className="text-white/40 block">كلمة سر الزائر:</span>
-                        <span className="text-rose-300 font-semibold">{site.site_password}</span>
+                      <div className="p-3 rounded-xl bg-[#060814] border border-[#151b33] grid grid-cols-2 gap-2 text-center text-xs">
+                        <div>
+                          <span className="text-[#7786a5] block text-[11px]">كلمة سر الزائر:</span>
+                          <span className="text-white font-mono font-bold">{site.site_password}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#7786a5] block text-[11px]">كلمة سر الداشبورد:</span>
+                          <span className="text-white font-mono font-bold">{site.admin_password || 'soulove'}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-white/40 block">كلمة سر الداشبورد:</span>
-                        <span className="text-amber-300 font-semibold">{site.admin_password || 'soulove'}</span>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(visitorUrl, `${site.slug}-m-copy`)}
+                          className="p-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
+                          title="نسخ الرابط"
+                        >
+                          {copiedKey === `${site.slug}-m-copy` ? <CheckSvg className="w-4 h-4 text-emerald-400" /> : <CopySvg className="w-4 h-4" />}
+                        </button>
+                        <a
+                          href={dashboardUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 py-2 px-3 rounded-xl bg-[#121c38] border border-[#203058] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                        >
+                          <KeySvg className="w-3.5 h-3.5 text-[#ff3b68]" />
+                          الداشبورد
+                        </a>
+                        <a
+                          href={visitorUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 py-2 px-3 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                        >
+                          <GlobeSvg className="w-3.5 h-3.5" />
+                          موقع الزائر
+                        </a>
                       </div>
                     </div>
+                  )
+                })}
+              </div>
 
-                    <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                      <a
-                        href={visitorUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/90 text-xs flex items-center justify-center gap-1.5 transition-colors"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5 text-rose-400" />
-                        رابط الزائر
-                      </a>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-hidden rounded-2xl border border-[#19213d] bg-[#0b0e20]">
+                <table className="w-full text-right border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#19213d] bg-[#0f142d] text-xs text-[#7786a5] font-semibold">
+                      <th className="py-3 px-4">اسم الموقع / العميل</th>
+                      <th className="py-3 px-4">الرابط (Slug)</th>
+                      <th className="py-3 px-4">كلمة مرور الزائر</th>
+                      <th className="py-3 px-4">كلمة مرور الداشبورد</th>
+                      <th className="py-3 px-4 text-center">الروابط والإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#19213d]/60 text-xs">
+                    {sites.map((site) => {
+                      const visitorUrl = `${baseUrl}/${site.slug}`
+                      const dashboardUrl = `${baseUrl}/${site.slug}/dashboard`
 
-                      <button
-                        onClick={() => copyToClipboard(visitorUrl, `${site.slug}-vis`)}
-                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-colors"
-                        title="نسخ رابط الزائر"
-                      >
-                        {copiedKey === `${site.slug}-vis` ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      </button>
-
-                      <a
-                        href={dashboardUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1 py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-center gap-1.5 transition-colors"
-                      >
-                        <Key className="w-3.5 h-3.5 text-rose-400" />
-                        داشبورد العميل
-                      </a>
-
-                      <button
-                        onClick={() => copyToClipboard(dashboardUrl, `${site.slug}-dash`)}
-                        className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 transition-colors"
-                        title="نسخ رابط الداشبورد"
-                      >
-                        {copiedKey === `${site.slug}-dash` ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                      return (
+                        <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
+                          <td className="py-3 px-4 font-bold text-white">{site.slug}</td>
+                          <td className="py-3 px-4 font-mono text-[#ff3b68]">{site.slug}/</td>
+                          <td className="py-3 px-4 font-mono text-white/90">{site.site_password}</td>
+                          <td className="py-3 px-4 font-mono text-white/90">{site.admin_password || 'soulove'}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center justify-center gap-2">
+                              <a
+                                href={visitorUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="py-1.5 px-3 rounded-lg bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-medium flex items-center gap-1.5 transition-colors"
+                              >
+                                <GlobeSvg className="w-3.5 h-3.5" />
+                                الزائر
+                              </a>
+                              <a
+                                href={dashboardUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="py-1.5 px-3 rounded-lg bg-[#121c38] border border-[#203058] text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
+                              >
+                                <KeySvg className="w-3.5 h-3.5 text-[#ff3b68]" />
+                                الداشبورد
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => copyToClipboard(visitorUrl, `${site.slug}-d-copy`)}
+                                className="p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
+                                title="نسخ رابط الزائر"
+                              >
+                                {copiedKey === `${site.slug}-d-copy` ? <CheckSvg className="w-3.5 h-3.5 text-emerald-400" /> : <CopySvg className="w-3.5 h-3.5" />}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeleteTargetSlug(site.slug)}
+                                className="p-2 rounded-lg bg-[#0f152d] border border-[#1e294d] text-[#7786a5] hover:text-[#ff3b68] transition-colors"
+                                title="حذف الموقع"
+                              >
+                                <TrashSvg className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
+
       </div>
 
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl bg-[#160c22] border border-white/15 p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-rose-400" />
-                إضافة موقع عميل جديد بضغطة زر
+          <div className="w-full max-w-md rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-[#19213d]">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <PlusSvg className="w-5 h-5 text-[#ff3b68]" />
+                إضافة موقع عميل جديد
               </h3>
               <button
+                type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-white/40 hover:text-white text-lg font-bold"
+                className="text-[#7786a5] hover:text-white text-lg font-bold"
               >
                 ✕
               </button>
@@ -408,7 +582,7 @@ export default function SuperAdmin() {
 
             <form onSubmit={handleCreateSite} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+                <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
                   معرّف موقع العميل (Slug)
                 </label>
                 <input
@@ -416,42 +590,42 @@ export default function SuperAdmin() {
                   value={newSlug}
                   onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '-'))}
                   placeholder="مثال: ahmed-and-sara"
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
-                <span className="text-[11px] text-white/40 mt-1 block">
+                <span className="text-[11px] text-[#7786a5] mt-1 block text-right">
                   الرابط سيكون: {baseUrl}/{newSlug || 'nameclient'}
                 </span>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+                <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
                   كلمة مرور زائر الصفحة (Site Password)
                 </label>
                 <input
                   type="text"
                   value={newSitePass}
                   onChange={(e) => setNewSitePass(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-rose-200/80 mb-1.5">
+                <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
                   كلمة مرور داشبورد العميل (Admin Password)
                 </label>
                 <input
                   type="text"
                   value={newAdminPass}
                   onChange={(e) => setNewAdminPass(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-rose-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
               </div>
 
               {createError && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                <div className="p-3 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs text-right">
                   {createError}
                 </div>
               )}
@@ -460,16 +634,16 @@ export default function SuperAdmin() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 text-xs font-medium transition-colors"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white text-sm font-semibold shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
-                  {isCreating ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'توليد الموقع الآن 🚀'}
+                  {isCreating ? <RefreshSvg className="w-4 h-4 animate-spin" /> : 'توليد الموقع الآن 🚀'}
                 </button>
               </div>
             </form>
@@ -477,48 +651,50 @@ export default function SuperAdmin() {
         </div>
       )}
 
-      {/* Custom Branded Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       {deleteTargetSlug && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-[#180d26] border border-rose-500/30 p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-200">
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto">
-              <AlertTriangle className="w-7 h-7" />
+          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#281125] text-[#ff3b68] border border-[#4a1835] flex items-center justify-center mx-auto">
+              <AlertSvg className="w-7 h-7" />
             </div>
             <div className="space-y-1">
               <h4 className="text-lg font-bold text-white">تأكيد حذف موقع العميل</h4>
-              <p className="text-xs text-rose-200/70">
-                هل أنت تأكد من حذف موقع العميل (<span className="text-rose-300 font-mono font-bold">/{deleteTargetSlug}</span>) بالكامل من داتابيز Contabo؟
+              <p className="text-xs text-[#7786a5]">
+                هل أنت تأكد من حذف موقع العميل (<span className="text-[#ff3b68] font-mono font-bold">/{deleteTargetSlug}</span>) بالكامل؟
               </p>
             </div>
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
+                type="button"
                 onClick={() => setDeleteTargetSlug(null)}
-                className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm transition-colors"
+                className="px-5 py-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 text-xs transition-colors"
               >
                 إلغاء
               </button>
               <button
+                type="button"
                 onClick={confirmDeleteSite}
                 disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold transition-colors flex items-center gap-2"
               >
-                {isDeleting ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'نعم، احذف الموقع'}
+                {isDeleting ? <RefreshSvg className="w-4 h-4 animate-spin" /> : 'نعم، احذف الموقع'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Custom Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-[#180d26] border border-rose-500/30 p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-200">
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mx-auto">
-              <LogOut className="w-7 h-7" />
+          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#281125] text-[#ff3b68] border border-[#4a1835] flex items-center justify-center mx-auto">
+              <LogoutSvg className="w-7 h-7" />
             </div>
             <div className="space-y-1">
               <h4 className="text-lg font-bold text-white">تأكيد تسجيل الخروج</h4>
-              <p className="text-xs text-rose-200/70">
+              <p className="text-xs text-[#7786a5]">
                 هل أنت تأكد من رغبتك في تسجيل الخروج من لوحة التحكم؟
               </p>
             </div>
@@ -526,7 +702,7 @@ export default function SuperAdmin() {
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 text-xs font-medium transition-colors"
               >
                 إلغاء
               </button>
@@ -537,7 +713,7 @@ export default function SuperAdmin() {
                   localStorage.removeItem('super_admin_token')
                   setToken('')
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold transition-colors flex items-center justify-center gap-2"
               >
                 تسجيل الخروج
               </button>
