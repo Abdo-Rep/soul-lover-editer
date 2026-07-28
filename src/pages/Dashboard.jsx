@@ -17,6 +17,7 @@ import {
 import { Link } from 'react-router-dom'
 import ContentLoadingHearts from '../components/ContentLoadingHearts'
 import FeedbackModal from '../components/FeedbackModal'
+import NotFound from './NotFound'
 import MemoryEditor from '../components/dashboard/MemoryEditor'
 import {
   DateInput,
@@ -232,6 +233,12 @@ export default function Dashboard() {
   const handlePreview = () => {
     grantVisitorPreviewAccess()
     window.open('/', '_blank')
+  }
+
+  const { siteNotFound } = useContent()
+
+  if (siteNotFound && !isLoading) {
+    return <NotFound />
   }
 
   if (!isAdmin) {
