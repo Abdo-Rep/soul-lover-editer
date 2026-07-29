@@ -48,6 +48,11 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
+      // Auto-repair any sites where site_password was accidentally saved as 'ThisIsLove'
+      await pool.query(
+        "UPDATE public.user_sites SET site_password = admin_password WHERE site_password = 'ThisIsLove' OR site_password IS NULL OR site_password = '';",
+      ).catch(() => {})
+
       const dbRes = await pool.query(
         'SELECT slug, site_password, admin_password, created_at, updated_at FROM public.user_sites ORDER BY created_at DESC;',
       )

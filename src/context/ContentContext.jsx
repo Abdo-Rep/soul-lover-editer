@@ -228,7 +228,7 @@ export function ContentProvider({ children }) {
   }, [])
 
   const verifyPassword = useCallback(async (password) => {
-    const expected = persistedContentRef.current?.adminPassword || persistedContentRef.current?.password || 'ThisIsLove'
+    const expected = persistedContentRef.current?.adminPassword || persistedContentRef.current?.password || 'soulove'
     return password === expected
   }, [])
 

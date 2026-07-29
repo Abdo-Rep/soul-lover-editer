@@ -2,7 +2,7 @@ import { musicAsset } from './musicAsset'
 
 export const defaultContent = {
   siteName: '',
-  password: 'ThisIsLove',
+  password: '',
   adminPassword: '',
   appearance: {
     primaryColor: '#fb7185',

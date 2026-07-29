@@ -20,10 +20,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    // GET: Return public site content ONLY (Never expose passwords in public GET response!)
+    // GET: Return site content with accurate passwords for Dashboard and Site
     if (req.method === 'GET') {
       const dbRes = await pool.query(
-        'SELECT slug, data, updated_at FROM public.user_sites WHERE slug = $1;',
+        'SELECT slug, site_password, admin_password, data, updated_at FROM public.user_sites WHERE slug = $1;',
         [slug],
       )
 
@@ -32,10 +32,26 @@ export default async function handler(req, res) {
       }
 
       const row = dbRes.rows[0]
-      // Strip any internal password fields from public data object
-      const safeData = { ...row.data }
-      delete safeData.password
-      delete safeData.adminPassword
+      let sitePass = (row.site_password || '').trim()
+      let adminPass = (row.admin_password || '').trim()
+
+      // Auto-repair any site whose visitor password was accidentally set to 'ThisIsLove'
+      if (sitePass === 'ThisIsLove' || !sitePass) {
+        sitePass = adminPass || 'soulove'
+        await pool.query(
+          'UPDATE public.user_sites SET site_password = $1 WHERE slug = $2;',
+          [sitePass, slug],
+        ).catch(() => {})
+      }
+      if (!adminPass) {
+        adminPass = sitePass || 'soulove'
+      }
+
+      const safeData = {
+        ...row.data,
+        password: sitePass,
+        adminPassword: adminPass,
+      }
 
       return res.status(200).json({
         slug: row.slug,
@@ -97,16 +113,24 @@ export default async function handler(req, res) {
         return res.status(444).json({ error: 'site_not_found' })
       }
 
-      const currentAdminPass = dbRes.rows[0].admin_password || dbRes.rows[0].site_password
+      const currentAdminPass = (dbRes.rows[0].admin_password || dbRes.rows[0].site_password || '').trim()
 
-      if (currentAdminPass && password !== currentAdminPass) {
+      if (currentAdminPass && String(password).trim() !== currentAdminPass) {
         return res.status(401).json({ error: 'invalid_password' })
       }
 
-      const newSitePass = content.password || dbRes.rows[0].site_password || 'soulove'
-      const newAdminPass = content.adminPassword || dbRes.rows[0].admin_password || 'soulove'
+      let newSitePass = (content.password && typeof content.password === 'string' && content.password.trim() && content.password.trim() !== 'ThisIsLove')
+        ? content.password.trim()
+        : (dbRes.rows[0].site_password !== 'ThisIsLove' ? dbRes.rows[0].site_password : '')
 
-      // Strip passwords before saving inside data JSONB
+      let newAdminPass = (content.adminPassword && typeof content.adminPassword === 'string' && content.adminPassword.trim())
+        ? content.adminPassword.trim()
+        : dbRes.rows[0].admin_password
+
+      if (!newSitePass) newSitePass = newAdminPass || 'soulove'
+      if (!newAdminPass) newAdminPass = newSitePass || 'soulove'
+
+      // Clean passwords before saving inside data JSONB
       const cleanContent = { ...content }
       delete cleanContent.password
       delete cleanContent.adminPassword
@@ -119,9 +143,15 @@ export default async function handler(req, res) {
         [JSON.stringify(cleanContent), newSitePass, newAdminPass, slug],
       )
 
+      const returnData = {
+        ...updateRes.rows[0].data,
+        password: newSitePass,
+        adminPassword: newAdminPass,
+      }
+
       return res.status(200).json({
         success: true,
-        data: updateRes.rows[0].data,
+        data: returnData,
         updatedAt: updateRes.rows[0].updated_at,
       })
     }
