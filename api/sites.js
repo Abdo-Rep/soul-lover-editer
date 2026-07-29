@@ -1,4 +1,30 @@
 import pool from './db.js'
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
+
+function deepMerge(target, source) {
+  if (!source || typeof source !== 'object') return target
+  if (!target || typeof target !== 'object') return source
+
+  const output = { ...target }
+
+  for (const key of Object.keys(source)) {
+    const sourceVal = source[key]
+    const targetVal = target[key]
+
+    if (sourceVal === undefined) continue
+
+    if (Array.isArray(sourceVal)) {
+      output[key] = sourceVal
+    } else if (sourceVal && typeof sourceVal === 'object' && !Array.isArray(sourceVal)) {
+      output[key] = deepMerge(targetVal || {}, sourceVal)
+    } else {
+      output[key] = sourceVal
+    }
+  }
+  return output
+}
 
 export default async function handler(req, res) {
   // Enable CORS and disable HTTP response caching
@@ -60,7 +86,7 @@ export default async function handler(req, res) {
       })
     }
 
-    // POST: Server-side password verification for Visitor & Admin Login
+    // POST: Server-side password verification for Visitor & Admin Login (Returns JWT token for admin)
     if (req.method === 'POST') {
       const { password, action = 'verify_visitor' } = req.body || {}
 
@@ -84,7 +110,15 @@ export default async function handler(req, res) {
         if (String(password).trim() !== expectedAdminPass) {
           return res.status(401).json({ error: 'invalid_password', success: false })
         }
-        return res.status(200).json({ success: true, role: 'admin' })
+
+        // Generate JWT token for admin session
+        const token = jwt.sign(
+          { slug, role: 'admin' },
+          JWT_SECRET,
+          { expiresIn: '7d' },
+        )
+
+        return res.status(200).json({ success: true, role: 'admin', token })
       }
 
       // Default: verify visitor password
@@ -95,17 +129,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, role: 'visitor' })
     }
 
-    // PUT: Update site content (Requires Server-Side Admin Password Check)
+    // PUT: Update site content (Requires Server-Side Admin Password or JWT Check)
     if (req.method === 'PUT') {
-      const { password, content } = req.body || {}
+      const { password, token, content } = req.body || {}
 
       if (!content) {
         return res.status(400).json({ error: 'content_required' })
       }
 
-      // Check current password against database
+      // Check current password or JWT token against database
       const dbRes = await pool.query(
-        'SELECT admin_password, site_password FROM public.user_sites WHERE slug = $1;',
+        'SELECT admin_password, site_password, data FROM public.user_sites WHERE slug = $1;',
         [slug],
       )
 
@@ -113,9 +147,27 @@ export default async function handler(req, res) {
         return res.status(444).json({ error: 'site_not_found' })
       }
 
-      const currentAdminPass = (dbRes.rows[0].admin_password || dbRes.rows[0].site_password || '').trim()
+      let isAuthenticated = false
 
-      if (currentAdminPass && String(password).trim() !== currentAdminPass) {
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, JWT_SECRET)
+          if (decoded && decoded.slug === slug) {
+            isAuthenticated = true
+          }
+        } catch (e) {
+          // Token invalid or expired
+        }
+      }
+
+      if (!isAuthenticated) {
+        const currentAdminPass = (dbRes.rows[0].admin_password || dbRes.rows[0].site_password || '').trim()
+        if (currentAdminPass && String(password || '').trim() === currentAdminPass) {
+          isAuthenticated = true
+        }
+      }
+
+      if (!isAuthenticated) {
         return res.status(401).json({ error: 'invalid_password' })
       }
 
@@ -135,12 +187,16 @@ export default async function handler(req, res) {
       delete cleanContent.password
       delete cleanContent.adminPassword
 
+      // Deep merge existing database content with incoming lightweight changes
+      const existingData = dbRes.rows[0].data || {}
+      const mergedData = deepMerge(existingData, cleanContent)
+
       const updateRes = await pool.query(
         `UPDATE public.user_sites 
          SET data = $1, site_password = $2, admin_password = $3, updated_at = now() 
          WHERE slug = $4 
          RETURNING data, updated_at;`,
-        [JSON.stringify(cleanContent), newSitePass, newAdminPass, slug],
+        [JSON.stringify(mergedData), newSitePass, newAdminPass, slug],
       )
 
       const returnData = {

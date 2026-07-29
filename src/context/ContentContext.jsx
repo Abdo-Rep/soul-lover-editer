@@ -395,7 +395,8 @@ export function ContentProvider({ children }) {
 
   const uploadMemoryImage = useCallback(
     async (id, file) => {
-      const image = await uploadAsset(file, 'story')
+      const slug = getClientSlug()
+      const image = await uploadAsset(file, 'memories', slug)
       patchContent((prev) => ({
         ...prev,
         memories: prev.memories.map((memory) =>
@@ -404,12 +405,13 @@ export function ContentProvider({ children }) {
       }))
       return image
     },
-    [patchContent],
+    [patchContent, getClientSlug],
   )
 
   const uploadGalleryImage = useCallback(
     async (id, file) => {
-      const image = await uploadAsset(file, 'gallery')
+      const slug = getClientSlug()
+      const image = await uploadAsset(file, 'gallery', slug)
       patchContent((prev) => ({
         ...prev,
         galleryItems: (prev.galleryItems ?? []).map((item) =>
@@ -418,7 +420,7 @@ export function ContentProvider({ children }) {
       }))
       return image
     },
-    [patchContent],
+    [patchContent, getClientSlug],
   )
 
   const getInitialTracks = useCallback((musicObj) => {
@@ -479,7 +481,8 @@ export function ContentProvider({ children }) {
       setMusicUploadError(null)
 
       try {
-        const url = await uploadAsset(file, 'music')
+        const slug = getClientSlug()
+        const url = await uploadAsset(file, 'music', slug)
         patchContent((prev) => {
           const currentTracks = getInitialTracks(prev.music)
           currentTracks[index] = {
@@ -514,7 +517,7 @@ export function ContentProvider({ children }) {
         setMusicUploadingIndex(null)
       }
     },
-    [patchContent, getInitialTracks],
+    [patchContent, getInitialTracks, getClientSlug],
   )
 
   const removeMusic = useCallback(

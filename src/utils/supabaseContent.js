@@ -1,23 +1,53 @@
 import { getSeedContent, mergeContent } from './contentMerge'
 
 const ADMIN_PASSWORD_KEY = 'romantic-site-admin-password'
+const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL || 'https://media.soulove.app'
+
 let adminPasswordMemory = ''
 
 if (typeof sessionStorage !== 'undefined') {
   adminPasswordMemory = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || ''
 }
 
-export function setAdminPasswordForSync(password) {
+export function setAdminPasswordForSync(password, slug = '') {
   adminPasswordMemory = password || ''
   if (password) {
     sessionStorage.setItem(ADMIN_PASSWORD_KEY, password)
+    if (slug) {
+      sessionStorage.setItem(`romantic-pass-${slug}`, password)
+    }
   } else {
     sessionStorage.removeItem(ADMIN_PASSWORD_KEY)
+    if (slug) {
+      sessionStorage.removeItem(`romantic-pass-${slug}`)
+      sessionStorage.removeItem(`romantic-token-${slug}`)
+    }
   }
 }
 
-export function getAdminPasswordForSync() {
-  return adminPasswordMemory || sessionStorage.getItem(ADMIN_PASSWORD_KEY) || ''
+export function getAdminPasswordForSync(slug = '') {
+  if (slug && typeof sessionStorage !== 'undefined') {
+    const slugPass = sessionStorage.getItem(`romantic-pass-${slug}`)
+    if (slugPass) return slugPass
+  }
+  return adminPasswordMemory || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(ADMIN_PASSWORD_KEY) || '' : '')
+}
+
+export function getAdminTokenForSync(slug = '') {
+  if (slug && typeof sessionStorage !== 'undefined') {
+    return sessionStorage.getItem(`romantic-token-${slug}`) || ''
+  }
+  return ''
+}
+
+export function setAdminTokenForSync(token, slug = '') {
+  if (slug && typeof sessionStorage !== 'undefined') {
+    if (token) {
+      sessionStorage.setItem(`romantic-token-${slug}`, token)
+    } else {
+      sessionStorage.removeItem(`romantic-token-${slug}`)
+    }
+  }
 }
 
 export async function fetchRemoteContent(slug) {
@@ -69,7 +99,13 @@ export async function verifyAdminPassword(password, slug) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password, action: 'verify_admin' }),
     })
-    return res.ok
+    if (!res.ok) return false
+    const data = await res.json().catch(() => ({}))
+    if (data.token) {
+      setAdminTokenForSync(data.token, slug)
+      setAdminPasswordForSync(password, slug)
+    }
+    return true
   } catch (e) {
     return false
   }
@@ -79,8 +115,11 @@ export async function saveRemoteContent(content, password, slug) {
   if (!slug) {
     throw new Error('معرف الموقع غير موضح')
   }
-  if (!password) {
-    throw new Error('كلمة المرور مطلوبة للحفظ')
+
+  const token = getAdminTokenForSync(slug)
+
+  if (!password && !token) {
+    throw new Error('سجّل خروج ثم ادخل من جديد بكلمة المرور الحالية')
   }
 
   const controller = new AbortController()
@@ -95,6 +134,7 @@ export async function saveRemoteContent(content, password, slug) {
       signal: controller.signal,
       body: JSON.stringify({
         password,
+        token,
         content,
       }),
     })
@@ -134,74 +174,42 @@ export function isAudioFile() {
   return true
 }
 
-// Canvas-based image compression before base64 generation
-function compressImage(file, maxWidth = 1200, maxHeight = 1200, quality = 0.8) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      let { width, height } = img
-
-      if (width > maxWidth || height > maxHeight) {
-        if (width / height > maxWidth / maxHeight) {
-          height = Math.round((height * maxWidth) / width)
-          width = maxWidth
-        } else {
-          width = Math.round((width * maxHeight) / height)
-          height = maxHeight
-        }
-      }
-
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, width, height)
-
-      const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
-      resolve(compressedBase64)
-    }
-
-    img.onerror = (err) => {
-      URL.revokeObjectURL(url)
-      reject(new Error('فشل معالجة وضغط الصورة'))
-    }
-
-    img.src = url
-  })
-}
-
-export async function uploadAsset(file) {
+export async function uploadAsset(file, category = 'gallery', slug = '') {
   if (!file) throw new Error('لم يتم اختيار ملف')
 
   const isAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i)
-  const isImage = file.type.startsWith('image/') || file.name.match(/\.(jpg|jpeg|png|webp|gif|svg)$/i)
 
   // 1. Enforce 7MB max size for audio files
-  if (isAudio) {
-    const MAX_AUDIO_SIZE = 7 * 1024 * 1024 // 7MB
-    if (file.size > MAX_AUDIO_SIZE) {
-      throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 7 ميجابايت (الحد الأقصى 7 MB)')
-    }
+  if (isAudio && file.size > 7 * 1024 * 1024) {
+    throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 7 ميجابايت (الحد الأقصى 7 MB)')
   }
 
-  // 2. Compress image files using Canvas
-  if (isImage && !file.type.includes('svg')) {
-    try {
-      return await compressImage(file)
-    } catch (e) {
-      console.warn('Compression fallback to raw reader:', e)
-    }
-  }
+  const token = slug ? getAdminTokenForSync(slug) : ''
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('category', category)
 
-  // 3. Fallback FileReader
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = (err) => reject(err)
-    reader.readAsDataURL(file)
-  })
+  const uploadEndpoint = `${MEDIA_SERVER_URL.replace(/\/$/, '')}/api/upload`
+
+  try {
+    const res = await fetch(uploadEndpoint, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    })
+
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}))
+      throw new Error(errJson.error || 'فشل رفع الملف إلى خادم الميديا')
+    }
+
+    const data = await res.json()
+    if (!data.url) throw new Error('تعذّر الحصول على رابط الملف المرفوع')
+    return data.url
+  } catch (err) {
+    console.error('Direct VPS Upload Error:', err)
+    throw new Error(err.message || 'تعذّر اتصال الرفع بخادم الميديا')
+  }
 }
