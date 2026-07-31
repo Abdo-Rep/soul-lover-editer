@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     // GET: Return site content with accurate passwords for Dashboard and Site
     if (req.method === 'GET') {
       const dbRes = await pool.query(
-        'SELECT slug, site_password, admin_password, data, updated_at FROM public.user_sites WHERE slug = $1;',
+        'SELECT slug, site_password, admin_password, data, updated_at FROM user_sites WHERE slug = $1;',
         [slug],
       )
 
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
       if (sitePass === 'ThisIsLove' || !sitePass) {
         sitePass = adminPass || 'soulove'
         await pool.query(
-          'UPDATE public.user_sites SET site_password = $1 WHERE slug = $2;',
+          'UPDATE user_sites SET site_password = $1 WHERE slug = $2;',
           [sitePass, slug],
         ).catch(() => {})
       }
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       }
 
       const dbRes = await pool.query(
-        'SELECT site_password, admin_password FROM public.user_sites WHERE slug = $1;',
+        'SELECT site_password, admin_password FROM user_sites WHERE slug = $1;',
         [slug],
       )
 
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
 
       // Check current password or JWT token against database
       const dbRes = await pool.query(
-        'SELECT admin_password, site_password, data FROM public.user_sites WHERE slug = $1;',
+        'SELECT admin_password, site_password, data FROM user_sites WHERE slug = $1;',
         [slug],
       )
 
@@ -192,7 +192,7 @@ export default async function handler(req, res) {
       const mergedData = deepMerge(existingData, cleanContent)
 
       const updateRes = await pool.query(
-        `UPDATE public.user_sites 
+        `UPDATE user_sites 
          SET data = $1, site_password = $2, admin_password = $3, updated_at = now() 
          WHERE slug = $4 
          RETURNING data, updated_at;`,

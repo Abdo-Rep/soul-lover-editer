@@ -1,4 +1,5 @@
 import pool from './db.js'
+import bcrypt from 'bcryptjs'
 
 export default async function handler(req, res) {
   // CORS and Cache Control
@@ -13,7 +14,7 @@ export default async function handler(req, res) {
     return res.status(200).end()
   }
 
-  // 1. Authenticate against database table public.super_admins
+  // 1. Authenticate against database table super_admins
   const authHeader = req.headers.authorization || ''
   let token = authHeader.replace(/^Bearer\s+/i, '').trim() || req.query.token
 
@@ -30,11 +31,15 @@ export default async function handler(req, res) {
     if (email && token) {
       try {
         const adminRes = await pool.query(
-          'SELECT email FROM public.super_admins WHERE LOWER(email) = LOWER($1) AND password_hash = $2;',
-          [email, token],
+          'SELECT email, password_hash FROM super_admins WHERE LOWER(email) = LOWER($1);',
+          [email],
         )
         if (adminRes.rows.length > 0) {
-          isAuthorized = true
+          const hash = adminRes.rows[0].password_hash
+          const match = await bcrypt.compare(token, hash)
+          if (match) {
+            isAuthorized = true
+          }
         }
       } catch (e) {
         console.error('Super Admin DB check error:', e)
@@ -50,11 +55,11 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       // Auto-repair any sites where site_password was accidentally saved as 'ThisIsLove'
       await pool.query(
-        "UPDATE public.user_sites SET site_password = admin_password WHERE site_password = 'ThisIsLove' OR site_password IS NULL OR site_password = '';",
+        "UPDATE user_sites SET site_password = admin_password WHERE site_password = 'ThisIsLove' OR site_password IS NULL OR site_password = '';",
       ).catch(() => {})
 
       const dbRes = await pool.query(
-        'SELECT slug, site_password, admin_password, created_at, updated_at FROM public.user_sites ORDER BY created_at DESC;',
+        'SELECT slug, site_password, admin_password, created_at, updated_at FROM user_sites ORDER BY created_at DESC;',
       )
       return res.status(200).json({ sites: dbRes.rows })
     }
@@ -79,7 +84,7 @@ export default async function handler(req, res) {
 
       // Check if already exists
       const checkRes = await pool.query(
-        'SELECT slug FROM public.user_sites WHERE slug = $1;',
+        'SELECT slug FROM user_sites WHERE slug = $1;',
         [cleanSlug],
       )
 
@@ -152,7 +157,7 @@ export default async function handler(req, res) {
       }
 
       const insertRes = await pool.query(
-        `INSERT INTO public.user_sites (slug, site_password, admin_password, data)
+        `INSERT INTO user_sites (slug, site_password, admin_password, data)
          VALUES ($1, $2, $3, $4)
          RETURNING slug, site_password, admin_password, created_at;`,
         [cleanSlug, sitePassword || 'soulove', adminPassword || 'soulove', JSON.stringify(defaultData)],
@@ -170,7 +175,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'slug_required' })
       }
 
-      await pool.query('DELETE FROM public.user_sites WHERE slug = $1;', [slug])
+      await pool.query('DELETE FROM user_sites WHERE slug = $1;', [slug])
       return res.status(200).json({ success: true, deletedSlug: slug })
     }
 
