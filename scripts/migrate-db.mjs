@@ -1,4 +1,5 @@
 import pg from 'pg'
+import bcrypt from 'bcryptjs'
 
 const connectionString = process.env.DATABASE_URL
 
@@ -14,11 +15,16 @@ const client = new pg.Client({
 async function run() {
   try {
     await client.connect()
-    console.log('✅ Connected to Contabo PostgreSQL')
+    console.log('✅ Connected to Supabase PostgreSQL')
 
-    // 1. Create user_sites table (DO NOT OVERWRITE OR TOUCH EXISTING DATA)
+    // 0. Create schema and set search path
+    await client.query('CREATE SCHEMA IF NOT EXISTS "romantic-new-version";')
+    await client.query('SET search_path TO "romantic-new-version", public;')
+    console.log('✅ Schema "romantic-new-version" verified!')
+
+    // 1. Create user_sites table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS public.user_sites (
+      CREATE TABLE IF NOT EXISTS "romantic-new-version".user_sites (
         slug TEXT PRIMARY KEY,
         site_password TEXT NOT NULL DEFAULT 'soulove',
         admin_password TEXT NOT NULL DEFAULT 'soulove',
@@ -27,36 +33,38 @@ async function run() {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `)
-    console.log('✅ Table public.user_sites verified!')
+    console.log('✅ Table user_sites verified!')
 
     // 2. Create super_admins table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS public.super_admins (
+      CREATE TABLE IF NOT EXISTS "romantic-new-version".super_admins (
         email TEXT PRIMARY KEY,
         password_hash TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `)
-    console.log('✅ Table public.super_admins verified!')
+    console.log('✅ Table super_admins verified!')
 
-    // 3. Seed Super Admin account ONLY IF NOT ALREADY IN DATABASE (DO NOTHING ON CONFLICT)
+    // 3. Seed Super Admin account WITH BCRYPT HASH ONLY IF NOT ALREADY IN DATABASE
     const adminEmail = process.env.ADMIN_EMAIL
     const adminPass = process.env.ADMIN_PASSWORD
 
     if (adminEmail && adminPass) {
+      // Hash the password for protection
+      const hash = await bcrypt.hash(adminPass.trim(), 10)
       await client.query(
-        `INSERT INTO public.super_admins (email, password_hash)
+        `INSERT INTO "romantic-new-version".super_admins (email, password_hash)
          VALUES ($1, $2)
          ON CONFLICT (email) DO NOTHING;`,
-        [adminEmail.toLowerCase(), adminPass],
+        [adminEmail.toLowerCase(), hash],
       )
-      console.log(`✅ Super Admin user (${adminEmail}) verified in Database without overwriting!`)
+      console.log(`✅ Super Admin user (${adminEmail}) seeded/verified with bcrypt hashing!`)
     } else {
       console.log('ℹ️ ADMIN_EMAIL or ADMIN_PASSWORD env not provided; skipping.')
     }
 
-    const resSites = await client.query('SELECT COUNT(*) FROM public.user_sites;')
-    const resAdmins = await client.query('SELECT COUNT(*) FROM public.super_admins;')
+    const resSites = await client.query('SELECT COUNT(*) FROM "romantic-new-version".user_sites;')
+    const resAdmins = await client.query('SELECT COUNT(*) FROM "romantic-new-version".super_admins;')
     console.log(`📊 DB Summary: ${resSites.rows[0].count} client sites, ${resAdmins.rows[0].count} super admin accounts.`)
 
   } catch (err) {
