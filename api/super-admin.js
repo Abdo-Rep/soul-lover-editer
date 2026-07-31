@@ -1,5 +1,6 @@
 import pool from './db.js'
 import bcrypt from 'bcryptjs'
+import { encrypt, decrypt } from './cryptoHelper.js'
 
 export default async function handler(req, res) {
   // CORS and Cache Control
@@ -59,9 +60,18 @@ export default async function handler(req, res) {
       ).catch(() => {})
 
       const dbRes = await pool.query(
-        'SELECT slug, visitor_password AS site_password, admin_password, created_at, updated_at FROM sites ORDER BY created_at DESC;',
+        'SELECT slug, visitor_password, admin_password, created_at, updated_at FROM sites ORDER BY created_at DESC;',
       )
-      return res.status(200).json({ sites: dbRes.rows })
+
+      const decryptedSites = dbRes.rows.map(row => ({
+        slug: row.slug,
+        site_password: decrypt(row.visitor_password),
+        admin_password: decrypt(row.admin_password),
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }))
+
+      return res.status(200).json({ sites: decryptedSites })
     }
 
     if (req.method === 'POST') {
@@ -92,16 +102,27 @@ export default async function handler(req, res) {
         return res.status(409).json({ error: 'slug_already_exists' })
       }
 
+      const cleanVisitorPass = String(sitePassword).trim().replace(/[\u0600-\u06FF\s]/g, '')
+      const cleanAdminPass = String(adminPassword).trim().replace(/[\u0600-\u06FF\s]/g, '')
+
+      const encryptedVisitorPass = encrypt(cleanVisitorPass)
+      const encryptedAdminPass = encrypt(cleanAdminPass)
+
       const insertRes = await pool.query(
         `INSERT INTO sites (slug, site_name, visitor_password, admin_password)
          VALUES ($1, $2, $3, $4)
-         RETURNING slug, visitor_password AS site_password, admin_password, created_at;`,
-        [cleanSlug, cleanSlug, sitePassword || 'soulove', adminPassword || 'soulove'],
+         RETURNING slug, visitor_password, admin_password, created_at;`,
+        [cleanSlug, cleanSlug, encryptedVisitorPass, encryptedAdminPass],
       )
 
       return res.status(201).json({
         success: true,
-        site: insertRes.rows[0],
+        site: {
+          slug: insertRes.rows[0].slug,
+          site_password: decrypt(insertRes.rows[0].visitor_password),
+          admin_password: decrypt(insertRes.rows[0].admin_password),
+          created_at: insertRes.rows[0].created_at
+        },
       })
     }
 

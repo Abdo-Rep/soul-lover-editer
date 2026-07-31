@@ -1,9 +1,11 @@
+import { encrypt, decrypt } from './cryptoHelper.js'
+
 export function rowToContent(row, memories = [], galleryItems = [], wishlistItems = []) {
   if (!row) return null
   return {
     siteName: row.site_name,
-    password: row.visitor_password,
-    adminPassword: row.admin_password,
+    password: decrypt(row.visitor_password),
+    adminPassword: decrypt(row.admin_password),
     appearance: {
       primaryColor: row.primary_color,
       backgroundHeartColor: row.background_heart_color,
@@ -117,8 +119,15 @@ export async function saveRelationalContent(pool, slug, content) {
   }
 
   if (content.siteName !== undefined) addField('site_name', content.siteName)
-  if (content.password !== undefined) addField('visitor_password', content.password)
-  if (content.adminPassword !== undefined) addField('admin_password', content.adminPassword)
+  
+  if (content.password !== undefined && content.password !== '') {
+    const cleanVisitorPass = String(content.password).trim().replace(/[\u0600-\u06FF\s]/g, '')
+    addField('visitor_password', encrypt(cleanVisitorPass))
+  }
+  if (content.adminPassword !== undefined && content.adminPassword !== '') {
+    const cleanAdminPass = String(content.adminPassword).trim().replace(/[\u0600-\u06FF\s]/g, '')
+    addField('admin_password', encrypt(cleanAdminPass))
+  }
 
   if (content.appearance) {
     addField('primary_color', content.appearance.primaryColor)

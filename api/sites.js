@@ -1,6 +1,8 @@
 import pool from './db.js'
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
+import { encrypt, decrypt } from './cryptoHelper.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
 
@@ -32,13 +34,13 @@ export default async function handler(req, res) {
       }
 
       const { row, content } = result
-      let sitePass = (row.visitor_password || '').trim()
-      let adminPass = (row.admin_password || '').trim()
+      let sitePass = decrypt(row.visitor_password).trim()
+      let adminPass = decrypt(row.admin_password).trim()
 
       // Auto-repair visitor password if accidentally set to 'ThisIsLove' or empty
       if (sitePass === 'ThisIsLove' || !sitePass) {
         sitePass = adminPass || 'soulove'
-        await pool.query('UPDATE sites SET visitor_password = $1 WHERE id = $2;', [sitePass, row.id]).catch(() => {})
+        await pool.query('UPDATE sites SET visitor_password = $1 WHERE id = $2;', [encrypt(sitePass), row.id]).catch(() => {})
       }
       if (!adminPass) {
         adminPass = sitePass || 'soulove'
@@ -72,10 +74,16 @@ export default async function handler(req, res) {
       }
 
       const row = dbRes.rows[0]
+      const vDecrypted = decrypt(row.visitor_password).trim()
+      const aDecrypted = decrypt(row.admin_password).trim()
 
       if (action === 'verify_admin') {
-        const expectedAdminPass = (row.admin_password || row.visitor_password || '').trim()
-        if (String(password).trim() !== expectedAdminPass) {
+        const expectedAdminPass = (aDecrypted || vDecrypted || '').trim()
+        const aMatch = expectedAdminPass.startsWith('$2')
+          ? await bcrypt.compare(String(password).trim(), expectedAdminPass)
+          : String(password).trim() === expectedAdminPass
+
+        if (!aMatch) {
           return res.status(401).json({ error: 'invalid_password', success: false })
         }
 
@@ -90,8 +98,12 @@ export default async function handler(req, res) {
       }
 
       // Default: verify visitor password
-      const expectedSitePass = (row.visitor_password || 'soulove').trim()
-      if (String(password).trim() !== expectedSitePass) {
+      const expectedSitePass = (vDecrypted || 'soulove').trim()
+      const vMatch = expectedSitePass.startsWith('$2')
+        ? await bcrypt.compare(String(password).trim(), expectedSitePass)
+        : String(password).trim() === expectedSitePass
+
+      if (!vMatch) {
         return res.status(401).json({ error: 'invalid_password', success: false })
       }
       return res.status(200).json({ success: true, role: 'visitor' })
@@ -115,6 +127,10 @@ export default async function handler(req, res) {
         return res.status(444).json({ error: 'site_not_found' })
       }
 
+      const row = dbRes.rows[0]
+      const vDecrypted = decrypt(row.visitor_password).trim()
+      const aDecrypted = decrypt(row.admin_password).trim()
+
       let isAuthenticated = false
 
       if (token) {
@@ -129,9 +145,14 @@ export default async function handler(req, res) {
       }
 
       if (!isAuthenticated) {
-        const currentAdminPass = (dbRes.rows[0].admin_password || dbRes.rows[0].visitor_password || '').trim()
-        if (currentAdminPass && String(password || '').trim() === currentAdminPass) {
-          isAuthenticated = true
+        const currentAdminPass = (aDecrypted || vDecrypted || '').trim()
+        if (currentAdminPass) {
+          const aMatch = currentAdminPass.startsWith('$2')
+            ? await bcrypt.compare(String(password || '').trim(), currentAdminPass)
+            : String(password || '').trim() === currentAdminPass
+          if (aMatch) {
+            isAuthenticated = true
+          }
         }
       }
 
@@ -141,11 +162,11 @@ export default async function handler(req, res) {
 
       let newSitePass = (content.password && typeof content.password === 'string' && content.password.trim() && content.password.trim() !== 'ThisIsLove')
         ? content.password.trim()
-        : (dbRes.rows[0].visitor_password !== 'ThisIsLove' ? dbRes.rows[0].visitor_password : '')
+        : (vDecrypted !== 'ThisIsLove' ? vDecrypted : '')
 
       let newAdminPass = (content.adminPassword && typeof content.adminPassword === 'string' && content.adminPassword.trim())
         ? content.adminPassword.trim()
-        : dbRes.rows[0].admin_password
+        : aDecrypted
 
       if (!newSitePass) newSitePass = newAdminPass || 'soulove'
       if (!newAdminPass) newAdminPass = newSitePass || 'soulove'
