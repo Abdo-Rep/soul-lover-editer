@@ -5,43 +5,68 @@ import {
   setAdminPasswordForSync,
 } from '../utils/supabaseContent'
 
-const ADMIN_KEY = config.auth.adminStorageKey
-const VISITOR_KEY = config.auth.storageKey
+function getSlugFromPath() {
+  if (typeof window === 'undefined') return ''
+  const parts = window.location.pathname.split('/').filter(Boolean)
+  if (parts.length === 0) return ''
+  if (parts[0] === 'soulove-admin' || parts[0] === 'api' || parts[0] === 'dashboard') return ''
+  return parts[0]
+}
+
+function getScopedAdminKey() {
+  const slug = getSlugFromPath()
+  return slug ? `${config.auth.adminStorageKey}-${slug}` : config.auth.adminStorageKey
+}
+
+function getScopedVisitorKey() {
+  const slug = getSlugFromPath()
+  return slug ? `${config.auth.storageKey}-${slug}` : config.auth.storageKey
+}
 
 function readKey(key) {
+  if (typeof sessionStorage === 'undefined') return false
   return sessionStorage.getItem(key) === 'true'
 }
 
 function hasValidAdminSession() {
-  return readKey(ADMIN_KEY) && Boolean(getAdminPasswordForSync())
+  const slug = getSlugFromPath()
+  return readKey(getScopedAdminKey()) && Boolean(getAdminPasswordForSync(slug))
 }
 
 function clearAdminSession() {
-  setAdminPasswordForSync('')
-  sessionStorage.removeItem(ADMIN_KEY)
+  const slug = getSlugFromPath()
+  setAdminPasswordForSync('', slug)
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.removeItem(getScopedAdminKey())
+  }
 }
 
 export function useAdminAuth() {
-  const [adminPassword, setAdminPassword] = useState(() => getAdminPasswordForSync())
+  const slug = getSlugFromPath()
+  const [adminPassword, setAdminPassword] = useState(() => getAdminPasswordForSync(slug))
   const [isAdmin, setIsAdmin] = useState(() => hasValidAdminSession())
 
   useEffect(() => {
-    if (readKey(ADMIN_KEY) && !getAdminPasswordForSync()) {
+    if (readKey(getScopedAdminKey()) && !getAdminPasswordForSync(slug)) {
       clearAdminSession()
       setAdminPassword('')
       setIsAdmin(false)
     }
-  }, [])
+  }, [slug])
 
   const adminLoginWithPassword = useCallback((password) => {
-    setAdminPasswordForSync(password)
-    sessionStorage.setItem(ADMIN_KEY, 'true')
+    const currentSlug = getSlugFromPath()
+    setAdminPasswordForSync(password, currentSlug)
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(getScopedAdminKey(), 'true')
+    }
     setAdminPassword(password)
     setIsAdmin(true)
   }, [])
 
   const updateAdminPassword = useCallback((password) => {
-    setAdminPasswordForSync(password)
+    const currentSlug = getSlugFromPath()
+    setAdminPasswordForSync(password, currentSlug)
     setAdminPassword(password)
   }, [])
 
@@ -65,15 +90,24 @@ export function checkAdminAuth() {
 }
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => readKey(VISITOR_KEY))
+  const [isAuthenticated, setIsAuthenticated] = useState(() => readKey(getScopedVisitorKey()))
+  const slug = getSlugFromPath()
+
+  useEffect(() => {
+    setIsAuthenticated(readKey(getScopedVisitorKey()))
+  }, [slug])
 
   const login = useCallback(() => {
-    sessionStorage.setItem(VISITOR_KEY, 'true')
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(getScopedVisitorKey(), 'true')
+    }
     setIsAuthenticated(true)
   }, [])
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(VISITOR_KEY)
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(getScopedVisitorKey())
+    }
     setIsAuthenticated(false)
   }, [])
 
@@ -81,10 +115,12 @@ export function useAuth() {
 }
 
 export function checkAuth() {
-  return readKey(VISITOR_KEY)
+  return readKey(getScopedVisitorKey())
 }
 
 export function grantVisitorPreviewAccess() {
-  sessionStorage.setItem(VISITOR_KEY, 'true')
-  sessionStorage.setItem(config.auth.skipIntroKey, 'true')
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.setItem(getScopedVisitorKey(), 'true')
+    sessionStorage.setItem(config.auth.skipIntroKey, 'true')
+  }
 }

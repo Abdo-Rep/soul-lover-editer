@@ -171,6 +171,10 @@ export function ContentProvider({ children }) {
   useEffect(() => {
     setIsLoading(true)
     setSiteNotFound(false)
+    setContent(getSeedContent())
+    setPersistedContent(getSeedContent())
+    setHistory([])
+    setHistoryIndex(-1)
     loadFromDatabase().catch(() => { })
   }, [location.pathname, loadFromDatabase])
 
@@ -209,7 +213,7 @@ export function ContentProvider({ children }) {
       }
 
       if (nextLoginPassword) {
-        setAdminPasswordForSync(nextLoginPassword)
+        setAdminPasswordForSync(nextLoginPassword, slug)
       }
 
       setSyncStatus('ready')

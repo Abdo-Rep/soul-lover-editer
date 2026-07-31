@@ -1,51 +1,52 @@
 import { getSeedContent, mergeContent } from './contentMerge'
 
-const ADMIN_PASSWORD_KEY = 'romantic-site-admin-password'
 const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL || 'https://media.soulove.app'
 
-let adminPasswordMemory = ''
-
-if (typeof sessionStorage !== 'undefined') {
-  adminPasswordMemory = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || ''
+function getSlugFromPath() {
+  if (typeof window === 'undefined') return ''
+  const parts = window.location.pathname.split('/').filter(Boolean)
+  if (parts.length === 0) return ''
+  if (parts[0] === 'soulove-admin' || parts[0] === 'api' || parts[0] === 'dashboard') return ''
+  return parts[0]
 }
 
 export function setAdminPasswordForSync(password, slug = '') {
-  adminPasswordMemory = password || ''
+  const activeSlug = slug || getSlugFromPath()
   if (password) {
-    sessionStorage.setItem(ADMIN_PASSWORD_KEY, password)
-    if (slug) {
-      sessionStorage.setItem(`romantic-pass-${slug}`, password)
+    if (activeSlug) {
+      sessionStorage.setItem(`romantic-pass-${activeSlug}`, password)
     }
   } else {
-    sessionStorage.removeItem(ADMIN_PASSWORD_KEY)
-    if (slug) {
-      sessionStorage.removeItem(`romantic-pass-${slug}`)
-      sessionStorage.removeItem(`romantic-token-${slug}`)
+    if (activeSlug) {
+      sessionStorage.removeItem(`romantic-pass-${activeSlug}`)
+      sessionStorage.removeItem(`romantic-token-${activeSlug}`)
     }
   }
 }
 
 export function getAdminPasswordForSync(slug = '') {
-  if (slug && typeof sessionStorage !== 'undefined') {
-    const slugPass = sessionStorage.getItem(`romantic-pass-${slug}`)
-    if (slugPass) return slugPass
+  const activeSlug = slug || getSlugFromPath()
+  if (activeSlug) {
+    return sessionStorage.getItem(`romantic-pass-${activeSlug}`) || ''
   }
-  return adminPasswordMemory || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(ADMIN_PASSWORD_KEY) || '' : '')
+  return ''
 }
 
 export function getAdminTokenForSync(slug = '') {
-  if (slug && typeof sessionStorage !== 'undefined') {
-    return sessionStorage.getItem(`romantic-token-${slug}`) || ''
+  const activeSlug = slug || getSlugFromPath()
+  if (activeSlug) {
+    return sessionStorage.getItem(`romantic-token-${activeSlug}`) || ''
   }
   return ''
 }
 
 export function setAdminTokenForSync(token, slug = '') {
-  if (slug && typeof sessionStorage !== 'undefined') {
+  const activeSlug = slug || getSlugFromPath()
+  if (activeSlug) {
     if (token) {
-      sessionStorage.setItem(`romantic-token-${slug}`, token)
+      sessionStorage.setItem(`romantic-token-${activeSlug}`, token)
     } else {
-      sessionStorage.removeItem(`romantic-token-${slug}`)
+      sessionStorage.removeItem(`romantic-token-${activeSlug}`)
     }
   }
 }
