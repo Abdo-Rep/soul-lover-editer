@@ -53,19 +53,19 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Auto-repair any sites where site_password was accidentally saved as 'ThisIsLove'
+      // Auto-repair visitor password if accidentally set to 'ThisIsLove' or empty
       await pool.query(
-        "UPDATE user_sites SET site_password = admin_password WHERE site_password = 'ThisIsLove' OR site_password IS NULL OR site_password = '';",
+        "UPDATE sites SET visitor_password = admin_password WHERE visitor_password = 'ThisIsLove' OR visitor_password IS NULL OR visitor_password = '';",
       ).catch(() => {})
 
       const dbRes = await pool.query(
-        'SELECT slug, site_password, admin_password, created_at, updated_at FROM user_sites ORDER BY created_at DESC;',
+        'SELECT slug, visitor_password AS site_password, admin_password, created_at, updated_at FROM sites ORDER BY created_at DESC;',
       )
       return res.status(200).json({ sites: dbRes.rows })
     }
 
     if (req.method === 'POST') {
-      const { slug, sitePassword = 'soulove', adminPassword = 'soulove', initialData } = req.body || {}
+      const { slug, sitePassword = 'soulove', adminPassword = 'soulove' } = req.body || {}
 
       if (!slug || !slug.trim()) {
         return res.status(400).json({ error: 'slug_required' })
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
 
       // Check if already exists
       const checkRes = await pool.query(
-        'SELECT slug FROM user_sites WHERE slug = $1;',
+        'SELECT slug FROM sites WHERE slug = $1;',
         [cleanSlug],
       )
 
@@ -92,75 +92,11 @@ export default async function handler(req, res) {
         return res.status(409).json({ error: 'slug_already_exists' })
       }
 
-      const defaultData = initialData || {
-        siteName: cleanSlug,
-        password: sitePassword || 'soulove',
-        adminPassword: adminPassword || 'soulove',
-        appearance: {
-          mode: 'light',
-          primaryColor: '#ff8ccd',
-          backgroundHeartColor: '#be123c',
-          heartOpacity: 0.85,
-          backgroundHeart: '🩷',
-          pushHeart: '🌸',
-        },
-        login: {
-          eyebrow: '',
-          title: '🩷 My Everything',
-          subtitle: '',
-          passwordLabel: 'Enter the secret word',
-          placeholder: 'Password',
-          button: '💖 unlock 💖',
-          error: '😡 Enter the right password',
-          footer: '🌸',
-        },
-        welcome: {
-          eyebrow: '🩷',
-          title: '🌚 My soul',
-          subtitle: 'كل اللي هنا نبذه صغنتته عن حبي ليكي يكتكوتي 🌚🩷',
-          nextButton: 'NEXT',
-        },
-        story: {
-          eyebrow: '🌸',
-          title: 'Our Story',
-          firstMeeting: {
-            label: 'اول يوم شفتك فيه',
-            description: 'مكنتش عارف ان اليوم دا هيبقي اهم يوم في حياتي... بس قلبي كان عارف',
-          },
-          loveConfession: {
-            label: 'اليوم اللي قولتلك فيه بحبك',
-            message: 'كلمه قولتهالك وحسيت ان الدنيا اتغيرت... من يومها وانتي معايا في كل حاجه',
-          },
-          memoriesButton: 'NEXT',
-        },
-        dates: {
-          relationshipStart: '',
-          firstMeeting: '2023-01-03',
-          loveConfession: '2023-01-23',
-        },
-        music: {
-          title: 'أغنيتنا 🩷',
-          src: '',
-          fileName: '',
-          volume: 0.35,
-          tracks: [],
-        },
-        gallery: { eyebrow: '🌹', title: 'Our memories' },
-        final: {
-          eyebrow: '',
-          title: '🌸 For you',
-          text: 'عملتلك المكان ده عشان يحفظ أجمل لحظاتنا وصورنا وكلامنا 🫂🩷🩷',
-        },
-        memories: [],
-        galleryItems: [],
-        wishlist: [],
-      }
-
       const insertRes = await pool.query(
-        `INSERT INTO user_sites (slug, site_password, admin_password, data)
+        `INSERT INTO sites (slug, site_name, visitor_password, admin_password)
          VALUES ($1, $2, $3, $4)
-         RETURNING slug, site_password, admin_password, created_at;`,
-        [cleanSlug, sitePassword || 'soulove', adminPassword || 'soulove', JSON.stringify(defaultData)],
+         RETURNING slug, visitor_password AS site_password, admin_password, created_at;`,
+        [cleanSlug, cleanSlug, sitePassword || 'soulove', adminPassword || 'soulove'],
       )
 
       return res.status(201).json({
@@ -175,7 +111,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'slug_required' })
       }
 
-      await pool.query('DELETE FROM user_sites WHERE slug = $1;', [slug])
+      await pool.query('DELETE FROM sites WHERE slug = $1;', [slug])
       return res.status(200).json({ success: true, deletedSlug: slug })
     }
 
