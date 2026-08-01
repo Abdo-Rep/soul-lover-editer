@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import sitesHandler from './api/sites.js'
 import superAdminHandler from './api/super-admin.js'
+import fs from 'fs'
+import path from 'path'
 
 function apiPlugin() {
   return {
@@ -11,11 +13,7 @@ function apiPlugin() {
       server.middlewares.use((req, res, next) => {
         const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
 
-        if (url.pathname !== '/api/sites' && url.pathname !== '/api/super-admin') {
-          return next()
-        }
-
-        // Attach res helpers if missing in Node http response
+        // Helper response methods
         if (!res.status) {
           res.status = function (code) {
             res.statusCode = code
@@ -31,6 +29,73 @@ function apiPlugin() {
         }
 
         req.query = Object.fromEntries(url.searchParams)
+
+        // Handle /api/upload for local dev server
+        if (url.pathname === '/api/upload' && req.method === 'POST') {
+          const chunks = []
+          req.on('data', (chunk) => chunks.push(chunk))
+          req.on('end', () => {
+            try {
+              const buffer = Buffer.concat(chunks)
+              const contentType = req.headers['content-type'] || ''
+              
+              const category = (req.headers['x-category'] || req.query.category || 'gallery').toLowerCase().replace(/[^a-z0-9_-]/g, '')
+              const slug = (req.headers['x-slug'] || req.query.slug || 'default').toLowerCase().replace(/[^a-z0-9_-]/g, '')
+
+              let ext = '.bin'
+              if (contentType.includes('image/png')) ext = '.png'
+              else if (contentType.includes('image/jpeg')) ext = '.jpg'
+              else if (contentType.includes('image/webp')) ext = '.webp'
+              else if (contentType.includes('image/gif')) ext = '.gif'
+              else if (contentType.includes('audio/mpeg') || contentType.includes('audio/mp3')) ext = '.mp3'
+              else if (contentType.includes('audio/wav')) ext = '.wav'
+              else if (contentType.includes('audio/ogg')) ext = '.ogg'
+              else if (contentType.includes('audio/m4a')) ext = '.m4a'
+              else {
+                // Extract filename extension if present in multipart header
+                const str = buffer.toString('binary', 0, Math.min(buffer.length, 2048))
+                const filenameMatch = str.match(/filename="([^"]+)"/i)
+                if (filenameMatch) {
+                  const matchExt = path.extname(filenameMatch[1]).toLowerCase()
+                  if (matchExt) ext = matchExt
+                }
+              }
+
+              // Strip multipart headers if buffer contains binary data after CRLF CRLF
+              let fileData = buffer
+              const headerEndIdx = buffer.indexOf('\r\n\r\n')
+              if (headerEndIdx !== -1) {
+                const footerStartIdx = buffer.lastIndexOf('\r\n--')
+                if (footerStartIdx > headerEndIdx + 4) {
+                  fileData = buffer.slice(headerEndIdx + 4, footerStartIdx)
+                } else {
+                  fileData = buffer.slice(headerEndIdx + 4)
+                }
+              }
+
+              const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`
+              const targetDir = path.join(process.cwd(), 'public', 'uploads', category, slug)
+              
+              if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true })
+              }
+
+              const filePath = path.join(targetDir, filename)
+              fs.writeFileSync(filePath, fileData)
+
+              const publicUrl = `/uploads/${category}/${slug}/${filename}`
+              return res.status(200).json({ success: true, url: publicUrl })
+            } catch (err) {
+              console.error('Dev upload error:', err)
+              return res.status(500).json({ error: 'Failed to save uploaded file locally' })
+            }
+          })
+          return
+        }
+
+        if (url.pathname !== '/api/sites' && url.pathname !== '/api/super-admin') {
+          return next()
+        }
 
         const handleRequest = async () => {
           try {

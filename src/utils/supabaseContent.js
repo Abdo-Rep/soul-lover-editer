@@ -1,6 +1,6 @@
 import { getSeedContent, mergeContent } from './contentMerge'
 
-const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL || 'https://media.soulove.app'
+const MEDIA_SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URL || ''
 
 function getSlugFromPath() {
   if (typeof window === 'undefined') return ''
@@ -178,39 +178,49 @@ export function isAudioFile() {
 export async function uploadAsset(file, category = 'gallery', slug = '') {
   if (!file) throw new Error('لم يتم اختيار ملف')
 
+  const activeSlug = slug || getSlugFromPath() || 'default'
   const isAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i)
 
-  // 1. Enforce 7MB max size for audio files
+  // Enforce 7MB max size for audio files
   if (isAudio && file.size > 7 * 1024 * 1024) {
     throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 7 ميجابايت (الحد الأقصى 7 MB)')
   }
 
-  const token = slug ? getAdminTokenForSync(slug) : ''
+  const token = activeSlug ? getAdminTokenForSync(activeSlug) : ''
   const formData = new FormData()
   formData.append('file', file)
   formData.append('category', category)
 
-  const uploadEndpoint = `${MEDIA_SERVER_URL.replace(/\/$/, '')}/api/upload`
-
-  try {
-    const res = await fetch(uploadEndpoint, {
-      method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: formData,
-    })
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}))
-      throw new Error(errJson.error || 'فشل رفع الملف إلى خادم الميديا')
-    }
-
-    const data = await res.json()
-    if (!data.url) throw new Error('تعذّر الحصول على رابط الملف المرفوع')
-    return data.url
-  } catch (err) {
-    console.error('Direct VPS Upload Error:', err)
-    throw new Error(err.message || 'تعذّر اتصال الرفع بخادم الميديا')
+  const endpoints = []
+  if (MEDIA_SERVER_URL) {
+    endpoints.push(`${MEDIA_SERVER_URL.replace(/\/$/, '')}/api/upload`)
   }
+  endpoints.push(`/api/upload?category=${encodeURIComponent(category)}&slug=${encodeURIComponent(activeSlug)}`)
+
+  let lastError = null
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'x-category': category,
+          'x-slug': activeSlug,
+        },
+        body: formData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.url) return data.url
+      } else {
+        const errJson = await res.json().catch(() => ({}))
+        lastError = errJson.error || `خطأ الخادم (${res.status})`
+      }
+    } catch (err) {
+      lastError = err.message || 'فشل الاتصال'
+    }
+  }
+
+  throw new Error(lastError || 'تعذّر رفع الملف')
 }
