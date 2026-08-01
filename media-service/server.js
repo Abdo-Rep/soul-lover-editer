@@ -48,7 +48,7 @@ function authenticateAdminToken(req, res, next) {
   }
 }
 
-// 2. Multer Storage Engine
+// 2. Multer Storage Engine: Stores files as uploads/<category>/<slug>/<filename>
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const slug = req.tenantSlug
@@ -56,7 +56,7 @@ const storage = multer.diskStorage({
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, '')
 
-    const targetDir = path.join(UPLOADS_ROOT, slug, category)
+    const targetDir = path.join(UPLOADS_ROOT, category, slug)
     fs.mkdirSync(targetDir, { recursive: true })
     cb(null, targetDir)
   },
@@ -110,7 +110,7 @@ app.post('/api/upload', authenticateAdminToken, (req, res) => {
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, '')
 
-    const publicUrl = `${MEDIA_BASE_URL.replace(/\/$/, '')}/uploads/${slug}/${category}/${req.file.filename}`
+    const publicUrl = `${MEDIA_BASE_URL.replace(/\/$/, '')}/uploads/${category}/${slug}/${req.file.filename}`
 
     return res.status(200).json({
       success: true,
@@ -131,18 +131,31 @@ app.post('/api/delete', authenticateAdminToken, (req, res) => {
 
   try {
     const slug = req.tenantSlug
-    // Ensure the file URL belongs to this tenant
-    const expectedPrefix = `/uploads/${slug}/`
-    if (!fileUrl.includes(expectedPrefix)) {
+    // Check if the URL contains the slug in category/slug structure
+    const urlParts = fileUrl.split('/uploads/')
+    if (urlParts.length < 2) {
+      return res.status(400).json({ error: 'invalid_file_url' })
+    }
+
+    const relativePath = urlParts[1] // e.g. "gallery/ahmed-sara/123.jpg"
+    const pathParts = relativePath.split('/')
+    if (pathParts.length < 3) {
+      return res.status(400).json({ error: 'invalid_path_structure' })
+    }
+
+    const category = pathParts[0]
+    const fileSlug = pathParts[1]
+    const filename = pathParts.slice(2).join('/')
+
+    if (fileSlug.toLowerCase() !== slug.toLowerCase()) {
       return res.status(403).json({ error: 'unauthorized_file_deletion' })
     }
 
-    const relativePath = fileUrl.split(expectedPrefix)[1]
-    if (!relativePath || relativePath.includes('..')) {
+    if (!filename || filename.includes('..')) {
       return res.status(400).json({ error: 'invalid_path_traversal' })
     }
 
-    const absolutePath = path.join(UPLOADS_ROOT, slug, relativePath)
+    const absolutePath = path.join(UPLOADS_ROOT, category, fileSlug, filename)
 
     if (fs.existsSync(absolutePath)) {
       fs.unlinkSync(absolutePath)

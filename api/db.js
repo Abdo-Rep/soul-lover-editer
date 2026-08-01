@@ -18,7 +18,7 @@ const pool = new pg.Pool({
 })
 
 pool.on('connect', (client) => {
-  client.query('SET search_path TO "romantic-new-version", public')
+  client.query('SET search_path TO public, "romantic-new-version"')
 })
 
 export default pool
