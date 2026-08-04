@@ -1,13 +1,12 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { KeyRound, Eye, EyeOff } from 'lucide-react'
-import ContentLoadingHearts from '../components/ContentLoadingHearts'
 import FlowPage from '../components/FlowPage'
 import { RevealGroup, RevealItem } from '../components/Reveal'
 import { useContent } from '../context/ContentContext'
 import { useMusic } from '../context/MusicContext'
 
 export default function Enter({ onLogin }) {
-  const [password, setPassword] = useState('')
+  const passwordRef = useRef('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
@@ -23,11 +22,12 @@ export default function Enter({ onLogin }) {
     setSubmitting(true)
     setError('')
 
-    // ⭐ Prime/start music IMMEDIATELY on user click (synchronous — must be before any await)
+    // ⭐ Prime/start music IMMEDIATELY on user click (synchronous)
     primeAudio()
 
     try {
-      const isValid = await verifyPassword(password)
+      const currentPass = passwordRef.current
+      const isValid = await verifyPassword(currentPass)
       if (!isValid) {
         pauseMusic()
         setError(content.login?.error || 'كلمة المرور غير صحيحة')
@@ -36,7 +36,7 @@ export default function Enter({ onLogin }) {
         return
       }
 
-      onLogin(password)
+      onLogin(currentPass)
     } catch {
       pauseMusic()
       setError('تعذّر التحقق من كلمة المرور — حاول مرة أخرى')
@@ -45,8 +45,6 @@ export default function Enter({ onLogin }) {
     }
   }
 
-
-
   return (
     <FlowPage variant="center">
       <RevealGroup className="w-full">
@@ -54,13 +52,13 @@ export default function Enter({ onLogin }) {
           <div className="enter-card theme-shadow-enter rounded-4xl">
             <div className="enter-card__header px-8 py-8 text-center">
               <p className="text-sm font-medium tracking-wide text-rose-400">
-                {content.login.eyebrow}
+                {content.login?.eyebrow}
               </p>
               <h1 className="font-display mt-3 text-3xl font-semibold text-rose-800 sm:text-4xl">
-                {content.login.title}
+                {content.login?.title}
               </h1>
               <p className="mt-4 text-sm leading-relaxed text-rose-500 sm:text-base">
-                {content.login.subtitle}
+                {content.login?.subtitle}
               </p>
             </div>
 
@@ -71,17 +69,17 @@ export default function Enter({ onLogin }) {
               <label className="block text-center">
                 <span className="mb-2 flex items-center justify-center gap-2 text-sm font-medium text-rose-600">
                   <KeyRound size={16} className="text-rose-400" />
-                  {content.login.passwordLabel}
+                  {content.login?.passwordLabel}
                 </span>
                 <div className="relative w-full">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
+                    defaultValue=""
                     onChange={(event) => {
-                      setPassword(event.target.value)
-                      setError('')
+                      passwordRef.current = event.target.value
+                      if (error) setError('')
                     }}
-                    placeholder={content.login.placeholder}
+                    placeholder={content.login?.placeholder}
                     className="w-full rounded-2xl border border-rose-100 bg-white px-4 py-3.5 pl-10 text-center text-rose-800 shadow-inner outline-none transition placeholder:text-rose-300 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
                     autoComplete="current-password"
                     disabled={submitting}
@@ -118,7 +116,7 @@ export default function Enter({ onLogin }) {
         </RevealItem>
 
         <RevealItem className="mt-6 w-full">
-          <p className="text-center text-xs text-rose-300">{content.login.footer}</p>
+          <p className="text-center text-xs text-rose-300">{content.login?.footer}</p>
         </RevealItem>
       </RevealGroup>
     </FlowPage>
