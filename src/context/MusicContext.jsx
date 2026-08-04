@@ -62,12 +62,12 @@ export function MusicProvider({ children }) {
       audio.src = activeMusicSrc
       audio.load()
       setCurrentTime(0)
-      setDuration(0)
+      setDuration(currentTrack?.duration ? Number(currentTrack.duration) : 0)
       if (isPlaying) {
         audio.play().catch(() => setIsPlaying(false))
       }
     }
-  }, [activeMusicSrc, safeIndex, isPlaying])
+  }, [activeMusicSrc, safeIndex, isPlaying, currentTrack?.duration])
 
   const primeAudio = useCallback(() => {
     const audio = audioRef.current
@@ -166,9 +166,8 @@ export function MusicProvider({ children }) {
           setDuration(audio.duration)
         } else if (currentTrack?.duration) {
           setDuration(Number(currentTrack.duration))
-        } else {
-          // If duration is Infinity or streaming WebM, track max time smoothly
-          setDuration((prev) => Math.max(prev, audio.currentTime))
+        } else if (audio.currentTime > 0) {
+          setDuration(audio.currentTime)
         }
       }
     }
@@ -201,7 +200,7 @@ export function MusicProvider({ children }) {
       audio.removeEventListener('pause', onPause)
       audio.removeEventListener('ended', onEnded)
     }
-  }, [activeMusicSrc, tracks.length, nextTrack, duration])
+  }, [activeMusicSrc, tracks.length, nextTrack, currentTrack?.duration])
 
   const seekTo = useCallback(
     (time) => {
