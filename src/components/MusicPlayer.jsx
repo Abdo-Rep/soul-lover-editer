@@ -132,20 +132,6 @@ export default function MusicPlayer() {
             </div>
           </button>
 
-          {/* Previous Track Button */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              skipBackward()
-            }}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition active:scale-95"
-            title="الأغنية السابقة"
-            aria-label="الأغنية السابقة"
-          >
-            <SkipBack size={16} />
-          </button>
-
           {/* Next Track Button */}
           <button
             type="button"
@@ -158,6 +144,20 @@ export default function MusicPlayer() {
             aria-label="الأغنية التالية"
           >
             <SkipForward size={16} />
+          </button>
+
+          {/* Previous Track Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              skipBackward()
+            }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition active:scale-95"
+            title="الأغنية السابقة"
+            aria-label="الأغنية السابقة"
+          >
+            <SkipBack size={16} />
           </button>
 
           {/* Full Player Toggle Icon */}
@@ -335,26 +335,26 @@ export default function MusicPlayer() {
 
                 {/* Round 3D Neumorphic Control Buttons */}
                 <div className="w-full flex items-center justify-center gap-4 my-2">
-                  {/* Previous Track */}
+                  {/* Next Track (renders on far Right in RTL) */}
                   <button
                     type="button"
-                    onClick={skipBackward}
+                    onClick={skipForward}
                     className="flex h-11 w-11 items-center justify-center rounded-full theme-neumorph-btn transition hover:scale-105 active:scale-95"
-                    title="المقطع السابق"
-                    aria-label="المقطع السابق"
+                    title="المقطع التالي"
+                    aria-label="المقطع التالي"
                   >
-                    <SkipBack size={18} />
+                    <SkipForward size={18} />
                   </button>
 
-                  {/* Seek back 10s */}
+                  {/* Seek forward 10s */}
                   <button
                     type="button"
-                    onClick={handleSeekBack10}
+                    onClick={handleSeekForward10}
                     className="flex h-9 w-9 items-center justify-center rounded-full theme-neumorph-btn transition hover:scale-105 active:scale-95 text-rose-500"
-                    title="ترجيع 10 ثواني"
-                    aria-label="ترجيع 10 ثواني"
+                    title="تقديم 10 ثواني"
+                    aria-label="تقديم 10 ثواني"
                   >
-                    <RotateCcw size={16} />
+                    <RotateCw size={16} />
                   </button>
 
                   {/* Main Large Play/Pause Button */}
@@ -372,26 +372,26 @@ export default function MusicPlayer() {
                     )}
                   </button>
 
-                  {/* Seek forward 10s */}
+                  {/* Seek back 10s */}
                   <button
                     type="button"
-                    onClick={handleSeekForward10}
+                    onClick={handleSeekBack10}
                     className="flex h-9 w-9 items-center justify-center rounded-full theme-neumorph-btn transition hover:scale-105 active:scale-95 text-rose-500"
-                    title="تقديم 10 ثواني"
-                    aria-label="تقديم 10 ثواني"
+                    title="ترجيع 10 ثواني"
+                    aria-label="ترجيع 10 ثواني"
                   >
-                    <RotateCw size={16} />
+                    <RotateCcw size={16} />
                   </button>
 
-                  {/* Next Track */}
+                  {/* Previous Track (renders on far Left in RTL) */}
                   <button
                     type="button"
-                    onClick={skipForward}
+                    onClick={skipBackward}
                     className="flex h-11 w-11 items-center justify-center rounded-full theme-neumorph-btn transition hover:scale-105 active:scale-95"
-                    title="المقطع التالي"
-                    aria-label="المقطع التالي"
+                    title="المقطع السابق"
+                    aria-label="المقطع السابق"
                   >
-                    <SkipForward size={18} />
+                    <SkipBack size={18} />
                   </button>
                 </div>
 

@@ -40,19 +40,21 @@ export default function GalleryCard({ item, index = 0, onOpen }) {
           )}
         </div>
 
-        <div className="p-3 sm:p-4 flex-1 flex flex-col items-center justify-center">
-          {formattedDate && (
-            <div className="mx-auto my-1.5 w-fit rounded-full border border-rose-100/90 bg-rose-50/80 px-3 py-1 text-center shadow-xs flex items-center justify-center gap-1.5">
-              <Calendar size={13} className="text-rose-500 shrink-0" />
-              <span className="text-xs sm:text-sm font-bold text-rose-800 tracking-wide">{formattedDate}</span>
-            </div>
-          )}
-          {(item.text || item.description) && (
-            <p className="mt-1 text-xs sm:text-sm font-semibold leading-relaxed text-rose-900 line-clamp-3 text-center">
-              {item.text || item.description}
-            </p>
-          )}
-        </div>
+        {Boolean(formattedDate || item.text || item.description) && (
+          <div className="p-3 sm:p-4 flex-1 flex flex-col items-center justify-center">
+            {formattedDate && (
+              <div className="mx-auto my-1.5 w-fit rounded-full border border-rose-100/90 bg-rose-50/80 px-3 py-1 text-center shadow-xs flex items-center justify-center gap-1.5">
+                <Calendar size={13} className="text-rose-500 shrink-0" />
+                <span className="text-xs sm:text-sm font-bold text-rose-800 tracking-wide">{formattedDate}</span>
+              </div>
+            )}
+            {(item.text || item.description) && (
+              <p className="mt-1 text-xs sm:text-sm font-semibold leading-relaxed text-rose-900 line-clamp-3 text-center">
+                {item.text || item.description}
+              </p>
+            )}
+          </div>
+        )}
       </article>
     </button>
   )
