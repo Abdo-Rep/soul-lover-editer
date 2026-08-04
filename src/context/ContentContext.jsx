@@ -127,8 +127,9 @@ export function ContentProvider({ children }) {
     userEditedRef.current = true
     setContent((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater
-      contentRef.current = next
-      return next
+      const merged = mergeContent(next)
+      contentRef.current = merged
+      return merged
     })
     setSyncStatus((status) => (status === 'error' ? 'error' : 'ready'))
   }, [])
