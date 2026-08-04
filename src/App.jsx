@@ -12,7 +12,8 @@ export default function App() {
         {/* Secret Super Admin Control Panel */}
         <Route path="/soulove-admin" element={<SuperAdmin />} />
 
-        {/* Client Dashboard */}
+        {/* Client Dashboard / Login */}
+        <Route path="/:clientSlug/login" element={<Dashboard />} />
         <Route path="/:clientSlug/dashboard" element={<Dashboard />} />
 
         {/* Root Visitor Page & Dynamic Client Site at /:clientSlug */}

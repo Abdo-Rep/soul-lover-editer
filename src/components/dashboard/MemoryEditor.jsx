@@ -37,10 +37,10 @@ export default function MemoryEditor({
         {showImage ? (
           <div>
             <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-blush-100 to-rose-100">
-              {memory.image ? (
+              {(memory.image || memory.url) ? (
                 <>
                   <img
-                    src={memory.image}
+                    src={memory.image || memory.url}
                     alt=""
                     className="h-full w-full object-cover"
                   />
@@ -79,15 +79,16 @@ export default function MemoryEditor({
         <div className="space-y-3">
           <Field label="التاريخ (اختياري)">
             <DateInput
-              value={memory.date}
+              value={memory.date ?? ''}
               onChange={(value) => onChange(memory.id, { date: value })}
             />
           </Field>
           <Field label="النص">
             <TextArea
-              value={memory.text}
+              value={memory.text ?? ''}
               onChange={(value) => onChange(memory.id, { text: value })}
               rows={3}
+              placeholder="اكتب تفاصيل أو كلام هذه الذكرى هنا..."
             />
           </Field>
         </div>

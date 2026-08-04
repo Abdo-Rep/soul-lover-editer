@@ -45,7 +45,7 @@ export default function RomanticShell({
                 <button
                   type="button"
                   onClick={onHomeClick}
-                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-500 shadow-md transition-all hover:scale-105 active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 border border-emerald-100/90 text-[#059669] shadow-xs backdrop-blur-md transition-all hover:scale-105 active:scale-95"
                   title="الرجوع للترحيب"
                 >
                   <Home size={20} />
@@ -56,7 +56,7 @@ export default function RomanticShell({
                 <button
                   type="button"
                   onClick={onGalleryToggle}
-                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-500 shadow-md transition-all hover:scale-105 active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 border border-emerald-100/90 text-[#059669] shadow-xs backdrop-blur-md transition-all hover:scale-105 active:scale-95"
                   title={isGalleryOpen ? "إغلاق ذكرياتنا" : "ذكرياتنا"}
                 >
                   {isGalleryOpen ? <X size={20} /> : <Image size={20} />}
@@ -67,7 +67,7 @@ export default function RomanticShell({
                 <button
                   type="button"
                   onClick={onWishlistToggle}
-                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-500 shadow-md transition-all hover:scale-105 active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 border border-emerald-100/90 text-[#059669] shadow-xs backdrop-blur-md transition-all hover:scale-105 active:scale-95"
                   title={isWishlistOpen ? "إغلاق قائمة الأمنيات" : "قائمة الأمنيات"}
                 >
                   {isWishlistOpen ? <X size={20} /> : <Sparkles size={20} />}

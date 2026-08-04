@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useMusic } from '../context/MusicContext'
 import { getScreenMotion } from '../utils/motion'
 import { useContent } from '../context/ContentContext'
+import CountdownPage from '../pages/CountdownPage'
 import Enter from '../pages/Enter'
 import Final from '../pages/Final'
 import Gallery from '../pages/Gallery'
@@ -12,17 +13,20 @@ import NotFound from '../pages/NotFound'
 import Story from '../pages/Story'
 import Welcome from '../pages/Welcome'
 import HeartExplosionTransition from './HeartExplosionTransition'
+import ContentLoadingHearts from './ContentLoadingHearts'
 import LoveTransition from './LoveTransition'
 import RomanticShell from './RomanticShell'
 import Wishlist from './Wishlist'
 
-const STEPS = ['enter', 'welcome', 'story', 'final']
+const STEPS = ['enter', 'welcome', 'story', 'countdowns', 'wishlist', 'final']
 const { skipIntroKey } = config.auth
 const screenMotion = getScreenMotion()
 
 const PREVIOUS_STEP = {
   story: 'welcome',
-  final: 'story',
+  countdowns: 'story',
+  wishlist: 'countdowns',
+  final: 'wishlist',
 }
 
 function prefersReducedMotion() {
@@ -71,16 +75,9 @@ export default function Home() {
   }, [step, triggerPageFade])
 
   const navigateWithExplosion = useCallback((nextStep) => {
-    if (isTransitioning || nextStep === step || !STEPS.includes(nextStep)) return
-
-    if (prefersReducedMotion()) {
-      goTo(nextStep)
-      return
-    }
-
-    pendingStepRef.current = nextStep
-    setExplosionTarget(nextStep)
-  }, [goTo, isTransitioning, step])
+    if (nextStep === step || !STEPS.includes(nextStep)) return
+    goTo(nextStep)
+  }, [goTo, step])
 
   const handleBack = useCallback(() => {
     const previous = PREVIOUS_STEP[step]
@@ -156,7 +153,11 @@ export default function Home() {
       case 'welcome':
         return <Welcome onNext={() => navigateWithExplosion('story')} />
       case 'story':
-        return <Story onNext={() => navigateWithExplosion('final')} />
+        return <Story onNext={() => navigateWithExplosion('countdowns')} />
+      case 'countdowns':
+        return <CountdownPage onNext={() => navigateWithExplosion('wishlist')} />
+      case 'wishlist':
+        return <Wishlist onNext={() => navigateWithExplosion('final')} />
       case 'final':
         return <Final />
       default:
@@ -179,7 +180,7 @@ export default function Home() {
       showMusic={showMusic}
       showBack={(showWishlist || showGallery) ? false : canGoBack}
       onBack={handleBack}
-      showWishlistToggle={isAuthenticated && (step !== 'enter' || loginOverlay)}
+      showWishlistToggle={false}
       onWishlistToggle={handleWishlistToggle}
       isWishlistOpen={showWishlist}
       showGalleryToggle={isAuthenticated && (step !== 'enter' || loginOverlay)}

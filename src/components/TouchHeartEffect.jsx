@@ -39,7 +39,7 @@ export default function TouchHeartEffect() {
   }, [])
 
   const spawnParticles = (x, y, colorClass) => {
-    const particleCount = 8 + Math.floor(Math.random() * 4) // 8 to 11 outer particles
+    const particleCount = 4 // 4 outer particles for fast 60fps performance
     const newParticles = []
     const batchId = Math.random() + '-' + Date.now()
 
@@ -49,17 +49,17 @@ export default function TouchHeartEffect() {
       isCenter: true,
       x,
       y,
-      size: 32,
+      size: 26,
       colorClass,
     })
 
     // 2. Outer scattering particles
     for (let i = 0; i < particleCount; i++) {
-      const angle = (i / particleCount) * Math.PI * 2 + (Math.random() * 0.4 - 0.2)
-      const distance = 35 + Math.random() * 45
+      const angle = (i / particleCount) * Math.PI * 2
+      const distance = 25 + Math.random() * 25
       const dx = Math.cos(angle) * distance
       const dy = Math.sin(angle) * distance
-      const size = 12 + Math.random() * 10
+      const size = 10 + Math.random() * 6
 
       newParticles.push({
         id: `outer-${batchId}-${i}`,
@@ -73,7 +73,7 @@ export default function TouchHeartEffect() {
       })
     }
 
-    setParticles((prev) => [...prev.slice(-25), ...newParticles])
+    setParticles((prev) => [...prev.slice(-10), ...newParticles])
   }
 
   const removeParticle = (pid) => {

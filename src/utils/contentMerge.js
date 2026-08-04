@@ -31,6 +31,25 @@ function resolveGalleryItems(stored) {
   return []
 }
 
+function ensureUniqueIds(items = []) {
+  if (!Array.isArray(items)) return []
+  let currentMax = 0
+  items.forEach((item) => {
+    const numId = Number(item?.id)
+    if (Number.isFinite(numId) && numId > currentMax) {
+      currentMax = numId
+    }
+  })
+  return items.map((item, index) => {
+    const numId = Number(item?.id)
+    if (Number.isFinite(numId) && numId > 0) {
+      return item
+    }
+    currentMax += 1
+    return { ...item, id: currentMax || index + 1 }
+  })
+}
+
 export function mergeContent(stored) {
   if (!stored || Object.keys(stored).length === 0) {
     return structuredClone(defaultContent)
@@ -49,9 +68,7 @@ export function mergeContent(stored) {
     story: {
       ...defaultContent.story,
       ...stored.story,
-      memoriesButton: withoutTrailingHeart(
-        stored.story?.memoriesButton ?? defaultContent.story.memoriesButton,
-      ),
+      memoriesButton: stored.story?.memoriesButton ?? defaultContent.story.memoriesButton,
       firstMeeting: mergeSection(
         defaultContent.story.firstMeeting,
         stored.story?.firstMeeting,
@@ -67,9 +84,11 @@ export function mergeContent(stored) {
       ...defaultContent.appearance,
       ...stored.appearance,
     }),
-    memories: stored.memories ?? [],
-    galleryItems: resolveGalleryItems(stored),
-    wishlist: Array.isArray(stored.wishlist) ? stored.wishlist : defaultContent.wishlist,
+    memories: ensureUniqueIds(stored.memories ?? []),
+    galleryItems: ensureUniqueIds(resolveGalleryItems(stored)),
+    wishlist: ensureUniqueIds(Array.isArray(stored.wishlist) ? stored.wishlist : defaultContent.wishlist),
+    countdowns: ensureUniqueIds(Array.isArray(stored.countdowns) ? stored.countdowns : []),
+    countdownsNextButton: stored.countdownsNextButton ?? defaultContent.countdownsNextButton,
   }
 }
 
@@ -77,6 +96,11 @@ export function getSeedContent() {
   return structuredClone(defaultContent)
 }
 
-export function nextItemId(items) {
-  return items.reduce((max, item) => Math.max(max, item.id), 0) + 1
+export function nextItemId(items = []) {
+  if (!Array.isArray(items) || items.length === 0) return 1
+  const maxId = items.reduce((max, item) => {
+    const numId = Number(item?.id)
+    return Number.isFinite(numId) && numId > max ? numId : max
+  }, 0)
+  return maxId + 1
 }

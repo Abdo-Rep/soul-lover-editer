@@ -14,10 +14,16 @@ import {
   Save,
   Sparkles,
   Trash2,
+  QrCode,
+  Mic,
+  Clock,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ContentLoadingHearts from '../components/ContentLoadingHearts'
 import FeedbackModal from '../components/FeedbackModal'
+import QRCodeModal from '../components/dashboard/QRCodeModal'
+import VoiceRecorder from '../components/dashboard/VoiceRecorder'
+import PWAInstallBanner from '../components/dashboard/PWAInstallBanner'
 import NotFound from './NotFound'
 import MemoryEditor from '../components/dashboard/MemoryEditor'
 import {
@@ -40,6 +46,7 @@ const TABS = [
   { id: 'memories', label: 'ذكريات القصة', icon: Calendar },
   { id: 'gallery', label: 'المعرض', icon: Image },
   { id: 'wishlist', label: 'قائمة الأمنيات', icon: Sparkles },
+  { id: 'countdowns', label: 'العدادات التنازلية', icon: Clock },
   { id: 'final', label: 'الصفحة الأخيرة', icon: Heart },
 ]
 
@@ -158,6 +165,10 @@ export default function Dashboard() {
     updateWishlistItem,
     addWishlistItem,
     removeWishlistItem,
+    toggleWishlistItem,
+    addCountdown,
+    updateCountdown,
+    removeCountdown,
     uploadMemoryImage,
     uploadGalleryImage,
     uploadMusic,
@@ -179,12 +190,15 @@ export default function Dashboard() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
   const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [showQRModal, setShowQRModal] = useState(false)
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
     type: 'success',
     title: '',
     message: '',
   })
+
+  const countdownsList = content?.countdowns || []
 
   const handleAdminLogin = async (password) => {
     adminLoginWithPassword(password)
@@ -242,9 +256,17 @@ export default function Dashboard() {
     window.open(targetUrl, '_blank')
   }
 
-  if (siteNotFound && !isLoading) {
-    return <NotFound />
-  }
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault()
+        e.returnValue = 'لديك تغييرات غير محفوظة، هل أنت تأكد من مغادرة الصفحة؟'
+        return e.returnValue
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isDirty])
 
   if (!isAdmin) {
     return <AdminLoginForm onLogin={handleAdminLogin} />
@@ -294,12 +316,12 @@ export default function Dashboard() {
               />
             </Field>
 
-            <div>
-              <h3 className="text-sm font-bold text-rose-700">
-                الهوية البصرية
+            <div className="border-b border-rose-100 pb-3">
+              <h3 className="font-display text-base font-bold text-rose-900">
+                المظهر والألوان
               </h3>
               <p className="mt-1 text-xs text-rose-400">
-                اختر نمط ولون الموقع — باقي الدرجات تتولّد تلقائياً منه
+                اختر نمط ولون الموقع — خلفية الصفحة وقارئ الأغاني والأزرار تتغير ديناميكياً بالكامل حسب لون العميل
               </p>
             </div>
 
@@ -424,6 +446,25 @@ export default function Dashboard() {
                 maxLength={5}
               />
             </Field>
+
+            {/* Live Theme Preview Box */}
+            <div className="mt-4 rounded-2xl border border-rose-100/80 bg-rose-50/40 p-4 space-y-2">
+              <span className="text-xs font-bold text-rose-700 block">✨ معاينة مباشرة لمظهر ولون الصفحة:</span>
+              <div className="rounded-2xl p-4 transition-all theme-neumorph-card flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full theme-neumorph-disc flex items-center justify-center text-white text-xs font-bold shadow-md">
+                    {content.appearance?.backgroundHeart || '♥'}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-rose-900">خلفية المظهر وقارئ الأغاني</p>
+                    <p className="text-[10px] text-rose-600 font-semibold">تتغيّر تلقائياً وبشكل ديناميكي حسب اختيارك</p>
+                  </div>
+                </div>
+                <span className="px-3 py-1.5 rounded-xl text-[11px] font-bold theme-neumorph-btn-active pointer-events-none shadow-sm">
+                  لون الزر
+                </span>
+              </div>
+            </div>
           </Section>
         )
 
@@ -438,7 +479,7 @@ export default function Dashboard() {
         return (
           <Section
             title="الموسيقى"
-            description="يمكنك رفع وتسمية ملفات صوتية تعمل كقائمة تشغيل متتالية (الحد الأقصى لكل أغنية 7 ميجابايت)"
+            description="يمكنك رفع وتسمية ملفات صوتية تعمل كقائمة تشغيل متتالية"
           >
             <div className="space-y-6">
               {tracksList.map((track, idx) => (
@@ -458,70 +499,100 @@ export default function Dashboard() {
                   
                   <Field label="عنوان الأغنية">
                     <TextInput
-                      value={track.title}
+                      value={track.title ?? ''}
                       onChange={(v) => {
                         updateMusicTrackTitle(idx, v)
                       }}
+                      placeholder="اسم الأغنية أو الرسالة الصوتية..."
                     />
                   </Field>
                   
                   {track.src ? (
                     <div className="space-y-2">
-                      <p className="text-xs text-rose-400 truncate">الملف: {track.fileName}</p>
+                      <p className="text-xs text-rose-400 truncate">الملف: {track.fileName || 'تسجيل صوتي'}</p>
                       <audio controls src={track.src} className="w-full h-8" key={track.src} />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateMusicTrackTitle(idx, track.title)
+                          // Reset track audio src to allow re-recording or re-uploading
+                          uploadMusic(null, idx).catch(() => {})
+                        }}
+                        className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline"
+                      >
+                        إعادة تسجيل أو تغيير الصوت
+                      </button>
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {musicUploadError?.index === idx && musicUploadError?.message ? (
-                        <p className="mb-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
+                        <p className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
                           {musicUploadError.message}
                         </p>
                       ) : null}
-                      <label
-                        className={`relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-4 text-xs transition ${musicUploadingIndex === idx
-                            ? 'border-rose-300 bg-rose-50 text-rose-500'
-                            : 'border-rose-200 bg-rose-50/50 text-rose-500 hover:border-rose-300'
-                          } ${musicUploadingIndex !== null ? 'pointer-events-none opacity-80' : ''}`}
-                      >
-                        {musicUploadingIndex === idx ? (
-                          <>
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-rose-200 border-t-rose-500" />
-                            <span className="font-medium">جاري الرفع...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Music2 size={14} />
-                            <span>اضغط لرفع ملف صوتي للأغنية (الحد الأقصى 7MB)</span>
-                          </>
-                        )}
-                        <input
-                          type="file"
-                          accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
-                          className="hidden"
-                          disabled={musicUploadingIndex !== null}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) {
-                              uploadMusic(file, idx).catch(() => { })
-                            }
-                            e.target.value = ''
-                          }}
-                        />
-                      </label>
+
+                      {/* Live Browser Voice Recorder */}
+                      <VoiceRecorder
+                        isUploading={musicUploadingIndex === idx}
+                        onRecordingComplete={(recordedFile) => {
+                          uploadMusic(recordedFile, idx).catch(() => {})
+                        }}
+                      />
+
+                      {/* Alternative File Upload Option */}
+                      <div className="pt-1 text-center">
+                        <label
+                          className={`relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-rose-200 bg-white px-3.5 py-2 text-xs text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 ${
+                            musicUploadingIndex !== null ? 'pointer-events-none opacity-60' : ''
+                          }`}
+                        >
+                          <Music2 size={13} />
+                          <span>أو اختر ملف صوتي جهزته من الجهاز 📁</span>
+                          <input
+                            type="file"
+                            accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
+                            className="hidden"
+                            disabled={musicUploadingIndex !== null}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                uploadMusic(file, idx).catch(() => {})
+                              }
+                              e.target.value = ''
+                            }}
+                          />
+                        </label>
+                      </div>
                     </div>
                   )}
                 </div>
               ))}
 
-              {tracksList.length < 10 && (
-                <button
-                  type="button"
-                  onClick={addMusicTrack}
-                  className="w-full rounded-xl border border-dashed border-rose-200 py-3.5 text-sm font-medium text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-2"
-                >
-                  <Plus size={16} />
-                  + إضافة أغنية جديدة
-                </button>
+              {tracksList.length < 7 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={addMusicTrack}
+                    className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-1.5"
+                  >
+                    <Plus size={15} />
+                    + إضافة أغنية جديدة 🎵
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addMusicTrack()
+                      setTimeout(() => {
+                        updateMusicTrackTitle(tracksList.length, 'رسالة بصوتي 🎙️')
+                      }, 50)
+                    }}
+                    className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
+                  >
+                    <Mic size={15} className="text-rose-500" />
+                    + إضافة رسالة بصوتي 🎙️
+                  </button>
+                </div>
               )}
             </div>
           </Section>
@@ -546,14 +617,14 @@ export default function Dashboard() {
               <Field key={key} label={label}>
                 {key === 'subtitle' ? (
                   <TextArea
-                    value={content.login[key]}
+                    value={content.login?.[key] ?? ''}
                     onChange={(v) => {
                       updateField('login', key, v)
                     }}
                   />
                 ) : (
                   <TextInput
-                    value={content.login[key]}
+                    value={content.login?.[key] ?? ''}
                     onChange={(v) => {
                       updateField('login', key, v)
                     }}
@@ -772,12 +843,20 @@ export default function Dashboard() {
                   }}
                 />
               </Field>
+              <Field label="زر التالي (الانتقال للرسالة الأخيرة)">
+                <TextInput
+                  value={content.gallery.finalButton}
+                  onChange={(v) => {
+                    updateField('gallery', 'finalButton', v)
+                  }}
+                />
+              </Field>
             </Section>
 
             <div className="mt-4">
               <Section
                 title="صور الألبوم"
-                description="صورة + تاريخ + وصف — صفحة المعرض فقط (تُضغط تلقائياً عند الرفع)"
+                description="صورة + تاريخ + وصف — صفحة المعرض فقط"
               >
                 <div className="space-y-4">
                   {(content.galleryItems ?? []).map((item, index) => (
@@ -820,6 +899,93 @@ export default function Dashboard() {
               </Section>
             </div>
           </>
+        )
+
+      case 'countdowns':
+        return (
+          <Section
+            title="العدادات التنازلية ⏳"
+            description="إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة"
+          >
+            <div className="mb-4">
+              <Field label="زر التالي (الانتقال للصفحة التالية)">
+                <TextInput
+                  value={content.countdownsNextButton || ''}
+                  onChange={(v) => {
+                    updateRoot('countdownsNextButton', v)
+                  }}
+                  placeholder="مثال: الانتقال للرسالة الأخيرة ✨"
+                />
+              </Field>
+            </div>
+
+            <div className="space-y-4">
+              {countdownsList.map((timer, idx) => (
+                <div
+                  key={timer.id || idx}
+                  className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3"
+                >
+                  <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
+                    <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+                      <Clock size={14} className="text-rose-500" />
+                      عداد رقم #{idx + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeCountdown(idx)}
+                      className="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1"
+                    >
+                      <Trash2 size={13} />
+                      حذف العداد
+                    </button>
+                  </div>
+
+                  <Field label="عنوان المناسبة">
+                    <TextInput
+                      value={timer.title || ''}
+                      onChange={(v) => updateCountdown(idx, 'title', v)}
+                      placeholder="مثال: عيد ميلادك 🎂"
+                    />
+                  </Field>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Field label="تاريخ المناسبة">
+                      <DateInput
+                        value={timer.date || ''}
+                        onChange={(v) => updateCountdown(idx, 'date', v)}
+                      />
+                    </Field>
+
+                    <Field label="وقت المناسبة">
+                      <TextInput
+                        value={timer.time || '00:00'}
+                        onChange={(v) => updateCountdown(idx, 'time', v)}
+                        placeholder="00:00"
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="وصف أو رسالة المناسبة">
+                    <TextArea
+                      value={timer.description || ''}
+                      onChange={(v) => updateCountdown(idx, 'description', v)}
+                      rows={2}
+                      placeholder="رسالة تظهر مع العداد التنازلي"
+                    />
+                  </Field>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addCountdown}
+                className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
+              >
+                <Plus size={15} />
+                + إضافة عداد تنازلي جديد ⏳
+              </button>
+            </div>
+          </Section>
         )
 
       case 'final':
@@ -879,10 +1045,11 @@ export default function Dashboard() {
                   </div>
                   <Field label="نص الأمنية">
                     <TextInput
-                      value={item.text}
+                      value={item.text ?? ''}
                       onChange={(v) => {
                         updateWishlistItem(item.id, { text: v })
                       }}
+                      placeholder="اكتب أمنيتك الجميلة هنا..."
                     />
                   </Field>
                   <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -974,6 +1141,16 @@ export default function Dashboard() {
               <ExternalLink size={14} />
               <span className="hidden sm:inline">معاينة</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setShowQRModal(true)}
+              className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95"
+              title="تحميل كود QR الخاص بموقعك"
+            >
+              <QrCode size={14} className="text-rose-500" />
+              <span>كود QR 📱</span>
+            </button>
             <button
               type="button"
               onClick={() => setShowLogoutModal(true)}
@@ -985,6 +1162,8 @@ export default function Dashboard() {
             </button>
           </div>
         </header>
+
+        <PWAInstallBanner />
 
         <nav className="romantic-scrollbar mb-6 flex gap-2 overflow-x-auto pb-1">
           {TABS.map(({ id, label, icon: Icon }) => (
@@ -1058,6 +1237,12 @@ export default function Dashboard() {
           type={feedbackModal.type}
           title={feedbackModal.title}
           message={feedbackModal.message}
+        />
+
+        <QRCodeModal
+          isOpen={showQRModal}
+          onClose={() => setShowQRModal(false)}
+          slug={window.location.pathname.split('/').filter(Boolean)[0] || 'default'}
         />
       </div>
     </div>

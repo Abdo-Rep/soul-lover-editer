@@ -8,10 +8,10 @@
 }
 
 @theme {
-  --font-sans: "Tajawal", "Cairo", "NativeEmoji", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "Cairo", "NativeEmoji", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
     emoji;
-  --font-display: "Cairo", "Tajawal", "NativeEmoji", ui-sans-serif, sans-serif,
+  --font-display: "Alexandria", "IBM Plex Sans Arabic", "Aref Ruqaa", "Cairo", "NativeEmoji", ui-sans-serif, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
     emoji;
 
@@ -73,6 +73,30 @@ body {
 button, a, input, select, textarea {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea {
+  cursor: text !important;
+}
+
+/* ─── Keyboard Navigation Focus Styles (WCAG 2.4.7) ──────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--theme-400);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--theme-500);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+
+button, [role="button"], label, a, select {
+  cursor: pointer !important;
 }
 
 .romantic-bg {
@@ -219,6 +243,63 @@ button, a, input, select, textarea {
 
 .theme-lightbox-bg {
   background: color-mix(in srgb, var(--theme-50) 94%, white);
+}
+
+/* Dynamic Neumorphic Neumorphism Classes (Adapts to Client Theme & Mode) */
+.theme-neumorph-card {
+  background: color-mix(in srgb, var(--theme-100) 65%, var(--theme-50));
+  border: 1px solid color-mix(in srgb, white 75%, var(--theme-100));
+  box-shadow:
+    14px 14px 28px color-mix(in srgb, var(--theme-300) 35%, transparent),
+    -14px -14px 28px rgba(255, 255, 255, 0.9);
+}
+
+.dark .theme-neumorph-card {
+  background: color-mix(in srgb, var(--theme-100) 90%, #06030c);
+  border: 1px solid color-mix(in srgb, var(--theme-200) 15%, transparent);
+  box-shadow:
+    14px 14px 28px rgba(0, 0, 0, 0.7),
+    -14px -14px 28px rgba(255, 255, 255, 0.04);
+}
+
+.theme-neumorph-btn {
+  background: color-mix(in srgb, var(--theme-100) 70%, var(--theme-50));
+  color: var(--theme-700);
+  box-shadow:
+    5px 5px 10px color-mix(in srgb, var(--theme-300) 30%, transparent),
+    -5px -5px 10px rgba(255, 255, 255, 0.85);
+}
+
+.dark .theme-neumorph-btn {
+  background: color-mix(in srgb, var(--theme-100) 80%, #06030c);
+  color: var(--theme-300);
+  box-shadow:
+    5px 5px 10px rgba(0, 0, 0, 0.55),
+    -5px -5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.theme-neumorph-btn-active {
+  background: linear-gradient(135deg, var(--theme-500), var(--theme-600)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgb(var(--theme-rgb) / 0.45) !important;
+}
+
+.theme-neumorph-disc-ring {
+  background: color-mix(in srgb, var(--theme-100) 70%, var(--theme-50));
+  box-shadow:
+    12px 12px 24px color-mix(in srgb, var(--theme-300) 35%, transparent),
+    -12px -12px 24px rgba(255, 255, 255, 0.85);
+}
+
+.dark .theme-neumorph-disc-ring {
+  background: color-mix(in srgb, var(--theme-100) 85%, #06030c);
+  box-shadow:
+    12px 12px 24px rgba(0, 0, 0, 0.65),
+    -12px -12px 24px rgba(255, 255, 255, 0.05);
+}
+
+.theme-neumorph-disc {
+  background: linear-gradient(135deg, var(--theme-400), var(--theme-500), var(--theme-600));
 }
 
 .content-card {
@@ -395,7 +476,8 @@ button, a, input, select, textarea {
 .flow-screen {
   margin-inline: auto;
   width: 100%;
-  max-width: 28rem;
+  max-width: 26rem;
+  overflow-x: hidden;
 }
 
 .flow-page {
@@ -404,6 +486,7 @@ button, a, input, select, textarea {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  overflow-x: hidden;
 }
 
 .flow-page--center {
@@ -687,6 +770,11 @@ button, a, input, select, textarea {
 
 button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea {
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
 
 /* ==========================================================================

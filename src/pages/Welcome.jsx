@@ -22,7 +22,9 @@ export default function Welcome({ onNext }) {
         </div>
 
         <div className="mt-10 w-full">
-          <NextButton onClick={onNext}>{welcome.nextButton}</NextButton>
+          <NextButton onClick={onNext} defaultText="كملي لذكرياتنا ✨">
+            {welcome?.nextButton}
+          </NextButton>
         </div>
       </div>
     </FlowPage>

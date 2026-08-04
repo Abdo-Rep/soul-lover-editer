@@ -270,7 +270,7 @@ export default function SuperAdmin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
+                  placeholder="admin@saalove.com"
                   className="w-full px-4 py-3 rounded-xl bg-[#060814] border border-[#19213d] text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
@@ -287,7 +287,7 @@ export default function SuperAdmin() {
                   type="password"
                   value={inputPassword}
                   onChange={(e) => setInputPassword(e.target.value)}
-                  placeholder="Password"
+                  placeholder="كلمة مرور الأدمن"
                   className="w-full px-4 py-3 rounded-xl bg-[#060814] border border-[#19213d] text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
@@ -432,7 +432,7 @@ export default function SuperAdmin() {
                   <tbody className="divide-y divide-[#19213d]/60 text-xs">
                     {sites.map((site) => {
                       const visitorUrl = `${baseUrl}/${site.slug}`
-                      const dashboardUrl = `${baseUrl}/${site.slug}/dashboard`
+                      const dashboardUrl = `${baseUrl}/${site.slug}/login`
 
                       return (
                         <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
@@ -458,7 +458,7 @@ export default function SuperAdmin() {
                                 className="py-1.5 px-2.5 sm:px-3 rounded-lg bg-[#121c38] border border-[#203058] text-white text-[11px] sm:text-xs font-medium flex items-center gap-1 transition-colors shrink-0"
                               >
                                 <KeySvg className="w-3.5 h-3.5 text-[#ff3b68]" />
-                                الداشبورد
+                                login
                               </a>
                               <button
                                 type="button"

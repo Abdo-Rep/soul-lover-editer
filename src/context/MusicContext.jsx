@@ -22,34 +22,64 @@ export function MusicProvider({ children }) {
   const [duration, setDuration] = useState(0)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
 
+  // Filter only valid, unique uploaded tracks
   const tracks = useMemo(() => {
-    if (content?.music?.tracks && content.music.tracks.length > 0) {
-      return content.music.tracks.filter((t) => t.src)
-    }
-    return [
-      {
-        id: 'default',
+    const rawList = (content?.music?.tracks && content.music.tracks.length > 0)
+      ? content.music.tracks
+      : [{
+          id: 'default',
+          title: content?.music?.title || 'أغنيتنا',
+          fileName: content?.music?.fileName || '',
+          src: content?.music?.src || musicSrc || '',
+        }]
+
+    const valid = rawList.filter((t) => Boolean(t.src && String(t.src).trim()))
+    if (valid.length > 0) return valid
+
+    if (musicSrc) {
+      return [{
+        id: 'fallback',
         title: content?.music?.title || 'أغنيتنا',
         fileName: content?.music?.fileName || '',
-        src: musicSrc || '',
-      },
-    ].filter((t) => t.src)
+        src: musicSrc,
+      }]
+    }
+
+    return []
   }, [content, musicSrc])
 
-  const currentTrack = tracks[currentTrackIndex] || tracks[0]
+  // Bound index safely
+  const safeIndex = currentTrackIndex >= tracks.length ? 0 : currentTrackIndex
+  const currentTrack = tracks[safeIndex] || tracks[0]
   const activeMusicSrc = currentTrack?.src || ''
 
+  // 1️⃣ Prevent redundant audio.load() and source reset stutter
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !activeMusicSrc) return
-    audio.src = activeMusicSrc
-    audio.load()
-    setCurrentTime(0)
-    setDuration(0)
-    if (isPlaying) {
-      audio.play().catch(() => setIsPlaying(false))
+    const currentSrc = audio.getAttribute('src') || ''
+    if (currentSrc !== activeMusicSrc) {
+      audio.src = activeMusicSrc
+      audio.load()
+      setCurrentTime(0)
+      setDuration(0)
+      if (isPlaying) {
+        audio.play().catch(() => setIsPlaying(false))
+      }
     }
-  }, [activeMusicSrc])
+  }, [activeMusicSrc, safeIndex, isPlaying])
+
+  const primeAudio = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio || !activeMusicSrc) return
+    if (content?.music?.volume !== undefined) {
+      audio.volume = content.music.volume
+    }
+    sessionStorage.setItem(PENDING_KEY, 'true')
+    sessionStorage.setItem(MUSIC_KEY, 'true')
+    setIsPlaying(true)
+    audio.play().catch(() => {})
+  }, [activeMusicSrc, content?.music?.volume])
 
   const persistPreference = useCallback((playing) => {
     sessionStorage.setItem(MUSIC_KEY, String(playing))
@@ -60,7 +90,9 @@ export function MusicProvider({ children }) {
     const audio = audioRef.current
     if (!audio || !activeMusicSrc) return false
 
-    audio.volume = content.music.volume
+    if (content?.music?.volume !== undefined) {
+      audio.volume = content.music.volume
+    }
 
     try {
       await audio.play()
@@ -70,7 +102,7 @@ export function MusicProvider({ children }) {
       persistPreference(false)
       return false
     }
-  }, [content.music.volume, activeMusicSrc, persistPreference])
+  }, [content?.music?.volume, activeMusicSrc, persistPreference])
 
   const pauseMusic = useCallback(() => {
     const audio = audioRef.current
@@ -92,29 +124,53 @@ export function MusicProvider({ children }) {
     setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)
     setIsPlaying(true)
     sessionStorage.setItem(MUSIC_KEY, 'true')
-  }, [tracks])
+  }, [tracks.length])
 
   const prevTrack = useCallback(() => {
-    if (tracks.length <= 1) return
+    const audio = audioRef.current
+    if (!audio) return
+    // If audio played for > 3 seconds or only 1 track exists, restart from beginning
+    if (audio.currentTime > 3 || tracks.length <= 1) {
+      audio.currentTime = 0
+      setCurrentTime(0)
+      if (!isPlaying) {
+        playMusic()
+      }
+      return
+    }
     setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
     setIsPlaying(true)
     sessionStorage.setItem(MUSIC_KEY, 'true')
-  }, [tracks])
+  }, [tracks.length, isPlaying, playMusic])
 
+  // 2️⃣ Instant playback & smooth duration sync (Zero delay)
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return undefined
 
+    const syncDuration = () => {
+      if (Number.isFinite(audio.duration) && audio.duration > 0) {
+        setDuration(audio.duration)
+      }
+    }
+
     let lastTimeUpdate = 0
     const onTimeUpdate = () => {
       const now = performance.now()
-      if (now - lastTimeUpdate > 250) {
+      if (now - lastTimeUpdate > 80) { // smooth 80ms update
         lastTimeUpdate = now
         setCurrentTime(audio.currentTime)
+        if (Number.isFinite(audio.duration) && audio.duration > 0) {
+          setDuration(audio.duration)
+        } else {
+          // If duration is Infinity or streaming WebM, track max time smoothly
+          setDuration((prev) => Math.max(prev, audio.currentTime))
+        }
       }
     }
-    const onLoadedMetadata = () => setDuration(audio.duration || 0)
-    const onDurationChange = () => setDuration(audio.duration || 0)
+
+    const onLoadedMetadata = syncDuration
+    const onDurationChange = syncDuration
     const onPlay = () => setIsPlaying(true)
     const onPause = () => setIsPlaying(false)
     const onEnded = () => {
@@ -141,7 +197,7 @@ export function MusicProvider({ children }) {
       audio.removeEventListener('pause', onPause)
       audio.removeEventListener('ended', onEnded)
     }
-  }, [activeMusicSrc, tracks, nextTrack])
+  }, [activeMusicSrc, tracks.length, nextTrack, duration])
 
   const seekTo = useCallback(
     (time) => {
@@ -197,8 +253,12 @@ export function MusicProvider({ children }) {
       progress,
       currentTimeLabel: formatAudioTime(currentTime),
       durationLabel: formatAudioTime(duration, { padMinutes: true }),
+      tracks,
+      currentTrackIndex: safeIndex,
+      setCurrentTrackIndex,
       pauseMusic,
       playMusic,
+      primeAudio,
       requestMusicStart,
       seekTo,
       skipBackward: prevTrack,
@@ -207,6 +267,8 @@ export function MusicProvider({ children }) {
       tryWelcomeMusicStart,
     }),
     [
+      tracks,
+      safeIndex,
       currentTrack?.title,
       currentTime,
       duration,

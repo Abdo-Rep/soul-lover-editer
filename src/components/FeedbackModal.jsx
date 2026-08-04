@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle2, AlertCircle, X, Sparkles } from 'lucide-react'
 
@@ -11,11 +12,11 @@ export default function FeedbackModal({ isOpen, onClose, type = 'success', title
     return () => clearTimeout(timer)
   }, [isOpen, autoDismissMs, onClose])
 
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
 
   const isSuccess = type === 'success'
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm">
         <motion.div
@@ -67,6 +68,7 @@ export default function FeedbackModal({ isOpen, onClose, type = 'success', title
           </button>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

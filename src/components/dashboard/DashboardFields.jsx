@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Eye, EyeOff, Copy, Check } from 'lucide-react'
+import ModernDatePicker from './ModernDatePicker'
 
 export function Field({ label, hint, children }) {
   return (
@@ -18,8 +19,8 @@ export function TextInput({ value, onChange, ...props }) {
   return (
     <input
       type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      value={value ?? ''}
+      onChange={(e) => onChange?.(e.target.value)}
       className={inputClass}
       {...props}
     />
@@ -43,8 +44,8 @@ export function PasswordInput({ value, onChange, placeholder, showCopy = false, 
     <div className="relative w-full">
       <input
         type={showPassword ? 'text' : 'password'}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={value ?? ''}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder}
         className={`${inputClass} ${showCopy ? 'pl-20' : 'pl-10'}`}
         {...props}
@@ -77,8 +78,8 @@ export function PasswordInput({ value, onChange, placeholder, showCopy = false, 
 export function TextArea({ value, onChange, rows = 3, ...props }) {
   return (
     <textarea
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      value={value ?? ''}
+      onChange={(e) => onChange?.(e.target.value)}
       rows={rows}
       className={`${inputClass} resize-y`}
       {...props}
@@ -86,14 +87,12 @@ export function TextArea({ value, onChange, rows = 3, ...props }) {
   )
 }
 
-export function DateInput({ value, onChange, ...props }) {
+export function DateInput({ value, onChange, placeholder = 'اختر التاريخ' }) {
   return (
-    <input
-      type="date"
+    <ModernDatePicker
       value={value?.slice(0, 10) || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className={inputClass}
-      {...props}
+      onChange={onChange}
+      placeholder={placeholder}
     />
   )
 }

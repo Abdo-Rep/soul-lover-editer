@@ -2,24 +2,52 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Removed user-scalable=no — WCAG 1.4.4 compliance, allows zoom for visually impaired -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="application-name" content="soulove" />
     <meta name="theme-color" content="#fff1f2" />
+
+    <!-- SEO -->
+    <title>soulove 💖</title>
+    <meta name="description" content="موقع حب رومانسي شخصي — مخصص لك وحدك" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Open Graph (WhatsApp / Twitter previews) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="soulove 💖" />
+    <meta property="og:description" content="موقع حب رومانسي شخصي — مخصص لك وحدك" />
+    <meta property="og:site_name" content="soulove" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    <!-- Apple touch icon must be PNG/JPEG, not SVG -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Preconnect to Google Fonts CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload primary font (Cairo) for instant render, others load async -->
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Alexandria:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
+    <noscript>
+      <div style="direction:rtl;text-align:center;padding:2rem;font-family:sans-serif;color:#be123c;">
+        <h1>soulove 💖</h1>
+        <p>يحتاج هذا الموقع إلى تفعيل JavaScript في متصفحك للعمل.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -38,6 +38,10 @@ function clearAdminSession() {
   setAdminPasswordForSync('', slug)
   if (typeof sessionStorage !== 'undefined') {
     sessionStorage.removeItem(getScopedAdminKey())
+    // Also clear the JWT token so it can't be reused after logout
+    if (slug) {
+      sessionStorage.removeItem(`romantic-token-${slug}`)
+    }
   }
 }
 

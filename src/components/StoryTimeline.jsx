@@ -1,33 +1,39 @@
+import React, { useState } from 'react'
+import { Calendar, Heart, Sparkles, X, ZoomIn } from 'lucide-react'
 import { formatDateLong } from '../utils/formatDate'
 import { RevealItem } from './Reveal'
 
 function CardConnector() {
   return (
-    <div className="flex justify-center py-1" aria-hidden="true">
-      <div className="flex flex-col items-center gap-1">
-        <span className="timeline-connector-dot h-1.5 w-1.5 rounded-full" />
-        <span className="timeline-connector-line h-5 w-px" />
+    <div className="flex justify-center py-2.5" aria-hidden="true">
+      <div className="flex flex-col items-center gap-1.5">
+        <span className="h-3 w-3 rounded-full bg-gradient-to-tr from-rose-400 to-pink-500 shadow-md shadow-rose-300 animate-pulse flex items-center justify-center text-[8px] text-white font-bold">
+          ♥
+        </span>
+        <span className="h-8 w-0.5 bg-gradient-to-b from-rose-300 via-pink-200 to-transparent rounded-full" />
       </div>
     </div>
   )
 }
 
-function DateBadge({ date, highlight = false, className = '' }) {
+// Breathtaking Glowing Romantic Date Badge
+function RomanticDateBadge({ date, highlight = false, className = '' }) {
   if (!date) return null
-
   const formatted = formatDateLong(date)
   if (!formatted) return null
 
   return (
     <div className={`flex justify-center ${className}`}>
       <span
-        className={`rounded-full px-4 py-1.5 text-xs font-medium inline-block ${
+        className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs sm:text-sm font-extrabold shadow-lg transition-all duration-300 hover:scale-105 ${
           highlight
-            ? 'theme-shadow-badge bg-gradient-to-r from-rose-400 to-pink-400 text-white'
-            : 'bg-rose-50 text-rose-500 ring-1 ring-rose-100'
+            ? 'bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 text-white shadow-rose-300/80 ring-2 ring-white/80'
+            : 'border border-rose-200/90 bg-gradient-to-r from-rose-50/90 via-white to-pink-50/90 text-rose-800 shadow-rose-900/10 backdrop-blur-md hover:border-rose-300'
         }`}
       >
-        {formatted}
+        <Calendar size={14} className={highlight ? 'text-white' : 'text-rose-500'} />
+        <span className="font-display tracking-wide">{formatted}</span>
+        <Heart size={12} className={highlight ? 'text-white fill-white' : 'text-rose-500 fill-rose-500 animate-pulse'} />
       </span>
     </div>
   )
@@ -41,11 +47,21 @@ export function TimelineMilestone({
 }) {
   return (
     <>
-      <RevealItem as="div" role="listitem" className="mx-auto w-full">
-        <article className="content-card">
-          <DateBadge date={date} className="mb-4" />
-          <p className="text-sm font-medium text-rose-400">{label}</p>
-          <div className="mt-4 text-sm leading-relaxed text-rose-600">{children}</div>
+      <RevealItem as="div" role="listitem" className="mx-auto w-full max-w-lg">
+        <article className="group relative overflow-hidden rounded-3xl border border-rose-100 bg-white/90 p-6 sm:p-7 shadow-xl shadow-rose-900/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/20 text-center">
+          {/* Ambient Glow */}
+          <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-gradient-to-br from-rose-200/35 to-pink-100/25 blur-2xl transition-all duration-500 group-hover:scale-150" />
+
+          <RomanticDateBadge date={date} className="mb-4" />
+
+          <div className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-50/90 px-4 py-1.5 text-sm font-bold text-rose-900 border border-rose-100/80 mb-3.5 shadow-xs">
+            <Sparkles size={15} className="text-rose-500" />
+            <span className="font-display">{label}</span>
+          </div>
+
+          <div className="text-sm sm:text-base leading-relaxed text-rose-800/90 font-medium">
+            {children}
+          </div>
         </article>
       </RevealItem>
       {showConnector ? <CardConnector /> : null}
@@ -61,11 +77,20 @@ export function TimelineLoveConfession({
 }) {
   return (
     <>
-      <RevealItem as="div" role="listitem" className="mx-auto w-full">
-        <article className="content-card">
-          <DateBadge date={date} className="mb-4" />
-          <p className="text-sm font-medium text-rose-400">{label}</p>
-          <p className="mt-4 text-sm leading-relaxed text-rose-600">{message}</p>
+      <RevealItem as="div" role="listitem" className="mx-auto w-full max-w-lg">
+        <article className="group relative overflow-hidden rounded-3xl border border-rose-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 sm:p-7 shadow-xl shadow-rose-900/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/25 text-center">
+          <div className="pointer-events-none absolute -left-10 -bottom-10 h-36 w-36 rounded-full bg-gradient-to-tr from-rose-300/30 to-pink-200/20 blur-2xl transition-all duration-500 group-hover:scale-150" />
+
+          <RomanticDateBadge date={date} highlight={true} className="mb-4" />
+
+          <div className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 px-4.5 py-1.5 text-sm font-bold text-white shadow-md shadow-rose-200 mb-3.5">
+            <Heart size={15} className="fill-white" />
+            <span className="font-display">{label}</span>
+          </div>
+
+          <p className="text-sm sm:text-base leading-relaxed text-rose-900 font-medium">
+            {message}
+          </p>
         </article>
       </RevealItem>
       {showConnector ? <CardConnector /> : null}
@@ -75,7 +100,7 @@ export function TimelineLoveConfession({
 
 function hasMemoryContent(memory) {
   return Boolean(
-    memory.image?.trim() || memory.date || memory.text?.trim(),
+    memory.image?.trim() || memory.url?.trim() || memory.date || memory.text?.trim(),
   )
 }
 
@@ -83,44 +108,71 @@ export function isVisibleMemory(memory) {
   return hasMemoryContent(memory)
 }
 
-export function TimelineMemoryCard({ memory, showConnector = true }) {
-  const hasImage = Boolean(memory.image?.trim())
+export function TimelineMemoryCard({ memory, showConnector = true, onImageClick, onOpen }) {
+  const hasImage = Boolean(memory.image?.trim() || memory.url?.trim())
+  const imgSrc = memory.image || memory.url
   const hasDate = Boolean(memory.date)
   const hasText = Boolean(memory.text?.trim())
+  const [isLoaded, setIsLoaded] = useState(false)
 
   if (!hasImage && !hasDate && !hasText) return null
 
-  const caption = hasDate || hasText
+  const formattedDate = memory.date ? formatDateLong(memory.date) : null
+  const handleClick = () => {
+    if (onOpen) onOpen()
+    else if (onImageClick) onImageClick(imgSrc, memory.text || 'ذكرى')
+  }
 
   return (
     <>
-      <RevealItem as="div" role="listitem" className="mx-auto w-full">
-        {hasImage ? (
-          <article className="theme-shadow-card w-full overflow-hidden rounded-2xl border border-rose-200/60 bg-white text-center">
-            <img
-              src={memory.image}
-              alt={hasText ? memory.text : 'ذكرى'}
-              className="block w-full h-auto"
-              loading="lazy"
-              decoding="async"
-            />
-            {caption ? (
-              <div className="px-4 py-3">
-                <DateBadge date={hasDate ? memory.date : null} className="mb-1.5" />
-                {hasText ? (
-                  <p className="text-sm leading-relaxed text-rose-700">{memory.text}</p>
-                ) : null}
-              </div>
-            ) : null}
-          </article>
-        ) : (
-          <article className="content-card">
-            <DateBadge date={hasDate ? memory.date : null} className="mb-3" />
-            {hasText ? (
-              <p className="text-sm leading-relaxed text-rose-700">{memory.text}</p>
-            ) : null}
-          </article>
-        )}
+      <RevealItem as="div" role="listitem" className="w-full max-w-lg mx-auto">
+        <article className="group overflow-hidden rounded-[28px] border border-rose-100/90 bg-white shadow-xl shadow-rose-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/20 text-center w-full flex flex-col justify-between">
+          {hasImage ? (
+            <button
+              type="button"
+              onClick={handleClick}
+              className="relative block w-full aspect-[4/3] overflow-hidden bg-rose-50/60 group/img cursor-pointer"
+            >
+              {/* Skeleton Loading Shimmer until image is ready */}
+              {!isLoaded && (
+                <div className="absolute inset-0 bg-gradient-to-r from-rose-100 via-pink-100 to-rose-100 animate-pulse flex items-center justify-center">
+                  <span className="text-rose-300 text-xl font-bold">♥</span>
+                </div>
+              )}
+              <img
+                src={imgSrc}
+                alt={hasText ? memory.text : 'ذكرى'}
+                onLoad={() => setIsLoaded(true)}
+                className={`h-full w-full object-cover transition-all duration-500 group-hover/img:scale-105 ${
+                  isLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading="eager"
+                decoding="async"
+              />
+            </button>
+          ) : null}
+
+          {(hasDate || hasText) ? (
+            <div className="p-5 sm:p-6 flex-1 flex flex-col items-center justify-center">
+              {/* 🎯 التاريخ بالعرض كأنه كلمة مكتوبة وعلى قد الكلام لتوفير المساحة */}
+              {hasDate && formattedDate && (
+                <div className="mx-auto mb-2.5 w-fit rounded-full border border-rose-100/90 bg-gradient-to-r from-rose-50/90 via-white to-pink-50/90 px-3.5 py-1 text-center shadow-xs transition-transform duration-300 group-hover:scale-105">
+                  <span className="text-xs sm:text-sm font-bold text-rose-800 tracking-wide flex items-center justify-center gap-1.5">
+                    <Calendar size={13} className="text-rose-500 shrink-0" />
+                    <span>{formattedDate}</span>
+                  </span>
+                </div>
+              )}
+
+              {/* النص والكلام */}
+              {hasText && (
+                <p className="text-sm sm:text-base leading-relaxed text-rose-900 font-semibold text-center">
+                  {memory.text}
+                </p>
+              )}
+            </div>
+          ) : null}
+        </article>
       </RevealItem>
       {showConnector ? <CardConnector /> : null}
     </>
@@ -129,10 +181,7 @@ export function TimelineMemoryCard({ memory, showConnector = true }) {
 
 export default function StoryTimeline({ children }) {
   return (
-    <div
-      role="list"
-      className="mx-auto flex w-full flex-col items-center gap-2"
-    >
+    <div role="list" className="mx-auto flex w-full flex-col items-center gap-2 max-w-xl">
       {children}
     </div>
   )

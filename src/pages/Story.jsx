@@ -1,4 +1,7 @@
+import { useMemo, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import FlowPage from '../components/FlowPage'
+import GalleryLightbox from '../components/GalleryLightbox'
 import NextButton from '../components/NextButton'
 import { RevealGroup, RevealItem } from '../components/Reveal'
 import StoryTimeline, {
@@ -12,8 +15,8 @@ import { useContent } from '../context/ContentContext'
 export default function Story({ onNext }) {
   const { content } = useContent()
   const { story, memories, dates } = content
-  const visibleMemories = memories.filter(isVisibleMemory)
-  const lastMemoryIndex = visibleMemories.length - 1
+  const visibleMemories = useMemo(() => memories.filter(isVisibleMemory), [memories])
+  const [lightboxIndex, setLightboxIndex] = useState(null)
 
   return (
     <FlowPage variant="flow" className="pb-8">
@@ -45,15 +48,40 @@ export default function Story({ onNext }) {
             <TimelineMemoryCard
               key={memory.id}
               memory={memory}
-              showConnector={index < lastMemoryIndex}
+              showConnector={index < visibleMemories.length - 1}
+              onOpen={() => setLightboxIndex(index)}
             />
           ))}
+
+          {visibleMemories.length === 0 && (
+            <RevealItem className="w-full max-w-lg mx-auto">
+              <div className="rounded-3xl border border-rose-100 bg-white/70 p-6 text-center backdrop-blur-sm shadow">
+                <p className="text-2xl mb-2">📷</p>
+                <p className="text-sm text-rose-400 font-medium">لا توجد ذكريات بعد</p>
+                <p className="text-xs text-rose-300 mt-1">يمكن إضافتها من لوحة التحكم</p>
+              </div>
+            </RevealItem>
+          )}
         </StoryTimeline>
 
         <RevealItem className="mt-6 w-full">
-          <NextButton onClick={onNext}>{story.memoriesButton}</NextButton>
+          <NextButton onClick={onNext} defaultText="كملي لمعرض صورنا 📷">
+            {story?.memoriesButton}
+          </NextButton>
         </RevealItem>
       </RevealGroup>
+
+      <AnimatePresence>
+        {lightboxIndex !== null && visibleMemories[lightboxIndex] ? (
+          <GalleryLightbox
+            items={visibleMemories}
+            activeIndex={lightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+            onIndexChange={setLightboxIndex}
+          />
+        ) : null}
+      </AnimatePresence>
     </FlowPage>
   )
 }
+

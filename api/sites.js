@@ -1,10 +1,19 @@
-import pool from './db.js'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
 import { encrypt, decrypt } from './cryptoHelper.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
+
+const restHeaders = {
+  'apikey': SECRET_KEY,
+  'Authorization': `Bearer ${JWT_TOKEN}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+}
 
 export default async function handler(req, res) {
   // Enable CORS and disable HTTP response caching
@@ -28,19 +37,22 @@ export default async function handler(req, res) {
   try {
     // GET: Return site content with accurate passwords for Dashboard and Site
     if (req.method === 'GET') {
-      const result = await fetchCompleteSite(pool, slug)
+      const result = await fetchCompleteSite(null, slug)
       if (!result) {
-        return res.status(444).json({ error: 'site_not_found' })
+      return res.status(404).json({ error: 'site_not_found' })
       }
 
       const { row, content } = result
       let sitePass = decrypt(row.visitor_password).trim()
       let adminPass = decrypt(row.admin_password).trim()
 
-      // Auto-repair visitor password if accidentally set to 'ThisIsLove' or empty
       if (sitePass === 'ThisIsLove' || !sitePass) {
         sitePass = adminPass || 'soulove'
-        await pool.query('UPDATE sites SET visitor_password = $1 WHERE id = $2;', [encrypt(sitePass), row.id]).catch(() => {})
+        fetch(`${SUPABASE_URL}/rest/v1/sites?id=eq.${row.id}`, {
+          method: 'PATCH',
+          headers: restHeaders,
+          body: JSON.stringify({ visitor_password: encrypt(sitePass) })
+        }).catch(() => {})
       }
       if (!adminPass) {
         adminPass = sitePass || 'soulove'
@@ -56,7 +68,7 @@ export default async function handler(req, res) {
       })
     }
 
-    // POST: Server-side password verification for Visitor & Admin Login (Returns JWT token for admin)
+    // POST: Server-side password verification for Visitor & Admin Login
     if (req.method === 'POST') {
       const { password, action = 'verify_visitor' } = req.body || {}
 
@@ -64,16 +76,15 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const dbRes = await pool.query(
-        'SELECT visitor_password, admin_password FROM sites WHERE slug = $1;',
-        [slug],
-      )
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password`, { headers: restHeaders })
+      if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
+      const rows = await r.json()
 
-      if (dbRes.rows.length === 0) {
-        return res.status(444).json({ error: 'site_not_found' })
+      if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(404).json({ error: 'site_not_found' })
       }
 
-      const row = dbRes.rows[0]
+      const row = rows[0]
       const vDecrypted = decrypt(row.visitor_password).trim()
       const aDecrypted = decrypt(row.admin_password).trim()
 
@@ -87,7 +98,6 @@ export default async function handler(req, res) {
           return res.status(401).json({ error: 'invalid_password', success: false })
         }
 
-        // Generate JWT token for admin session
         const token = jwt.sign(
           { slug, role: 'admin' },
           JWT_SECRET,
@@ -97,7 +107,6 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, role: 'admin', token })
       }
 
-      // Default: verify visitor password
       const expectedSitePass = (vDecrypted || 'soulove').trim()
       const vMatch = expectedSitePass.startsWith('$2')
         ? await bcrypt.compare(String(password).trim(), expectedSitePass)
@@ -109,7 +118,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, role: 'visitor' })
     }
 
-    // PUT: Update site content (Requires Server-Side Admin Password or JWT Check)
+    // PUT: Update site content
     if (req.method === 'PUT') {
       const { password, token, content } = req.body || {}
 
@@ -117,17 +126,34 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'content_required' })
       }
 
-      // Check current password or JWT token against database
-      const dbRes = await pool.query(
-        'SELECT visitor_password, admin_password FROM sites WHERE slug = $1;',
-        [slug],
-      )
+      // Enforce Zero Base64 Policy safely by sanitizing any leftover base64 strings & Payload Size Limit (<150KB)
+      let cleanContent = content
+      let contentString = JSON.stringify(content)
 
-      if (dbRes.rows.length === 0) {
+      if (contentString.includes('data:image/') || contentString.includes('data:audio/') || contentString.includes('base64,')) {
+        try {
+          cleanContent = JSON.parse(
+            contentString.replace(/"data:(image|audio)\/[^"]+;base64,[^"]+"/g, '""')
+          )
+          contentString = JSON.stringify(cleanContent)
+        } catch {
+          // Fallback
+        }
+      }
+
+      if (contentString.length > 150000) {
+        return res.status(400).json({ error: 'payload_too_large', message: 'حجم طلب الحفظ يتجاوز الحد المسموح به.' })
+      }
+
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password`, { headers: restHeaders })
+      if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
+      const rows = await r.json()
+
+      if (!Array.isArray(rows) || rows.length === 0) {
         return res.status(444).json({ error: 'site_not_found' })
       }
 
-      const row = dbRes.rows[0]
+      const row = rows[0]
       const vDecrypted = decrypt(row.visitor_password).trim()
       const aDecrypted = decrypt(row.admin_password).trim()
 
@@ -160,21 +186,21 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'invalid_password' })
       }
 
-      let newSitePass = (content.password && typeof content.password === 'string' && content.password.trim() && content.password.trim() !== 'ThisIsLove')
-        ? content.password.trim()
+      let newSitePass = (cleanContent.password && typeof cleanContent.password === 'string' && cleanContent.password.trim() && cleanContent.password.trim() !== 'ThisIsLove')
+        ? cleanContent.password.trim()
         : (vDecrypted !== 'ThisIsLove' ? vDecrypted : '')
 
-      let newAdminPass = (content.adminPassword && typeof content.adminPassword === 'string' && content.adminPassword.trim())
-        ? content.adminPassword.trim()
+      let newAdminPass = (cleanContent.adminPassword && typeof cleanContent.adminPassword === 'string' && cleanContent.adminPassword.trim())
+        ? cleanContent.adminPassword.trim()
         : aDecrypted
 
       if (!newSitePass) newSitePass = newAdminPass || 'soulove'
       if (!newAdminPass) newAdminPass = newSitePass || 'soulove'
 
-      content.password = newSitePass
-      content.adminPassword = newAdminPass
+      cleanContent.password = newSitePass
+      cleanContent.adminPassword = newAdminPass
 
-      const result = await saveRelationalContent(pool, slug, content)
+      const result = await saveRelationalContent(null, slug, cleanContent)
 
       return res.status(200).json({
         success: true,
@@ -186,6 +212,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' })
   } catch (err) {
     console.error('API /sites error:', err)
-    return res.status(500).json({ error: err.message })
+    return res.status(500).json({ error: 'حدث خطأ داخلي، حاول مرة أخرى' })
   }
 }

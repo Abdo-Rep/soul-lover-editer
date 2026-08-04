@@ -1,6 +1,16 @@
-import pool from './db.js'
 import bcrypt from 'bcryptjs'
 import { encrypt, decrypt } from './cryptoHelper.js'
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
+
+const restHeaders = {
+  'apikey': SECRET_KEY,
+  'Authorization': `Bearer ${JWT_TOKEN}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+}
 
 export default async function handler(req, res) {
   // CORS and Cache Control
@@ -15,35 +25,42 @@ export default async function handler(req, res) {
     return res.status(200).end()
   }
 
-  // 1. Authenticate against database table super_admins
+  // 1. Authenticate Super Admin against Supabase REST / super_admins table or primary credentials
   const authHeader = req.headers.authorization || ''
   let token = authHeader.replace(/^Bearer\s+/i, '').trim() || req.query.token
+  let email = (req.headers['x-admin-email'] || req.headers['X-Admin-Email'] || req.query.email || '').trim()
+
+  if (token && token.includes(':')) {
+    const parts = token.split(':')
+    email = parts[0]
+    token = parts[1]
+  }
 
   let isAuthorized = false
 
-  if (token) {
-    let email = req.headers['x-admin-email'] || req.query.email || ''
-    if (token.includes(':')) {
-      const parts = token.split(':')
-      email = parts[0]
-      token = parts[1]
-    }
-
-    if (email && token) {
+  if (email && token) {
+    const cleanEmail = email.toLowerCase()
+    // Direct check for primary admin credentials
+    if ((cleanEmail === 'admin@saalove.com' || cleanEmail === 'admin@admin.com') && token === 'Mohammedosha1#') {
+      isAuthorized = true
+    } else {
       try {
-        const adminRes = await pool.query(
-          'SELECT email, password_hash FROM super_admins WHERE LOWER(email) = LOWER($1);',
-          [email],
+        const r = await fetch(
+          `${SUPABASE_URL}/rest/v1/super_admins?email=eq.${encodeURIComponent(cleanEmail)}`,
+          { headers: restHeaders }
         )
-        if (adminRes.rows.length > 0) {
-          const hash = adminRes.rows[0].password_hash
-          const match = await bcrypt.compare(token, hash)
-          if (match) {
-            isAuthorized = true
+        if (r.ok) {
+          const rows = await r.json()
+          if (Array.isArray(rows) && rows.length > 0) {
+            const hash = rows[0].password_hash
+            const match = await bcrypt.compare(token, hash)
+            if (match) {
+              isAuthorized = true
+            }
           }
         }
       } catch (e) {
-        console.error('Super Admin DB check error:', e)
+        console.error('Super Admin REST auth check error:', e)
       }
     }
   }
@@ -54,21 +71,23 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Auto-repair visitor password if accidentally set to 'ThisIsLove' or empty
-      await pool.query(
-        "UPDATE sites SET visitor_password = admin_password WHERE visitor_password = 'ThisIsLove' OR visitor_password IS NULL OR visitor_password = '';",
-      ).catch(() => {})
-
-      const dbRes = await pool.query(
-        'SELECT slug, visitor_password, admin_password, created_at, updated_at FROM sites ORDER BY created_at DESC;',
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at&order=created_at.desc`,
+        { headers: restHeaders }
       )
 
-      const decryptedSites = dbRes.rows.map(row => ({
+      if (!r.ok) {
+        return res.status(500).json({ error: 'فشل جلب قائمة المواقع من الخادم' })
+      }
+
+      const rows = await r.json()
+
+      const decryptedSites = rows.map((row) => ({
         slug: row.slug,
         site_password: decrypt(row.visitor_password),
         admin_password: decrypt(row.admin_password),
         created_at: row.created_at,
-        updated_at: row.updated_at
+        updated_at: row.updated_at,
       }))
 
       return res.status(200).json({ sites: decryptedSites })
@@ -92,14 +111,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'invalid_slug_format' })
       }
 
-      // Check if already exists
-      const checkRes = await pool.query(
-        'SELECT slug FROM sites WHERE slug = $1;',
-        [cleanSlug],
+      // Check if site already exists
+      const checkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(cleanSlug)}&select=slug`,
+        { headers: restHeaders }
       )
-
-      if (checkRes.rows.length > 0) {
-        return res.status(409).json({ error: 'slug_already_exists' })
+      if (checkRes.ok) {
+        const checkRows = await checkRes.json()
+        if (Array.isArray(checkRows) && checkRows.length > 0) {
+          return res.status(409).json({ error: 'slug_already_exists' })
+        }
       }
 
       const cleanVisitorPass = String(sitePassword).trim().replace(/[\u0600-\u06FF\s]/g, '')
@@ -108,20 +129,32 @@ export default async function handler(req, res) {
       const encryptedVisitorPass = encrypt(cleanVisitorPass)
       const encryptedAdminPass = encrypt(cleanAdminPass)
 
-      const insertRes = await pool.query(
-        `INSERT INTO sites (slug, site_name, visitor_password, admin_password)
-         VALUES ($1, $2, $3, $4)
-         RETURNING slug, visitor_password, admin_password, created_at;`,
-        [cleanSlug, cleanSlug, encryptedVisitorPass, encryptedAdminPass],
-      )
+      const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
+        method: 'POST',
+        headers: restHeaders,
+        body: JSON.stringify({
+          slug: cleanSlug,
+          site_name: cleanSlug,
+          visitor_password: encryptedVisitorPass,
+          admin_password: encryptedAdminPass,
+        }),
+      })
+
+      if (!insertRes.ok) {
+        const errText = await insertRes.text().catch(() => '')
+        throw new Error(`فشل إنشاء الموقع: ${errText}`)
+      }
+
+      const inserted = await insertRes.json()
+      const newRow = Array.isArray(inserted) ? inserted[0] : inserted
 
       return res.status(201).json({
         success: true,
         site: {
-          slug: insertRes.rows[0].slug,
-          site_password: decrypt(insertRes.rows[0].visitor_password),
-          admin_password: decrypt(insertRes.rows[0].admin_password),
-          created_at: insertRes.rows[0].created_at
+          slug: newRow.slug,
+          site_password: decrypt(newRow.visitor_password),
+          admin_password: decrypt(newRow.admin_password),
+          created_at: newRow.created_at,
         },
       })
     }
@@ -132,7 +165,11 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'slug_required' })
       }
 
-      await pool.query('DELETE FROM sites WHERE slug = $1;', [slug])
+      await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
+        method: 'DELETE',
+        headers: restHeaders,
+      })
+
       return res.status(200).json({ success: true, deletedSlug: slug })
     }
 

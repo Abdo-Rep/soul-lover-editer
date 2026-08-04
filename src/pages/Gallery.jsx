@@ -55,7 +55,9 @@ export default function Gallery({ onNext, showNext = true }) {
 
       {showNext && (
         <RevealItem className="mt-10 w-full">
-          <NextButton onClick={onNext}>{gallery.finalButton}</NextButton>
+          <NextButton onClick={onNext} defaultText="الانتقال للرسالة الأخيرة 💌">
+            {gallery?.finalButton}
+          </NextButton>
         </RevealItem>
       )}
 

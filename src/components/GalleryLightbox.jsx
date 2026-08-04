@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X, ChevronRight, ChevronLeft } from 'lucide-react'
 import { formatDateLong } from '../utils/formatDate'
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 
 const slideVariants = {
   enter: (direction) => ({
@@ -53,7 +54,9 @@ export default function GalleryLightbox({
     }
   }
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -122,12 +125,12 @@ export default function GalleryLightbox({
               className="flex w-full flex-col items-center p-0 m-0"
             >
               {/* Image Container Edge-to-Edge */}
-              <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-black/10">
-                {item.image ? (
+              <div className="w-full flex justify-center p-0 m-0 overflow-hidden bg-neutral-100/90">
+                {(item.image || item.url) ? (
                   <img
-                    src={item.image}
-                    alt={item.text || 'ذكرى'}
-                    className="w-full h-auto max-h-[62dvh] object-cover block p-0 m-0 border-none shadow-none"
+                    src={item.image || item.url}
+                    alt={item.text || item.description || 'ذكرى'}
+                    className="w-full h-auto max-h-[62dvh] object-contain block p-0 m-0 border-none shadow-none"
                     style={{ objectPosition: item.objectPosition || 'center' }}
                     draggable={false}
                   />
@@ -140,13 +143,17 @@ export default function GalleryLightbox({
 
               {/* Caption */}
               {hasCaption && (
-                <div className="w-full text-center px-4 py-3.5 bg-white">
+                <div className="w-full text-center px-4 py-4 bg-white flex flex-col items-center">
                   {formattedDate && (
-                    <p className="text-xs font-semibold text-rose-400 mb-1">{formattedDate}</p>
+                    <div className="inline-flex items-center justify-center gap-2 rounded-full border border-pink-200/80 bg-pink-50/90 px-5 py-1.5 text-xs sm:text-sm font-extrabold text-rose-800 shadow-xs mb-2">
+                      <span className="text-pink-500 text-sm">🩷</span>
+                      <span className="font-display tracking-wide">{formattedDate}</span>
+                      <span className="text-pink-500 text-sm">📅</span>
+                    </div>
                   )}
-                  {item.text?.trim() && (
-                    <p className="text-sm md:text-base leading-relaxed text-rose-800" dir="rtl">
-                      {item.text}
+                  {(item.text || item.description)?.trim() && (
+                    <p className="text-sm sm:text-base font-bold leading-relaxed text-rose-900 text-center px-2" dir="rtl">
+                      {item.text || item.description}
                     </p>
                   )}
                 </div>
@@ -165,6 +172,7 @@ export default function GalleryLightbox({
           </button>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   )
 }

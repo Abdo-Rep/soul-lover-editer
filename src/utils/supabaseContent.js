@@ -112,6 +112,120 @@ export async function verifyAdminPassword(password, slug) {
   }
 }
 
+// Convert base64 data URL to a File object for automatic uploading
+export function base64ToFile(base64String, filename = 'uploaded-asset') {
+  try {
+    const arr = base64String.split(',')
+    const mimeMatch = arr[0].match(/:(.*?);/)
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png'
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    const ext = mime.split('/')[1] || 'png'
+    return new File([u8arr], `${filename}.${ext}`, { type: mime })
+  } catch (err) {
+    console.error('Failed to convert base64 to file:', err)
+    return null
+  }
+}
+
+// Automatically scan and upload any Base64 strings in content before saving
+export async function autoUploadBase64Content(content, slug) {
+  if (!content || typeof content !== 'object') return content
+
+  const contentStr = JSON.stringify(content)
+  if (!contentStr.includes('data:')) {
+    return content
+  }
+
+  const sanitized = JSON.parse(contentStr)
+
+  // 1. Memories images
+  if (Array.isArray(sanitized.memories)) {
+    for (let i = 0; i < sanitized.memories.length; i++) {
+      const memory = sanitized.memories[i]
+      if (memory?.image && typeof memory.image === 'string' && memory.image.startsWith('data:')) {
+        try {
+          const file = base64ToFile(memory.image, `memory-${memory.id || i}`)
+          if (file) {
+            const url = await uploadAsset(file, 'memories', slug)
+            sanitized.memories[i].image = url
+          } else {
+            sanitized.memories[i].image = ''
+          }
+        } catch {
+          sanitized.memories[i].image = ''
+        }
+      }
+    }
+  }
+
+  // 2. Gallery items images
+  if (Array.isArray(sanitized.galleryItems)) {
+    for (let i = 0; i < sanitized.galleryItems.length; i++) {
+      const item = sanitized.galleryItems[i]
+      const imgStr = item?.image || item?.url || ''
+      if (typeof imgStr === 'string' && imgStr.startsWith('data:')) {
+        try {
+          const file = base64ToFile(imgStr, `gallery-${item.id || i}`)
+          if (file) {
+            const url = await uploadAsset(file, 'gallery', slug)
+            sanitized.galleryItems[i].image = url
+            sanitized.galleryItems[i].url = url
+          } else {
+            sanitized.galleryItems[i].image = ''
+            sanitized.galleryItems[i].url = ''
+          }
+        } catch {
+          sanitized.galleryItems[i].image = ''
+          sanitized.galleryItems[i].url = ''
+        }
+      }
+    }
+  }
+
+  // 3. Music tracks
+  if (sanitized.music) {
+    if (Array.isArray(sanitized.music.tracks)) {
+      for (let i = 0; i < sanitized.music.tracks.length; i++) {
+        const track = sanitized.music.tracks[i]
+        if (track?.src && typeof track.src === 'string' && track.src.startsWith('data:')) {
+          try {
+            const file = base64ToFile(track.src, `music-${track.id || i}`)
+            if (file) {
+              const url = await uploadAsset(file, 'music', slug)
+              sanitized.music.tracks[i].src = url
+            } else {
+              sanitized.music.tracks[i].src = ''
+            }
+          } catch {
+            sanitized.music.tracks[i].src = ''
+          }
+        }
+      }
+    }
+
+    if (sanitized.music.src && typeof sanitized.music.src === 'string' && sanitized.music.src.startsWith('data:')) {
+      try {
+        const file = base64ToFile(sanitized.music.src, 'music-main')
+        if (file) {
+          const url = await uploadAsset(file, 'music', slug)
+          sanitized.music.src = url
+        } else {
+          sanitized.music.src = ''
+        }
+      } catch {
+        sanitized.music.src = ''
+      }
+    }
+  }
+
+  return sanitized
+}
+
 export async function saveRemoteContent(content, password, slug) {
   if (!slug) {
     throw new Error('معرف الموقع غير موضح')
@@ -122,6 +236,9 @@ export async function saveRemoteContent(content, password, slug) {
   if (!password && !token) {
     throw new Error('سجّل خروج ثم ادخل من جديد بكلمة المرور الحالية')
   }
+
+  // Auto upload any leftover Base64 media files before saving JSON payload
+  const cleanContent = await autoUploadBase64Content(content, slug)
 
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 12000)
@@ -136,7 +253,7 @@ export async function saveRemoteContent(content, password, slug) {
       body: JSON.stringify({
         password,
         token,
-        content,
+        content: cleanContent,
       }),
     })
     clearTimeout(timeoutId)
@@ -171,8 +288,12 @@ export async function loadSiteContent(slug) {
   return await fetchRemoteContent(slug)
 }
 
-export function isAudioFile() {
-  return true
+export function isAudioFile(file) {
+  if (!file) return false
+  const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/flac', 'audio/aac', 'audio/m4a', 'audio/webm', 'audio/x-m4a']
+  if (file.type && audioTypes.includes(file.type.toLowerCase())) return true
+  if (file.name && /\.(mp3|wav|ogg|flac|aac|m4a|webm)$/i.test(file.name)) return true
+  return false
 }
 
 export async function uploadAsset(file, category = 'gallery', slug = '') {
@@ -223,4 +344,33 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
   }
 
   throw new Error(lastError || 'تعذّر رفع الملف')
+}
+
+export async function deleteAsset(fileUrl, slug = '') {
+  if (!fileUrl || typeof fileUrl !== 'string') return false
+  const activeSlug = slug || getSlugFromPath() || 'default'
+  const token = activeSlug ? getAdminTokenForSync(activeSlug) : ''
+
+  const endpoints = []
+  if (MEDIA_SERVER_URL) {
+    endpoints.push(`${MEDIA_SERVER_URL.replace(/\/$/, '')}/api/delete`)
+  }
+  endpoints.push('/api/delete')
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ fileUrl, slug: activeSlug }),
+      })
+      if (res.ok) return true
+    } catch {
+      // Background physical cleanup fail silent fallback
+    }
+  }
+  return false
 }

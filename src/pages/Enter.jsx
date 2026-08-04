@@ -4,6 +4,7 @@ import ContentLoadingHearts from '../components/ContentLoadingHearts'
 import FlowPage from '../components/FlowPage'
 import { RevealGroup, RevealItem } from '../components/Reveal'
 import { useContent } from '../context/ContentContext'
+import { useMusic } from '../context/MusicContext'
 
 export default function Enter({ onLogin }) {
   const [password, setPassword] = useState('')
@@ -12,6 +13,7 @@ export default function Enter({ onLogin }) {
   const [shake, setShake] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const { content, isLoading, verifyPassword } = useContent()
+  const { primeAudio, pauseMusic } = useMusic()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -21,9 +23,13 @@ export default function Enter({ onLogin }) {
     setSubmitting(true)
     setError('')
 
+    // Prime/start music playback synchronously on user submit gesture (0ms lag)
+    primeAudio()
+
     try {
       const isValid = await verifyPassword(password)
       if (!isValid) {
+        pauseMusic()
         setError(content.login?.error || 'كلمة المرور غير صحيحة')
         setShake(true)
         window.setTimeout(() => setShake(false), 450)
@@ -32,15 +38,14 @@ export default function Enter({ onLogin }) {
 
       onLogin(password)
     } catch {
+      pauseMusic()
       setError('تعذّر التحقق من كلمة المرور — حاول مرة أخرى')
     } finally {
       setSubmitting(false)
     }
   }
 
-  if (isLoading) {
-    return <ContentLoadingHearts />
-  }
+
 
   return (
     <FlowPage variant="center">
@@ -104,9 +109,9 @@ export default function Enter({ onLogin }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex w-full items-center justify-center rounded-t-xl border-b-2 border-rose-400 border-t-0 border-l-0 border-r-0 bg-transparent px-4 pt-3.5 pb-1 text-sm font-semibold text-rose-600 transition hover:bg-rose-50/50 hover:border-rose-500 active:scale-[0.98] disabled:opacity-70"
+                className="group relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 px-8 py-3.5 text-sm sm:text-base font-extrabold text-white shadow-lg shadow-rose-500/25 ring-2 ring-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-rose-500/40 active:scale-95 disabled:opacity-70 cursor-pointer"
               >
-                {submitting ? 'جاري التحقق...' : content.login.button}
+                <span className="font-display tracking-wide">{submitting ? 'جاري التحقق...' : (content.login?.button || 'ادخل 💖')}</span>
               </button>
             </form>
           </div>

@@ -173,26 +173,36 @@ function collectThemeVars(palette, hearts, backgroundHeartRgb) {
   return vars
 }
 
-function writeThemeCache() {
+function writeThemeCache(appearance, vars) {
   if (typeof localStorage === 'undefined') return
   try {
-    localStorage.removeItem(THEME_VARS_CACHE_KEY)
-    localStorage.removeItem(THEME_APPEARANCE_CACHE_KEY)
+    localStorage.setItem(THEME_VARS_CACHE_KEY, JSON.stringify(vars))
+    localStorage.setItem(THEME_APPEARANCE_CACHE_KEY, JSON.stringify(appearance))
   } catch {}
 }
 
 export function readCachedAppearance() {
-  return null
+  if (typeof localStorage === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(THEME_APPEARANCE_CACHE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
 }
 
 export function applyCachedSiteTheme() {
-  if (typeof localStorage !== 'undefined') {
-    try {
-      localStorage.removeItem(THEME_VARS_CACHE_KEY)
-      localStorage.removeItem(THEME_APPEARANCE_CACHE_KEY)
-    } catch {}
-  }
-  return false
+  if (typeof localStorage === 'undefined') return false
+  try {
+    const rawVars = localStorage.getItem(THEME_VARS_CACHE_KEY)
+    const rawApp = localStorage.getItem(THEME_APPEARANCE_CACHE_KEY)
+    if (!rawVars || !rawApp) return false
+    const vars = JSON.parse(rawVars)
+    const appearance = JSON.parse(rawApp)
+    const root = document.documentElement
+    Object.entries(vars).forEach(([key, value]) => root.style.setProperty(key, String(value)))
+    if (appearance.mode === 'dark') root.classList.add('dark')
+    else root.classList.remove('dark')
+    return true
+  } catch { return false }
 }
 
 export function applySiteTheme(appearanceInput) {

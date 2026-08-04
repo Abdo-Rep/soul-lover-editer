@@ -25,8 +25,8 @@ export const config = {
     loveTransition: {
       expandDuration: 2.8,
       revealDuration: 3,
-      particleCount: 168,
-      mobileParticleCount: 96,
+      particleCount: 36,
+      mobileParticleCount: 20,
     },
     heartExplosion: {
       duration: 2200,
