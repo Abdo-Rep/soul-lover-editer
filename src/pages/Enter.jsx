@@ -12,18 +12,18 @@ export default function Enter({ onLogin }) {
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const { content, isLoading, verifyPassword } = useContent()
+  const { content, verifyPassword } = useContent()
   const { primeAudio, pauseMusic } = useMusic()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    if (isLoading || submitting) return
+    if (submitting) return
 
     setSubmitting(true)
     setError('')
 
-    // Prime/start music playback synchronously on user submit gesture (0ms lag)
+    // ⭐ Prime/start music IMMEDIATELY on user click (synchronous — must be before any await)
     primeAudio()
 
     try {

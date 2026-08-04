@@ -1,4 +1,75 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+// ─── PWA Install Button ───────────────────────────────────────────────────────
+function PWAInstallButton() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [installed, setInstalled] = useState(false)
+  const [showTip, setShowTip] = useState(false)
+  const tipRef = useRef(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      setInstalled(true)
+      return
+    }
+    const handler = (e) => { e.preventDefault(); setDeferredPrompt(e) }
+    const onInstalled = () => { setInstalled(true); setDeferredPrompt(null) }
+    window.addEventListener('beforeinstallprompt', handler)
+    window.addEventListener('appinstalled', onInstalled)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler)
+      window.removeEventListener('appinstalled', onInstalled)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!showTip) return
+    const handler = (e) => { if (tipRef.current && !tipRef.current.contains(e.target)) setShowTip(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showTip])
+
+  if (installed) return null
+
+  const handleClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      if (outcome === 'accepted') setInstalled(true)
+      setDeferredPrompt(null)
+    } else {
+      setShowTip((v) => !v)
+    }
+  }
+
+  return (
+    <div className="relative" ref={tipRef}>
+      <button
+        type="button"
+        onClick={handleClick}
+        title="تثبيت كتطبيق 📲"
+        className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 rounded-xl bg-[#0f152d] border border-[#1e294d] text-[#7786a5] hover:text-white hover:border-[#ff3b68] transition-all text-xs font-bold"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12" y2="18" strokeWidth="3" />
+        </svg>
+        <span className="hidden sm:inline">تثبيت التطبيق</span>
+      </button>
+
+      {showTip && (
+        <div className="absolute left-0 top-full mt-2 w-64 rounded-2xl border border-[#19213d] bg-[#0b0e20] p-4 shadow-2xl text-right z-50">
+          <p className="text-xs font-bold text-white mb-2">📲 كيف تثبت التطبيق؟</p>
+          <div className="space-y-1.5 text-[11px] text-[#7786a5]">
+            <p>🤖 <span className="text-white font-semibold">أندرويد Chrome:</span> اضغط ⋮ ← «تثبيت التطبيق»</p>
+            <p>🍎 <span className="text-white font-semibold">iPhone Safari:</span> اضغط <span className="font-bold">⎋</span> ← «إضافة إلى الشاشة الرئيسية»</p>
+            <p>💻 <span className="text-white font-semibold">كمبيوتر Chrome:</span> اضغط <span className="font-bold">⊕</span> في شريط العنوان</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // Custom Inline SVG Icons
 const HeartSvg = ({ className = "w-6 h-6 text-[#ff3b68]" }) => (
@@ -337,6 +408,8 @@ export default function SuperAdmin() {
 
           {/* Left Side (RTL): Actions */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            <PWAInstallButton />
+
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}

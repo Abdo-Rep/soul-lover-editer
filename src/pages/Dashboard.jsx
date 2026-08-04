@@ -201,6 +201,15 @@ export default function Dashboard() {
   const countdownsList = content?.countdowns || []
 
   const handleAdminLogin = async (password) => {
+    // ✅ مسح جلسة الزائر عند تسجيل دخول الأدمن لمنع الدخول التلقائي للموقع
+    const parts = window.location.pathname.split('/').filter(Boolean)
+    const slug = parts[0] && parts[0] !== 'soulove-admin' && parts[0] !== 'api' && parts[0] !== 'dashboard' ? parts[0] : ''
+    if (typeof sessionStorage !== 'undefined') {
+      if (slug) {
+        sessionStorage.removeItem(`romantic-site-authenticated-${slug}`)
+        sessionStorage.removeItem(`romantic-site-skip-intro`)
+      }
+    }
     adminLoginWithPassword(password)
     await loadFromDatabase()
   }

@@ -4,6 +4,7 @@ import RomanticBackdrop from './components/RomanticBackdrop'
 import Dashboard from './pages/Dashboard'
 import SuperAdmin from './pages/SuperAdmin'
 import NotFound from './pages/NotFound'
+import RootLanding from './pages/RootLanding'
 
 export default function App() {
   return (
@@ -17,7 +18,7 @@ export default function App() {
         <Route path="/:clientSlug/dashboard" element={<Dashboard />} />
 
         {/* Root Visitor Page & Dynamic Client Site at /:clientSlug */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<RootLanding />} />
         <Route path="/:clientSlug" element={<Home />} />
 
         {/* 404 Fallback Error Page for Invalid Paths */}
