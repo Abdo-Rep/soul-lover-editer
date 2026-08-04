@@ -87,6 +87,7 @@ export function MusicProvider({ children }) {
 
     if (prevSrcRef.current !== activeMusicSrc) {
       prevSrcRef.current = activeMusicSrc
+      switchingRef.current = true
 
       audio.pause()
       audio.volume = targetVolumeRef.current || 1
@@ -99,9 +100,23 @@ export function MusicProvider({ children }) {
       audio.load()
 
       if (isPlaying) {
-        audio.play().catch(() => {
-          setIsPlaying(false)
-        })
+        const onCanPlay = () => {
+          audio.removeEventListener('canplay', onCanPlay)
+          switchingRef.current = false
+          audio.play().catch(() => {
+            setIsPlaying(false)
+          })
+        }
+        audio.addEventListener('canplay', onCanPlay)
+        // Fallback: try playing after 3 seconds even if canplay didn't fire
+        setTimeout(() => {
+          switchingRef.current = false
+          if (isPlaying && audio.paused) {
+            audio.play().catch(() => {})
+          }
+        }, 3000)
+      } else {
+        switchingRef.current = false
       }
     }
   }, [activeMusicSrc, isPlaying, currentTrack?.duration])
@@ -132,21 +147,26 @@ export function MusicProvider({ children }) {
     }
 
     try {
-      if (audio.src !== activeMusicSrc) {
-        audio.src = activeMusicSrc
-      }
       await audio.play()
       persistPreference(true)
       return true
     } catch (err) {
-      console.warn('Initial playMusic error:', err)
+      // If audio has no source loaded yet, load it and wait for canplay
       try {
+        audio.src = activeMusicSrc
         audio.load()
+        await new Promise((resolve, reject) => {
+          const onReady = () => { audio.removeEventListener('error', onErr); resolve() }
+          const onErr = () => { audio.removeEventListener('canplay', onReady); reject(new Error('load failed')) }
+          audio.addEventListener('canplay', onReady, { once: true })
+          audio.addEventListener('error', onErr, { once: true })
+          // Timeout after 10 seconds
+          setTimeout(() => { onReady() }, 10000)
+        })
         await audio.play()
         persistPreference(true)
         return true
-      } catch (err2) {
-        console.warn('Retry playMusic failed:', err2)
+      } catch {
         persistPreference(false)
         return false
       }
@@ -222,8 +242,13 @@ export function MusicProvider({ children }) {
 
     const onLoadedMetadata = syncDuration
     const onDurationChange = syncDuration
-    const onPlay = () => setIsPlaying(true)
-    const onPause = () => setIsPlaying(false)
+    const onPlay = () => {
+      if (!switchingRef.current) setIsPlaying(true)
+    }
+    const onPause = () => {
+      // Don't override isPlaying during programmatic track switching
+      if (!switchingRef.current) setIsPlaying(false)
+    }
     const onEnded = () => {
       if (tracks.length > 1) {
         nextTrack()
