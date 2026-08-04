@@ -47,10 +47,10 @@ export default function VoiceRecorder({ onRecordingComplete, isUploading }) {
       let extension = 'webm'
 
       const types = [
-        { mime: 'audio/mp4', ext: 'm4a' },
-        { mime: 'audio/aac', ext: 'aac' },
         { mime: 'audio/webm;codecs=opus', ext: 'webm' },
         { mime: 'audio/webm', ext: 'webm' },
+        { mime: 'audio/mp4', ext: 'm4a' },
+        { mime: 'audio/aac', ext: 'm4a' },
         { mime: 'audio/ogg;codecs=opus', ext: 'ogg' },
       ]
 
@@ -71,8 +71,18 @@ export default function VoiceRecorder({ onRecordingComplete, isUploading }) {
 
       const mediaRecorder = new MediaRecorder(stream, options)
       mediaRecorderRef.current = mediaRecorder
-      actualMimeTypeRef.current = mediaRecorder.mimeType || mimeType || 'audio/webm'
-      actualExtensionRef.current = extension
+      const realMime = (mediaRecorder.mimeType || mimeType || 'audio/webm').toLowerCase()
+      actualMimeTypeRef.current = realMime
+      
+      if (realMime.includes('webm')) {
+        actualExtensionRef.current = 'webm'
+      } else if (realMime.includes('mp4') || realMime.includes('aac')) {
+        actualExtensionRef.current = 'm4a'
+      } else if (realMime.includes('ogg')) {
+        actualExtensionRef.current = 'ogg'
+      } else {
+        actualExtensionRef.current = extension
+      }
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {

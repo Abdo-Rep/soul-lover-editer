@@ -298,9 +298,8 @@ export async function loadSiteContent(slug) {
 
 export function isAudioFile(file) {
   if (!file) return false
-  const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/flac', 'audio/aac', 'audio/m4a', 'audio/webm', 'audio/x-m4a']
-  if (file.type && audioTypes.includes(file.type.toLowerCase())) return true
-  if (file.name && /\.(mp3|wav|ogg|flac|aac|m4a|webm)$/i.test(file.name)) return true
+  if (file.type && file.type.toLowerCase().startsWith('audio/')) return true
+  if (file.name && /\.(mp3|wav|ogg|flac|aac|m4a|webm|opus|mpga|3gp)$/i.test(file.name)) return true
   return false
 }
 
