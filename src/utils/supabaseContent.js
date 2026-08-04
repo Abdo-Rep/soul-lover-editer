@@ -353,6 +353,8 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
   // Direct Supabase Storage fallback (resilient upload)
   try {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+    const SECRET_KEY = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || ''
+    const JWT_TOKEN = import.meta.env.VITE_SERVICE_ROLE_JWT || ''
     const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : '.jpg'
     const filename = `${category}-${Date.now()}${ext}`
     const objectPath = `${activeSlug}/${category}/${filename}`
@@ -361,6 +363,8 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
     const directRes = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
+        ...(SECRET_KEY ? { apikey: SECRET_KEY } : {}),
+        ...(JWT_TOKEN ? { Authorization: `Bearer ${JWT_TOKEN}` } : {}),
         'Content-Type': file.type || 'application/octet-stream',
         'x-upsert': 'true',
       },
