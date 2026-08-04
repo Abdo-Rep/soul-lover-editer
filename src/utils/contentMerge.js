@@ -52,12 +52,47 @@ function ensureUniqueIds(items = []) {
 
 function sanitizeMediaUrl(url) {
   if (!url || typeof url !== 'string') return url
-  if (url.includes('/storage/v1/object/public/')) {
-    const parts = url.split('/storage/v1/object/public/')
-    if (parts.length > 1) {
-      return `https://media.soulove.app/supabase/${parts[1]}`
+  if (url.startsWith('/') || url.startsWith('blob:') || url.startsWith('data:')) return url
+
+  let objectPath = ''
+  
+  const rawMarker = '/storage/v1/object/public/site-media/'
+  const rawIdx = url.indexOf(rawMarker)
+  if (rawIdx !== -1) {
+    objectPath = url.substring(rawIdx + rawMarker.length)
+  } else {
+    const generalMarker = '/storage/v1/object/public/'
+    const generalIdx = url.indexOf(generalMarker)
+    if (generalIdx !== -1) {
+      objectPath = url.substring(generalIdx + generalMarker.length)
+      if (objectPath.startsWith('site-media/')) {
+        objectPath = objectPath.substring('site-media/'.length)
+      }
+    } else {
+      const proxyMarker1 = '/supabase/site-media/'
+      const proxyIdx1 = url.indexOf(proxyMarker1)
+      if (proxyIdx1 !== -1) {
+        objectPath = url.substring(proxyIdx1 + proxyMarker1.length)
+      } else {
+        const proxyMarker2 = '/supabase/'
+        const proxyIdx2 = url.indexOf(proxyMarker2)
+        if (proxyIdx2 !== -1) {
+          objectPath = url.substring(proxyIdx2 + proxyMarker2.length)
+          if (objectPath.startsWith('site-media/')) {
+            objectPath = objectPath.substring('site-media/'.length)
+          }
+        }
+      }
     }
   }
+
+  if (objectPath) {
+    try {
+      objectPath = decodeURIComponent(objectPath)
+    } catch {}
+    return `/api/media?path=${encodeURIComponent(objectPath)}`
+  }
+
   return url
 }
 
