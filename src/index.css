@@ -914,3 +914,76 @@ html.dark .border-rose-100,
 html.dark .border-rose-200 {
   border-color: color-mix(in srgb, var(--theme-300, #fda4af) 30%, transparent) !important;
 }
+
+/* ─── PWA Dynamic Install Banner ────────────────────────────────────────── */
+.pwa-install-banner {
+  background: linear-gradient(135deg, var(--theme-50) 0%, #ffffff 50%, var(--theme-100) 100%);
+  border: 1px solid var(--theme-200);
+  box-shadow: 0 4px 20px -4px rgb(var(--theme-rgb) / 0.15);
+  color: var(--theme-800);
+}
+
+html.dark .pwa-install-banner {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--theme-100) 80%, black) 0%,
+    color-mix(in srgb, var(--theme-50) 90%, black) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--theme-300) 25%, transparent);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+  color: #f8fafc;
+}
+
+.pwa-banner-icon {
+  background: linear-gradient(135deg, var(--theme-500) 0%, var(--theme-600) 100%);
+  box-shadow: 0 4px 12px rgb(var(--theme-rgb) / 0.3);
+}
+
+html.dark .pwa-banner-icon {
+  background: linear-gradient(135deg, var(--theme-600) 0%, var(--theme-500) 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pwa-banner-title {
+  color: var(--theme-900);
+}
+
+html.dark .pwa-banner-title {
+  color: #ffffff;
+}
+
+.pwa-banner-desc {
+  color: var(--theme-600);
+}
+
+html.dark .pwa-banner-desc {
+  color: var(--theme-300);
+}
+
+.pwa-banner-btn {
+  background: linear-gradient(135deg, var(--theme-500) 0%, var(--theme-600) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgb(var(--theme-rgb) / 0.2);
+}
+
+.pwa-banner-btn:hover {
+  filter: brightness(1.05);
+}
+
+html.dark .pwa-banner-btn {
+  background: linear-gradient(135deg, var(--theme-600) 0%, var(--theme-500) 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pwa-banner-close {
+  color: var(--theme-400);
+}
+
+.pwa-banner-close:hover {
+  background-color: var(--theme-100);
+}
+
+html.dark .pwa-banner-close:hover {
+  background-color: color-mix(in srgb, var(--theme-900) 40%, transparent);
+}
+

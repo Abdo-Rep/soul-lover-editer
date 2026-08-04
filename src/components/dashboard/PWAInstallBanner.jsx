@@ -50,27 +50,19 @@ export default function PWAInstallBanner({ dark = false }) {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -12 }}
-        className={`mb-4 overflow-hidden rounded-2xl border p-4 dir-rtl ${
-          dark
-            ? 'border-rose-900/40 bg-gradient-to-r from-slate-900 via-rose-950/40 to-slate-900 shadow-lg text-rose-100'
-            : 'border-rose-200 bg-gradient-to-r from-rose-50 via-white to-pink-50 shadow-md'
-        }`}
+        className="pwa-install-banner mb-4 overflow-hidden rounded-2xl p-4 dir-rtl"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md ${
-              dark
-                ? 'bg-gradient-to-tr from-rose-600 to-pink-600 shadow-rose-900/50'
-                : 'bg-gradient-to-tr from-rose-500 to-pink-500 shadow-rose-200'
-            }`}>
+            <div className="pwa-banner-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white">
               <Smartphone size={20} />
             </div>
             <div>
-              <h4 className={`flex items-center gap-1.5 text-xs font-black sm:text-sm ${dark ? 'text-white' : 'text-rose-900'}`}>
+              <h4 className="pwa-banner-title flex items-center gap-1.5 text-xs font-black sm:text-sm">
                 <span>تثبيت لوحة التحكم كـ تطبيق 📲</span>
-                <Sparkles size={14} className={dark ? 'text-rose-400' : 'text-rose-500'} />
+                <Sparkles size={14} className="text-[var(--theme-400)] dark:text-[var(--theme-300)]" />
               </h4>
-              <p className={`mt-0.5 text-[11px] font-semibold sm:text-xs ${dark ? 'text-rose-300/80' : 'text-rose-600'}`}>
+              <p className="pwa-banner-desc mt-0.5 text-[11px] font-semibold sm:text-xs">
                 احصل على وصول سريع وسلس بنقرة واحدة من شاشة الموبايل!
               </p>
             </div>
@@ -80,11 +72,7 @@ export default function PWAInstallBanner({ dark = false }) {
             <button
               type="button"
               onClick={handleInstallClick}
-              className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-white shadow-md transition hover:brightness-110 active:scale-95 cursor-pointer ${
-                dark
-                  ? 'bg-gradient-to-r from-rose-600 to-pink-600'
-                  : 'bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600'
-              }`}
+              className="pwa-banner-btn flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition active:scale-95 cursor-pointer"
             >
               <Download size={15} />
               <span>تثبيت الآن ✨</span>
@@ -93,9 +81,7 @@ export default function PWAInstallBanner({ dark = false }) {
             <button
               type="button"
               onClick={() => setShowBanner(false)}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
-                dark ? 'text-rose-400 hover:bg-rose-900/40' : 'text-rose-400 hover:bg-rose-100'
-              }`}
+              className="pwa-banner-close flex h-8 w-8 items-center justify-center rounded-lg transition"
               title="إغلاق"
             >
               <X size={16} />
