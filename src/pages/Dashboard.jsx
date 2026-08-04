@@ -198,6 +198,7 @@ export default function Dashboard() {
     message: '',
   })
 
+  const [trackModes, setTrackModes] = useState({})
   const countdownsList = content?.countdowns || []
 
   const handleAdminLogin = async (password) => {
@@ -491,97 +492,132 @@ export default function Dashboard() {
             description="يمكنك رفع وتسمية ملفات صوتية تعمل كقائمة تشغيل متتالية"
           >
             <div className="space-y-6">
-              {tracksList.map((track, idx) => (
-                <div key={track.id || idx} className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-rose-400">الأغنية رقم {idx + 1}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeMusic(idx)}
-                      className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
-                      title="حذف هذه الأغنية"
-                    >
-                      <Trash2 size={12} />
-                      حذف الأغنية
-                    </button>
-                  </div>
-                  
-                  <Field label="عنوان الأغنية">
-                    <TextInput
-                      value={track.title ?? ''}
-                      onChange={(v) => {
-                        updateMusicTrackTitle(idx, v)
-                      }}
-                      placeholder="اسم الأغنية أو الرسالة الصوتية..."
-                    />
-                  </Field>
-                  
-                  {track.src ? (
-                    <div className="space-y-2">
-                      <p className="text-xs text-rose-400 truncate">الملف: {track.fileName || 'تسجيل صوتي'}</p>
-                      <audio controls src={track.src} className="w-full h-8" key={track.src} />
+              {tracksList.map((track, idx) => {
+                const trackKey = track.id || idx
+                const titleText = (track.title || '').toLowerCase()
+                const defaultIsVoice = track.isVoice || titleText.includes('بصوتي') || titleText.includes('تسجيل') || titleText.includes('صوتي')
+                const currentMode = trackModes[trackKey] || (defaultIsVoice ? 'voice' : 'file')
+
+                return (
+                  <div key={trackKey} className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-rose-400">
+                        {currentMode === 'voice' ? `رسالة صوتية رقم ${idx + 1}` : `الأغنية رقم ${idx + 1}`}
+                      </span>
                       <button
                         type="button"
-                        onClick={() => {
-                          updateMusicTrackTitle(idx, track.title)
-                          // Reset track audio src to allow re-recording or re-uploading
-                          uploadMusic(null, idx).catch(() => {})
-                        }}
-                        className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline"
+                        onClick={() => removeMusic(idx)}
+                        className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
+                        title="حذف هذا الصوت"
                       >
-                        إعادة تسجيل أو تغيير الصوت
+                        <Trash2 size={12} />
+                        حذف
                       </button>
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {musicUploadError?.index === idx && musicUploadError?.message ? (
-                        <p className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
-                          {musicUploadError.message}
-                        </p>
-                      ) : null}
 
-                      {/* Live Browser Voice Recorder */}
-                      <VoiceRecorder
-                        isUploading={musicUploadingIndex === idx}
-                        onRecordingComplete={(recordedFile, recordedDuration) => {
-                          uploadMusic(recordedFile, idx, recordedDuration).catch(() => {})
+                    <Field label="عنوان الأغنية / الصوت">
+                      <TextInput
+                        value={track.title ?? ''}
+                        onChange={(v) => {
+                          updateMusicTrackTitle(idx, v)
                         }}
+                        placeholder="اسم الأغنية أو الرسالة الصوتية..."
                       />
+                    </Field>
 
-                      {/* Alternative File Upload Option */}
-                      <div className="pt-1 text-center">
-                        <label
-                          className={`relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-rose-200 bg-white px-3.5 py-2 text-xs text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 ${
-                            musicUploadingIndex !== null ? 'pointer-events-none opacity-60' : ''
-                          }`}
+                    {track.src ? (
+                      <div className="space-y-2">
+                        <p className="text-xs text-rose-400 truncate">الملف: {track.fileName || 'ملف صوتي'}</p>
+                        <audio controls src={track.src} className="w-full h-8" key={track.src} />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateMusicTrackTitle(idx, track.title)
+                            uploadMusic(null, idx).catch(() => {})
+                          }}
+                          className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline"
                         >
-                          <Music2 size={13} />
-                          <span>أو اختر ملف صوتي جهزته من الجهاز 📁</span>
-                          <input
-                            type="file"
-                            accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
-                            className="hidden"
-                            disabled={musicUploadingIndex !== null}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0]
-                              if (file) {
-                                uploadMusic(file, idx).catch(() => {})
-                              }
-                              e.target.value = ''
-                            }}
-                          />
-                        </label>
+                          تغيير أو إعادة رفع الصوت
+                        </button>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <div className="space-y-3">
+                        {musicUploadError?.index === idx && musicUploadError?.message ? (
+                          <p className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
+                            {musicUploadError.message}
+                          </p>
+                        ) : null}
+
+                        {currentMode === 'voice' ? (
+                          <>
+                            {/* Live Browser Voice Recorder */}
+                            <VoiceRecorder
+                              isUploading={musicUploadingIndex === idx}
+                              onRecordingComplete={(recordedFile, recordedDuration) => {
+                                uploadMusic(recordedFile, idx, recordedDuration).catch(() => {})
+                              }}
+                            />
+
+                            <div className="pt-1 text-center">
+                              <button
+                                type="button"
+                                onClick={() => setTrackModes((prev) => ({ ...prev, [trackKey]: 'file' }))}
+                                className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1"
+                              >
+                                <Music2 size={12} />
+                                التبديل إلى رفع ملف صوتي جاهز من الجهاز 📁
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* Prominent Direct File Upload Box for Songs */}
+                            <div className="rounded-2xl border-2 border-dashed border-rose-200 bg-white p-5 text-center transition hover:border-rose-300 hover:bg-rose-50/50">
+                              <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-inner">
+                                  <Music2 size={22} />
+                                </div>
+                                <span className="text-xs font-bold text-rose-900">اختر ملف أغنية جاهز من جهازك 📁</span>
+                                <span className="text-[11px] text-rose-400 font-medium">يدعم صيغ MP3, M4A, WAV, AAC وغيرهم</span>
+                                <input
+                                  type="file"
+                                  accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
+                                  className="hidden"
+                                  disabled={musicUploadingIndex !== null}
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) {
+                                      uploadMusic(file, idx).catch(() => {})
+                                    }
+                                    e.target.value = ''
+                                  }}
+                                />
+                              </label>
+                            </div>
+
+                            <div className="pt-1 text-center">
+                              <button
+                                type="button"
+                                onClick={() => setTrackModes((prev) => ({ ...prev, [trackKey]: 'voice' }))}
+                                className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1"
+                              >
+                                <Mic size={12} />
+                                التبديل إلى تسجيل صوتك المباشر 🎙️
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
 
               {tracksList.length < 7 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
                   <button
                     type="button"
-                    onClick={addMusicTrack}
+                    onClick={() => addMusicTrack({ isVoice: false })}
                     className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-1.5"
                   >
                     <Plus size={15} />
@@ -590,12 +626,7 @@ export default function Dashboard() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      addMusicTrack()
-                      setTimeout(() => {
-                        updateMusicTrackTitle(tracksList.length, 'رسالة بصوتي 🎙️')
-                      }, 50)
-                    }}
+                    onClick={() => addMusicTrack({ isVoice: true })}
                     className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
                   >
                     <Mic size={15} className="text-rose-500" />
