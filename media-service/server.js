@@ -6,6 +6,7 @@ import multer from 'multer'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { Readable } from 'stream'
 
 dotenv.config()
 
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 4000
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
 const UPLOADS_ROOT = process.env.UPLOADS_ROOT || '/var/www/uploads'
 const MEDIA_BASE_URL = process.env.MEDIA_BASE_URL || 'https://media.soulove.app'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://127.0.0.1:9000'
 
 const app = express()
 
@@ -166,6 +168,29 @@ app.post('/api/delete', authenticateAdminToken, (req, res) => {
   } catch (err) {
     console.error('Delete Asset Error:', err)
     return res.status(500).json({ error: err.message })
+  }
+// 6. Supabase Secure Media Proxy Endpoint (Bypasses Vercel's 4.5MB Payload limit and provides range requests over HTTPS)
+app.get('/supabase/:bucket/*', async (req, res) => {
+  const bucket = req.params.bucket
+  const remainingPath = req.params[0]
+  const targetUrl = `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${remainingPath}`
+
+  try {
+    const response = await fetch(targetUrl)
+    if (!response.ok) {
+      return res.status(response.status).end()
+    }
+
+    res.setHeader('Content-Type', response.headers.get('Content-Type') || 'application/octet-stream')
+    const length = response.headers.get('Content-Length')
+    if (length) res.setHeader('Content-Length', length)
+    res.setHeader('Accept-Ranges', 'bytes')
+
+    const body = Readable.fromWeb(response.body)
+    body.pipe(res)
+  } catch (err) {
+    console.error('Supabase proxy error:', err)
+    res.status(500).end()
   }
 })
 

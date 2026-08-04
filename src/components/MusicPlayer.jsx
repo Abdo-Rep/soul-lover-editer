@@ -82,7 +82,7 @@ export default function MusicPlayer() {
   return (
     <>
       {/* 1. COMPACT FLOATING MINI PLAYER BAR (AT BOTTOM OF SCREEN) */}
-      <div className="mx-auto w-full max-w-sm rounded-full border border-rose-100/90 bg-white/95 p-1.5 shadow-xl shadow-rose-900/10 backdrop-blur-md transition-all duration-300 hover:shadow-2xl">
+      <div className="mx-auto w-full max-w-sm rounded-full border border-rose-100/90 dark:border-rose-800/50 bg-white/95 dark:bg-slate-900/95 p-1.5 shadow-xl shadow-rose-900/10 dark:shadow-rose-950/30 backdrop-blur-md transition-all duration-300 hover:shadow-2xl">
         <div className="flex items-center gap-2.5 px-1">
           {/* Play / Pause Neumorphic Round Button */}
           <button
@@ -91,7 +91,7 @@ export default function MusicPlayer() {
               e.stopPropagation()
               togglePlayback()
             }}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-rose-500 to-pink-400 text-white shadow-md shadow-rose-200 transition hover:scale-105 active:scale-95"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-rose-500 to-pink-400 text-white shadow-md shadow-rose-200 dark:shadow-rose-900 transition hover:scale-105 active:scale-95"
             aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
           >
             {isPlaying ? (
@@ -108,25 +108,25 @@ export default function MusicPlayer() {
             className="flex flex-1 flex-col text-right cursor-pointer overflow-hidden py-0.5"
           >
             <div className="flex items-center gap-1.5 justify-between">
-              <span className="truncate text-xs font-bold text-rose-900 font-display">
+              <span className="truncate text-xs font-bold text-rose-900 dark:text-rose-100 font-display">
                 {musicTitle || 'أغنيتنا'}
               </span>
               {isVoice && (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-extrabold text-rose-700">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-100 dark:bg-rose-900/60 px-2 py-0.5 text-[9px] font-extrabold text-rose-700 dark:text-rose-300">
                   🎙️ بصوتي
                 </span>
               )}
             </div>
 
             {/* Glowing Mini Progress Line */}
-            <div className="relative mt-1 h-1 w-full overflow-hidden rounded-full bg-rose-100">
+            <div className="relative mt-1 h-1 w-full overflow-hidden rounded-full bg-rose-100 dark:bg-rose-900/40">
               <div
                 className="h-full bg-gradient-to-r from-rose-400 to-pink-500 transition-all duration-200"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
 
-            <div className="mt-0.5 flex justify-between text-[9px] font-semibold text-rose-400">
+            <div className="mt-0.5 flex justify-between text-[9px] font-semibold text-rose-400 dark:text-rose-500">
               <span>{currentTimeLabel}</span>
               <span>{durationLabel}</span>
             </div>
@@ -139,7 +139,7 @@ export default function MusicPlayer() {
               e.stopPropagation()
               skipForward()
             }}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition active:scale-95"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 hover:text-rose-600 dark:hover:text-rose-300 transition active:scale-95"
             title="الأغنية التالية"
             aria-label="الأغنية التالية"
           >
@@ -153,7 +153,7 @@ export default function MusicPlayer() {
               e.stopPropagation()
               skipBackward()
             }}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition active:scale-95"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 hover:text-rose-600 dark:hover:text-rose-300 transition active:scale-95"
             title="الأغنية السابقة"
             aria-label="الأغنية السابقة"
           >
@@ -164,7 +164,7 @@ export default function MusicPlayer() {
           <button
             type="button"
             onClick={() => setIsFullPlayerOpen(true)}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-rose-400 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/40 hover:text-rose-600 dark:hover:text-rose-300 transition"
             title="تكبير المشغل"
           >
             <ListMusic size={16} />

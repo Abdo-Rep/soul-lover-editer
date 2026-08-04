@@ -126,17 +126,17 @@ export function TimelineMemoryCard({ memory, showConnector = true, onImageClick,
   return (
     <>
       <RevealItem as="div" role="listitem" className="w-full max-w-lg mx-auto">
-        <article className="group overflow-hidden rounded-[28px] border border-rose-100/90 bg-white shadow-xl shadow-rose-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/20 text-center w-full flex flex-col justify-between">
+        <article className="group overflow-hidden rounded-[28px] border border-rose-100/90 dark:border-rose-800/50 bg-white dark:bg-slate-900/90 shadow-xl shadow-rose-900/5 dark:shadow-rose-950/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 text-center w-full flex flex-col justify-between">
           {hasImage ? (
             <button
               type="button"
               onClick={handleClick}
-              className="relative block w-full aspect-[4/3] overflow-hidden bg-rose-50/60 group/img cursor-pointer"
+              className="relative block w-full aspect-[4/3] overflow-hidden bg-rose-50/60 dark:bg-slate-800/60 group/img cursor-pointer"
             >
               {/* Skeleton Loading Shimmer until image is ready */}
               {!isLoaded && (
-                <div className="absolute inset-0 bg-gradient-to-r from-rose-100 via-pink-100 to-rose-100 animate-pulse flex items-center justify-center">
-                  <span className="text-rose-300 text-xl font-bold">♥</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-rose-100 via-pink-100 to-rose-100 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 animate-pulse flex items-center justify-center">
+                  <span className="text-rose-300 dark:text-rose-600 text-xl font-bold">♥</span>
                 </div>
               )}
               <img
@@ -156,9 +156,9 @@ export function TimelineMemoryCard({ memory, showConnector = true, onImageClick,
             <div className="p-5 sm:p-6 flex-1 flex flex-col items-center justify-center">
               {/* 🎯 التاريخ بالعرض كأنه كلمة مكتوبة وعلى قد الكلام لتوفير المساحة */}
               {hasDate && formattedDate && (
-                <div className="mx-auto mb-2.5 w-fit rounded-full border border-rose-100/90 bg-gradient-to-r from-rose-50/90 via-white to-pink-50/90 px-3.5 py-1 text-center shadow-xs transition-transform duration-300 group-hover:scale-105">
-                  <span className="text-xs sm:text-sm font-bold text-rose-800 tracking-wide flex items-center justify-center gap-1.5">
-                    <Calendar size={13} className="text-rose-500 shrink-0" />
+                <div className="mx-auto mb-2.5 w-fit rounded-full border border-rose-100/90 dark:border-rose-700/60 bg-gradient-to-r from-rose-50/90 via-white to-pink-50/90 dark:from-slate-800/90 dark:via-slate-900 dark:to-slate-800/90 px-3.5 py-1 text-center shadow-xs transition-transform duration-300 group-hover:scale-105">
+                  <span className="text-xs sm:text-sm font-bold text-rose-800 dark:text-rose-200 tracking-wide flex items-center justify-center gap-1.5">
+                    <Calendar size={13} className="text-rose-500 dark:text-rose-400 shrink-0" />
                     <span>{formattedDate}</span>
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export function TimelineMemoryCard({ memory, showConnector = true, onImageClick,
 
               {/* النص والكلام */}
               {hasText && (
-                <p className="text-sm sm:text-base leading-relaxed text-rose-900 font-semibold text-center">
+                <p className="text-sm sm:text-base leading-relaxed text-rose-900 dark:text-rose-200 font-semibold text-center">
                   {memory.text}
                 </p>
               )}
