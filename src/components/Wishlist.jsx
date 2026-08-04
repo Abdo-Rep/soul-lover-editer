@@ -115,18 +115,18 @@ export default function Wishlist({ onNext }) {
                   onClick={() => handleToggle(item.id)}
                   className={`group relative overflow-hidden rounded-[24px] border p-4 cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 text-right backdrop-blur-md ${
                     isDone
-                      ? 'border-emerald-200/90 bg-gradient-to-r from-emerald-50/80 via-white/95 to-teal-50/60 shadow-sm'
-                      : 'border-rose-100 bg-gradient-to-r from-white/95 via-rose-50/40 to-pink-50/50 shadow-md shadow-rose-900/5 hover:border-rose-300 hover:shadow-xl hover:shadow-rose-300/20 hover:-translate-y-0.5'
+                      ? 'border-rose-300/80 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/80 dark:bg-rose-950/40 shadow-sm'
+                      : 'border-rose-100 dark:border-rose-900/40 bg-gradient-to-r from-white/95 via-rose-50/40 to-pink-50/50 dark:from-slate-900/90 dark:to-slate-800/90 shadow-md shadow-rose-900/5 hover:border-rose-300 hover:shadow-xl hover:shadow-rose-300/20 hover:-translate-y-0.5'
                   }`}
                 >
                   {/* Left Side: Dynamic Status Badge */}
                   {isDone ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-3.5 py-1 text-xs font-black text-white shadow-sm shadow-emerald-200">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-1 text-xs font-black text-white shadow-sm shadow-rose-200">
                       <CheckCircle2 size={13} className="text-white" />
                       <span>تم بحب 💖</span>
                     </span>
                   ) : (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-200/90 bg-gradient-to-r from-rose-50 via-white to-pink-50 px-3.5 py-1 text-xs font-extrabold text-rose-700 shadow-xs group-hover:border-rose-300">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-800/80 bg-gradient-to-r from-rose-50 via-white to-pink-50 dark:from-slate-800 dark:to-slate-900 px-3.5 py-1 text-xs font-extrabold text-rose-700 dark:text-rose-300 shadow-xs group-hover:border-rose-300">
                       <Sparkles size={12} className="text-rose-500" />
                       <span>حُلم ننتظره ✨</span>
                     </span>
@@ -136,7 +136,7 @@ export default function Wishlist({ onNext }) {
                   <div className="flex items-center gap-3.5 flex-1 min-w-0 justify-end dir-rtl">
                     <span
                       className={`text-sm sm:text-base font-extrabold leading-relaxed truncate ${
-                        isDone ? 'text-rose-900/50 line-through' : 'text-rose-950 font-display'
+                        isDone ? 'text-rose-900/50 dark:text-rose-300/50 line-through' : 'text-rose-950 dark:text-rose-100 font-display'
                       }`}
                     >
                       {item.text}
@@ -152,8 +152,8 @@ export default function Wishlist({ onNext }) {
                       aria-label={isDone ? 'إلغاء التحديد' : 'تحديد كمنجز'}
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
                         isDone
-                          ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-md shadow-emerald-200 scale-105'
-                          : 'border border-rose-200 bg-gradient-to-tr from-rose-50 to-pink-50 text-rose-500 shadow-xs group-hover:scale-110 group-hover:border-rose-400 group-hover:bg-rose-500 group-hover:text-white'
+                          ? 'bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shadow-rose-200 scale-105'
+                          : 'border border-rose-200 dark:border-rose-800 bg-gradient-to-tr from-rose-50 to-pink-50 dark:from-slate-800 dark:to-slate-900 text-rose-500 shadow-xs group-hover:scale-110 group-hover:border-rose-400 group-hover:bg-rose-500 group-hover:text-white'
                       }`}
                     >
                       {isDone ? (

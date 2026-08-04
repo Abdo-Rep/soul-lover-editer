@@ -80,11 +80,15 @@ export async function fetchRemoteContent(slug) {
 export async function verifySitePassword(password, slug) {
   if (!slug) return true
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
     const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password, action: 'verify_visitor' }),
+      signal: controller.signal,
     })
+    clearTimeout(timeoutId)
     return res.ok
   } catch (e) {
     return false
@@ -95,11 +99,15 @@ export async function verifySitePassword(password, slug) {
 export async function verifyAdminPassword(password, slug) {
   if (!slug) return false
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
     const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password, action: 'verify_admin' }),
+      signal: controller.signal,
     })
+    clearTimeout(timeoutId)
     if (!res.ok) return false
     const data = await res.json().catch(() => ({}))
     if (data.token) {

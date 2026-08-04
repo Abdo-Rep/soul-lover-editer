@@ -1181,8 +1181,8 @@ export default function Dashboard() {
               type="button"
               onClick={() => setActiveTab(id)}
               className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition ${activeTab === id
-                  ? 'bg-gradient-to-r from-rose-400 to-pink-400 text-white shadow-md'
-                  : 'bg-white/80 text-rose-600 hover:bg-white'
+                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md'
+                  : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
                 }`}
             >
               <Icon size={14} />

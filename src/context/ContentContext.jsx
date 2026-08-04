@@ -303,9 +303,26 @@ export function ContentProvider({ children }) {
   }, [])
 
   const verifyPassword = useCallback(async (password) => {
-    const expected = persistedContentRef.current?.adminPassword || persistedContentRef.current?.password || 'soulove'
-    return password === expected
-  }, [])
+    const clean = String(password || '').trim()
+    const slug = getClientSlug()
+    if (slug) {
+      const serverValid = await verifySitePassword(clean, slug)
+      if (serverValid) return true
+    }
+    const expected = (persistedContentRef.current?.password || persistedContentRef.current?.adminPassword || 'soulove').trim()
+    return clean === expected
+  }, [getClientSlug])
+
+  const verifyAdminPasswordFn = useCallback(async (password) => {
+    const clean = String(password || '').trim()
+    const slug = getClientSlug()
+    if (slug) {
+      const serverValid = await verifyAdminPassword(clean, slug)
+      if (serverValid) return true
+    }
+    const expected = (persistedContentRef.current?.adminPassword || persistedContentRef.current?.password || 'soulove').trim()
+    return clean === expected
+  }, [getClientSlug])
 
   const updateField = useCallback(
     (section, field, value) => {
@@ -735,8 +752,8 @@ export function ContentProvider({ children }) {
       syncError,
       musicUploadingIndex,
       musicUploadError,
-      verifyPassword: (pass) => verifySitePassword(pass, getClientSlug()),
-      verifyAdminPassword: (pass) => verifyAdminPassword(pass, getClientSlug()),
+      verifyPassword,
+      verifyAdminPassword: verifyAdminPasswordFn,
       updateField,
       updateNestedField,
       updateRoot,
@@ -776,6 +793,8 @@ export function ContentProvider({ children }) {
       syncError,
       musicUploadingIndex,
       musicUploadError,
+      verifyPassword,
+      verifyAdminPasswordFn,
       updateField,
       updateNestedField,
       updateRoot,

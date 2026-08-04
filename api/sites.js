@@ -76,7 +76,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password`, { headers: restHeaders })
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
       if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
       const rows = await r.json()
 
@@ -145,7 +145,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'payload_too_large', message: 'حجم طلب الحفظ يتجاوز الحد المسموح به.' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password`, { headers: restHeaders })
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
       if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
       const rows = await r.json()
 
