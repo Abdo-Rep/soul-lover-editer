@@ -116,12 +116,24 @@ export function MusicProvider({ children }) {
     }
 
     try {
+      if (audio.src !== activeMusicSrc) {
+        audio.src = activeMusicSrc
+      }
       await audio.play()
       persistPreference(true)
       return true
-    } catch {
-      persistPreference(false)
-      return false
+    } catch (err) {
+      console.warn('Initial playMusic error:', err)
+      try {
+        audio.load()
+        await audio.play()
+        persistPreference(true)
+        return true
+      } catch (err2) {
+        console.warn('Retry playMusic failed:', err2)
+        persistPreference(false)
+        return false
+      }
     }
   }, [content?.music?.volume, activeMusicSrc, persistPreference])
 
@@ -205,12 +217,18 @@ export function MusicProvider({ children }) {
       }
     }
 
+    const onError = (e) => {
+      console.warn('Audio playback error:', e?.target?.error)
+      setIsPlaying(false)
+    }
+
     audio.addEventListener('timeupdate', onTimeUpdate)
     audio.addEventListener('loadedmetadata', onLoadedMetadata)
     audio.addEventListener('durationchange', onDurationChange)
     audio.addEventListener('play', onPlay)
     audio.addEventListener('pause', onPause)
     audio.addEventListener('ended', onEnded)
+    audio.addEventListener('error', onError)
 
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate)
@@ -219,6 +237,7 @@ export function MusicProvider({ children }) {
       audio.removeEventListener('play', onPlay)
       audio.removeEventListener('pause', onPause)
       audio.removeEventListener('ended', onEnded)
+      audio.removeEventListener('error', onError)
     }
   }, [activeMusicSrc, tracks.length, nextTrack, currentTrack?.duration])
 

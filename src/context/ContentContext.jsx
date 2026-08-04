@@ -547,6 +547,22 @@ export function ContentProvider({ children }) {
     async (id, file) => {
       const slug = getClientSlug()
       const compressedFile = await compressImageToUnder90KB(file)
+      let localPreview = ''
+      try {
+        if (compressedFile && typeof URL !== 'undefined' && URL.createObjectURL) {
+          localPreview = URL.createObjectURL(compressedFile)
+        }
+      } catch {}
+
+      if (localPreview) {
+        patchContent((prev) => ({
+          ...prev,
+          memories: prev.memories.map((memory) =>
+            memory.id === id ? { ...memory, image: localPreview } : memory,
+          ),
+        }))
+      }
+
       const image = await uploadAsset(compressedFile, 'memories', slug)
       patchContent((prev) => ({
         ...prev,
@@ -563,6 +579,22 @@ export function ContentProvider({ children }) {
     async (id, file) => {
       const slug = getClientSlug()
       const compressedFile = await compressImageToUnder90KB(file)
+      let localPreview = ''
+      try {
+        if (compressedFile && typeof URL !== 'undefined' && URL.createObjectURL) {
+          localPreview = URL.createObjectURL(compressedFile)
+        }
+      } catch {}
+
+      if (localPreview) {
+        patchContent((prev) => ({
+          ...prev,
+          galleryItems: (prev.galleryItems ?? []).map((item) =>
+            item.id === id ? { ...item, image: localPreview, url: localPreview } : item,
+          ),
+        }))
+      }
+
       const image = await uploadAsset(compressedFile, 'gallery', slug)
       patchContent((prev) => ({
         ...prev,

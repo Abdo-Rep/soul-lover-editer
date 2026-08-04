@@ -350,6 +350,30 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
     }
   }
 
+  // Direct Supabase Storage fallback (resilient upload)
+  try {
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+    const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : '.jpg'
+    const filename = `${category}-${Date.now()}${ext}`
+    const objectPath = `${activeSlug}/${category}/${filename}`
+    const uploadUrl = `${SUPABASE_URL}/storage/v1/object/site-media/${objectPath}`
+
+    const directRes = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        'x-upsert': 'true',
+      },
+      body: file,
+    })
+
+    if (directRes.ok) {
+      return `${SUPABASE_URL}/storage/v1/object/public/site-media/${objectPath}`
+    }
+  } catch (e) {
+    console.warn('Direct upload fallback error:', e)
+  }
+
   throw new Error(lastError || 'تعذّر رفع الملف')
 }
 

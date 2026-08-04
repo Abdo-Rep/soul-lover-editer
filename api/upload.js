@@ -1,6 +1,7 @@
 import { IncomingForm } from 'formidable'
 import fs from 'fs'
 import path from 'path'
+import os from 'os'
 
 export const config = {
   api: {
@@ -64,10 +65,14 @@ export default async function handler(req, res) {
   const category = (req.query.category || req.headers['x-category'] || 'gallery').replace(/[^a-z0-9_-]/gi, '')
   const slug = (req.query.slug || req.headers['x-slug'] || 'default').replace(/[^a-z0-9_-]/gi, '')
 
-  const form = new IncomingForm({ maxFileSize: 10 * 1024 * 1024, keepExtensions: true })
+  const tmpDir = os.tmpdir() || '/tmp'
+  const form = new IncomingForm({ uploadDir: tmpDir, maxFileSize: 10 * 1024 * 1024, keepExtensions: true })
 
   form.parse(req, async (err, _fields, files) => {
-    if (err) return res.status(400).json({ error: 'فشل معالجة الملف' })
+    if (err) {
+      console.error('Formidable parse error:', err)
+      return res.status(400).json({ error: 'فشل معالجة الملف' })
+    }
 
     const fileArr = files.file
     const file = Array.isArray(fileArr) ? fileArr[0] : fileArr
