@@ -594,15 +594,17 @@ export function ContentProvider({ children }) {
     }]
   }, [])
 
-  const addMusicTrack = useCallback(() => {
+  const addMusicTrack = useCallback((options = {}) => {
     patchContent((prev) => {
       const currentTracks = getInitialTracks(prev.music)
       if (currentTracks.length >= 7) return prev
+      const isVoice = Boolean(options?.isVoice)
       const newTrack = {
         id: `track-${Date.now()}`,
-        title: `أغنية ${currentTracks.length + 1}`,
+        title: isVoice ? 'رسالة بصوتي 🎙️' : `أغنية ${currentTracks.length + 1}`,
         fileName: '',
         src: '',
+        isVoice,
       }
       return {
         ...prev,
