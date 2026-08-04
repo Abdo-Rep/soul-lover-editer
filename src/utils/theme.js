@@ -123,9 +123,9 @@ export function buildPalette(primaryHex, isDark = false) {
       400: primaryHex,
       500: shadeFromPrimary(h, s, l, clamp(l, 40, 75)),
       600: shadeFromPrimary(h, s, l, clamp(l + 10, 50, 85)),
-      700: '#f8fafc',
-      800: '#e2e8f0',
-      900: '#ffffff',
+      700: shadeFromPrimary(h, s, l, 76, 0.45),
+      800: shadeFromPrimary(h, s, l, 88, 0.35),
+      900: shadeFromPrimary(h, s, l, 97, 0.25),
       rgb: `${r}, ${g}, ${b}`,
     }
   }
