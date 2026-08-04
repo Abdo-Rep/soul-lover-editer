@@ -3,55 +3,9 @@ import { QrCode, Download, Copy, Check, X, Heart, Type } from 'lucide-react'
 import { useContent } from '../../context/ContentContext'
 
 // Lightweight QR Code Generator (Matrix renderer with central heart logo)
-function generateQRCodeMatrix(text) {
-  const size = 21
-  const grid = Array.from({ length: size }, () => Array(size).fill(false))
-
-  const drawFinder = (startX, startY) => {
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        if (
-          r === 0 || r === 6 || c === 0 || c === 6 ||
-          (r >= 2 && r <= 4 && c >= 2 && c <= 4)
-        ) {
-          grid[startY + r][startX + c] = true
-        }
-      }
-    }
-  }
-
-  drawFinder(0, 0)
-  drawFinder(size - 7, 0)
-  drawFinder(0, size - 7)
-
-  let hash = 0
-  for (let i = 0; i < text.length; i++) {
-    hash = (hash << 5) - hash + text.charCodeAt(i)
-    hash |= 0
-  }
-
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (
-        (r < 8 && c < 8) ||
-        (r < 8 && c >= size - 8) ||
-        (r >= size - 8 && c < 8)
-      ) {
-        continue
-      }
-      if (r >= 8 && r <= 12 && c >= 8 && c <= 12) {
-        continue
-      }
-      const val = Math.abs(Math.sin((r + 1) * (c + 1) * hash))
-      grid[r][c] = val > 0.48
-    }
-  }
-
-  return grid
-}
-
 export default function QRCodeModal({ isOpen, onClose, slug }) {
   const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(true)
   const canvasRef = useRef(null)
   const { content } = useContent() || {}
 
@@ -76,6 +30,7 @@ export default function QRCodeModal({ isOpen, onClose, slug }) {
   useEffect(() => {
     if (!isOpen || !canvasRef.current) return
 
+    setLoading(true)
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     const width = 340
@@ -83,54 +38,60 @@ export default function QRCodeModal({ isOpen, onClose, slug }) {
     canvas.width = width
     canvas.height = height
 
-    // Background - Clean Soft White
+    // Draw soft white background
     ctx.fillStyle = '#FFFFFF'
     ctx.fillRect(0, 0, width, height)
 
-    const grid = generateQRCodeMatrix(siteUrl)
-    const gridSize = grid.length
     const padding = 20
     const qrSize = width - padding * 2
-    const cellSize = qrSize / gridSize
 
-    // Draw QR Modules in Deep Rose Theme
-    ctx.fillStyle = '#be123c'
-    for (let r = 0; r < gridSize; r++) {
-      for (let c = 0; c < gridSize; c++) {
-        if (grid[r][c]) {
-          const x = padding + c * cellSize
-          const y = padding + r * cellSize
-          ctx.fillRect(x, y, cellSize - 0.5, cellSize - 0.5)
-        }
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    // Call the public QR code API with deep rose styling color
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&color=be123c&data=${encodeURIComponent(siteUrl)}`
+    
+    img.onload = () => {
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fillRect(0, 0, width, height)
+
+      // Draw standard scannable QR code
+      ctx.drawImage(img, padding, padding, qrSize, qrSize)
+
+      // Draw Center Heart Badge
+      ctx.fillStyle = '#FFFFFF'
+      ctx.beginPath()
+      ctx.arc(width / 2, padding + qrSize / 2, 28, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.strokeStyle = '#f43f5e'
+      ctx.lineWidth = 3
+      ctx.stroke()
+
+      // Heart Icon in center
+      ctx.fillStyle = '#e11d48'
+      ctx.font = '28px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('♥', width / 2, padding + qrSize / 2 + 1)
+
+      // Draw Custom Text under the QR Code
+      if (customText.trim()) {
+        ctx.fillStyle = '#9f1239'
+        ctx.font = 'bold 16px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'top'
+        ctx.fillText(customText.trim(), width / 2, padding + qrSize + 14)
       }
+      setLoading(false)
     }
 
-    // Draw Center Heart Badge
-    const centerSize = cellSize * 5
-
-    // White circle backdrop for heart
-    ctx.fillStyle = '#FFFFFF'
-    ctx.beginPath()
-    ctx.arc(width / 2, padding + qrSize / 2, centerSize / 1.6, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.strokeStyle = '#f43f5e'
-    ctx.lineWidth = 3
-    ctx.stroke()
-
-    // Heart Icon in center
-    ctx.fillStyle = '#e11d48'
-    ctx.font = '28px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('♥', width / 2, padding + qrSize / 2 + 1)
-
-    // Draw Custom Text under the QR Code (Single Clean Line)
-    if (customText.trim()) {
-      ctx.fillStyle = '#9f1239'
-      ctx.font = 'bold 16px sans-serif'
+    img.onerror = () => {
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fillRect(0, 0, width, height)
+      ctx.fillStyle = '#ef4444'
+      ctx.font = '14px sans-serif'
       ctx.textAlign = 'center'
-      ctx.textBaseline = 'top'
-      ctx.fillText(customText.trim(), width / 2, padding + qrSize + 14)
+      ctx.fillText('فشل تحميل الكود، يرجى المحاولة لاحقاً', width / 2, height / 2)
+      setLoading(false)
     }
   }, [isOpen, siteUrl, customText])
 
@@ -194,7 +155,12 @@ export default function QRCodeModal({ isOpen, onClose, slug }) {
         </div>
 
         {/* Canvas QR Code Display */}
-        <div className="mx-auto mb-3 flex w-fit items-center justify-center rounded-2xl border-2 border-rose-100 bg-white p-2.5 shadow-inner">
+        <div className="relative mx-auto mb-3 flex w-fit items-center justify-center rounded-2xl border-2 border-rose-100 bg-white p-2.5 shadow-inner">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-2xl">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-500" />
+            </div>
+          )}
           <canvas ref={canvasRef} className="h-64 w-60 rounded-xl" />
         </div>
 
