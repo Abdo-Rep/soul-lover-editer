@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "NativeEmoji";
   src: local("Apple Color Emoji"), local("Segoe UI Emoji"), local("Noto Color Emoji"), local("Android Emoji"), local("EmojiOne Color"), local("Twemoji Mozilla"), local("Segoe UI Symbol");
