@@ -1,7 +1,6 @@
-const CACHE_NAME = 'soulove-pwa-v1'
+const CACHE_NAME = 'soulove-pwa-v2'
 const ASSETS_TO_CACHE = [
   '/',
-  '/manifest.webmanifest',
   '/icon.svg',
   '/icon-192.png',
   '/icon-512.png',

@@ -37,20 +37,59 @@ export default function SiteMeta() {
     setMetaTag('property', 'og:url', pageUrl)
     setMetaTag('property', 'og:site_name', 'soulove')
 
-    // 4. Dynamic PWA Manifest generation so Dashboard and Visitor Site can be installed as TWO separate apps on mobile!
-    const isDashboardRoute = pageUrl.includes('/dashboard') || pageUrl.includes('/login') || pageUrl.includes('/soulove-admin')
-    const appName = isDashboardRoute ? `لوحة التحكم — ${title}` : title
-    const shortName = isDashboardRoute ? 'لوحة التحكم' : (content?.siteName || 'موقعنا')
-    const startUrl = window.location.pathname || '/'
+    // 4. Dynamic Isolated PWA Manifest generation (3 Separate Standalone Apps!)
+    const path = window.location.pathname
+    const parts = path.split('/').filter(Boolean)
+
+    let manifestId = '/'
+    let manifestScope = '/'
+    let startUrl = path || '/'
+    let appName = title
+    let shortName = content?.siteName || 'موقعنا'
+    let themeColor = content?.appearance?.primaryColor || '#fb7185'
+    let bgColor = '#fff1f2'
+
+    if (parts[0] === 'soulove-admin') {
+      // App 1: Super Admin App (Isolated PWA)
+      manifestId = '/soulove-admin/'
+      manifestScope = '/soulove-admin/'
+      startUrl = '/soulove-admin'
+      appName = 'Soulove Control — لوحة تحكم المنصة 👑'
+      shortName = 'Super Admin'
+      themeColor = '#4f46e5'
+      bgColor = '#090d16'
+    } else if (parts.length >= 2 && (parts[1] === 'dashboard' || parts[1] === 'login')) {
+      // App 2: Client Dashboard App (Isolated PWA per client)
+      const slug = parts[0]
+      manifestId = `/${slug}/dashboard/`
+      manifestScope = `/${slug}/dashboard/`
+      startUrl = `/${slug}/dashboard`
+      appName = `لوحة التحكم — ${content?.siteName || slug}`
+      shortName = `لوحة التحكم`
+      themeColor = '#e11d48'
+      bgColor = '#ffffff'
+    } else if (parts.length >= 1) {
+      // App 3: Client Visitor Website App (Isolated PWA per site)
+      const slug = parts[0]
+      manifestId = `/${slug}/`
+      manifestScope = `/${slug}/`
+      startUrl = `/${slug}`
+      appName = content?.siteName?.trim() || title
+      shortName = content?.siteName?.trim() || 'موقعنا'
+      themeColor = content?.appearance?.primaryColor || '#fb7185'
+      bgColor = '#fff1f2'
+    }
 
     const dynamicManifest = {
+      id: manifestId,
+      scope: manifestScope,
       name: appName,
       short_name: shortName,
       description: description,
       start_url: startUrl,
       display: 'standalone',
-      background_color: isDashboardRoute ? '#ffffff' : '#fff1f2',
-      theme_color: content?.appearance?.primaryColor || '#fb7185',
+      background_color: bgColor,
+      theme_color: themeColor,
       orientation: 'portrait',
       icons: [
         { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
