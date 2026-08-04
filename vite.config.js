@@ -10,7 +10,7 @@ function apiPlugin() {
   return {
     name: 'api-plugin',
     configureServer(server) {
-      server.middlewares.use((req, res, next) => {
+      server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
 
         // Helper response methods
