@@ -20,13 +20,30 @@ function proxyMediaUrl(url) {
   if (!url || typeof url !== 'string') return url
   // Already a relative or blob URL — leave it
   if (url.startsWith('/') || url.startsWith('blob:')) return url
+  
   // Match Supabase storage public URL pattern
-  const marker = '/storage/v1/object/public/site-media/'
-  const idx = url.indexOf(marker)
-  if (idx !== -1) {
-    const objectPath = url.substring(idx + marker.length)
+  const marker1 = '/storage/v1/object/public/site-media/'
+  const idx1 = url.indexOf(marker1)
+  if (idx1 !== -1) {
+    const objectPath = url.substring(idx1 + marker1.length)
     return `/api/media?path=${encodeURIComponent(objectPath)}`
   }
+
+  // Match sanitized media.soulove.app custom proxy pattern
+  const marker2 = '/supabase/site-media/'
+  const idx2 = url.indexOf(marker2)
+  if (idx2 !== -1) {
+    const objectPath = url.substring(idx2 + marker2.length)
+    return `/api/media?path=${encodeURIComponent(objectPath)}`
+  }
+
+  const marker3 = '/supabase/'
+  const idx3 = url.indexOf(marker3)
+  if (idx3 !== -1) {
+    const objectPath = url.substring(idx3 + marker3.length)
+    return `/api/media?path=${encodeURIComponent(objectPath)}`
+  }
+
   return url
 }
 
