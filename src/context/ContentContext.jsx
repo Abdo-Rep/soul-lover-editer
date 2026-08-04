@@ -597,7 +597,7 @@ export function ContentProvider({ children }) {
   }, [patchContent, getInitialTracks])
 
   const uploadMusic = useCallback(
-    async (file, index = 0) => {
+    async (file, index = 0, durationSeconds = 0) => {
       const SINGLE_MAX_SIZE = 9 * 1024 * 1024 // 9 MB
       const TOTAL_MAX_SIZE = 40 * 1024 * 1024 // 40 MB
 
@@ -638,12 +638,14 @@ export function ContentProvider({ children }) {
         const url = await uploadAsset(file, 'music', slug)
         patchContent((prev) => {
           const tracks = getInitialTracks(prev.music)
+          const reportedDuration = durationSeconds || file.durationSeconds || 0
           tracks[index] = {
             ...tracks[index],
             title: tracks[index]?.title || file.name.split('.').slice(0, -1).join('.') || `أغنية ${index + 1}`,
             fileName: file.name,
             src: url,
             sizeBytes: file.size,
+            ...(reportedDuration ? { duration: reportedDuration } : {}),
           }
 
           const firstActiveTrack = tracks.find((t) => t.src)

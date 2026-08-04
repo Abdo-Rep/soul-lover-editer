@@ -50,9 +50,30 @@ function ensureUniqueIds(items = []) {
   })
 }
 
+function sanitizeMediaUrl(url) {
+  if (!url || typeof url !== 'string') return url
+  if (url.includes('/storage/v1/object/public/')) {
+    const parts = url.split('/storage/v1/object/public/')
+    if (parts.length > 1) {
+      return `/api/storage/${parts[1]}`
+    }
+  }
+  return url
+}
+
 export function mergeContent(stored) {
   if (!stored || Object.keys(stored).length === 0) {
     return structuredClone(defaultContent)
+  }
+
+  const mergedMusic = mergeSection(defaultContent.music, stored.music)
+  const sanitizedMusic = {
+    ...mergedMusic,
+    src: sanitizeMediaUrl(mergedMusic.src),
+    tracks: (mergedMusic.tracks || []).map((t) => ({
+      ...t,
+      src: sanitizeMediaUrl(t.src),
+    })),
   }
 
   return {
@@ -62,7 +83,7 @@ export function mergeContent(stored) {
     password: stored.password ?? '',
     adminPassword: stored.adminPassword ?? '',
     dates: mergeSection(defaultContent.dates, stored.dates),
-    music: mergeSection(defaultContent.music, stored.music),
+    music: sanitizedMusic,
     login: mergeSection(defaultContent.login, stored.login),
     welcome: mergeSection(defaultContent.welcome, stored.welcome),
     story: {
@@ -84,8 +105,15 @@ export function mergeContent(stored) {
       ...defaultContent.appearance,
       ...stored.appearance,
     }),
-    memories: ensureUniqueIds(stored.memories ?? []),
-    galleryItems: ensureUniqueIds(resolveGalleryItems(stored)),
+    memories: ensureUniqueIds(stored.memories ?? []).map((m) => ({
+      ...m,
+      image: sanitizeMediaUrl(m.image),
+    })),
+    galleryItems: ensureUniqueIds(resolveGalleryItems(stored)).map((item) => ({
+      ...item,
+      image: sanitizeMediaUrl(item.image),
+      url: sanitizeMediaUrl(item.url || item.image),
+    })),
     wishlist: ensureUniqueIds(Array.isArray(stored.wishlist) ? stored.wishlist : defaultContent.wishlist),
     countdowns: ensureUniqueIds(Array.isArray(stored.countdowns) ? stored.countdowns : []),
     countdownsNextButton: stored.countdownsNextButton ?? defaultContent.countdownsNextButton,

@@ -67,6 +67,9 @@ function apiPlugin() {
               else if (contentType.includes('image/gif')) ext = '.gif'
               else if (contentType.includes('audio/mpeg') || contentType.includes('audio/mp3')) ext = '.mp3'
               else if (contentType.includes('audio/wav')) ext = '.wav'
+              else if (contentType.includes('audio/webm')) ext = '.webm'
+              else if (contentType.includes('audio/ogg')) ext = '.ogg'
+              else if (contentType.includes('audio/mp4') || contentType.includes('audio/m4a') || contentType.includes('audio/aac')) ext = '.m4a'
 
               // Strip multipart headers accurately using Content-Type boundary
               let fileData = buffer
@@ -107,6 +110,9 @@ function apiPlugin() {
               else if (ext === '.png') fileMime = 'image/png'
               else if (ext === '.mp3') fileMime = 'audio/mpeg'
               else if (ext === '.wav') fileMime = 'audio/wav'
+              else if (ext === '.webm') fileMime = 'audio/webm'
+              else if (ext === '.ogg') fileMime = 'audio/ogg'
+              else if (ext === '.m4a' || ext === '.aac') fileMime = 'audio/mp4'
 
               const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
               const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -236,5 +242,12 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
+    proxy: {
+      '/api/storage': {
+        target: process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/storage/, '/storage/v1/object/public'),
+      }
+    }
   },
 })

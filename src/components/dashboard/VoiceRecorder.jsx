@@ -13,6 +13,8 @@ export default function VoiceRecorder({ onRecordingComplete, isUploading }) {
   const audioChunksRef = useRef([])
   const timerRef = useRef(null)
   const previewAudioRef = useRef(null)
+  const actualMimeTypeRef = useRef('audio/webm')
+  const actualExtensionRef = useRef('webm')
 
   useEffect(() => {
     return () => {
@@ -31,9 +33,46 @@ export default function VoiceRecorder({ onRecordingComplete, isUploading }) {
         throw new Error('المتصفح لا يدعم تسجيل الصوت المباشر')
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1, // Mono audio for small file size & high clarity
+        },
+      })
+
+      // Determine best browser supported MIME type
+      let mimeType = ''
+      let extension = 'webm'
+
+      const types = [
+        { mime: 'audio/mp4', ext: 'm4a' },
+        { mime: 'audio/aac', ext: 'aac' },
+        { mime: 'audio/webm;codecs=opus', ext: 'webm' },
+        { mime: 'audio/webm', ext: 'webm' },
+        { mime: 'audio/ogg;codecs=opus', ext: 'ogg' },
+      ]
+
+      for (const t of types) {
+        if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t.mime)) {
+          mimeType = t.mime
+          extension = t.ext
+          break
+        }
+      }
+
+      const options = {
+        audioBitsPerSecond: 64000, // 64 kbps (1 min = ~400KB instead of 5MB!)
+      }
+      if (mimeType) {
+        options.mimeType = mimeType
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, options)
       mediaRecorderRef.current = mediaRecorder
+      actualMimeTypeRef.current = mediaRecorder.mimeType || mimeType || 'audio/webm'
+      actualExtensionRef.current = extension
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -42,17 +81,18 @@ export default function VoiceRecorder({ onRecordingComplete, isUploading }) {
       }
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        const finalMime = actualMimeTypeRef.current || 'audio/webm'
+        const blob = new Blob(audioChunksRef.current, { type: finalMime })
         const url = URL.createObjectURL(blob)
         setAudioBlob(blob)
         setAudioUrl(url)
         setStatus('recorded')
 
-        // Stop all mic tracks
+        // Stop mic stream
         stream.getTracks().forEach((track) => track.stop())
       }
 
-      mediaRecorder.start(100)
+      mediaRecorder.start(250)
       setStatus('recording')
 
       timerRef.current = setInterval(() => {
@@ -82,12 +122,16 @@ export default function VoiceRecorder({ onRecordingComplete, isUploading }) {
 
   const handleConfirmUpload = () => {
     if (!audioBlob) return
+    const ext = actualExtensionRef.current || 'webm'
+    const mime = actualMimeTypeRef.current || 'audio/webm'
     const file = new File(
       [audioBlob],
-      `voice-note-${Date.now()}.webm`,
-      { type: 'audio/webm' }
+      `voice-note-${Date.now()}.${ext}`,
+      { type: mime }
     )
-    onRecordingComplete(file)
+    // Attach recorded duration onto file
+    file.durationSeconds = recordingTime
+    onRecordingComplete(file, recordingTime)
   }
 
   const formatTime = (seconds) => {

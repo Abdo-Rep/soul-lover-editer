@@ -543,8 +543,8 @@ export default function Dashboard() {
                       {/* Live Browser Voice Recorder */}
                       <VoiceRecorder
                         isUploading={musicUploadingIndex === idx}
-                        onRecordingComplete={(recordedFile) => {
-                          uploadMusic(recordedFile, idx).catch(() => {})
+                        onRecordingComplete={(recordedFile, recordedDuration) => {
+                          uploadMusic(recordedFile, idx, recordedDuration).catch(() => {})
                         }}
                       />
 

@@ -151,6 +151,8 @@ export function MusicProvider({ children }) {
     const syncDuration = () => {
       if (Number.isFinite(audio.duration) && audio.duration > 0) {
         setDuration(audio.duration)
+      } else if (currentTrack?.duration) {
+        setDuration(Number(currentTrack.duration))
       }
     }
 
@@ -162,6 +164,8 @@ export function MusicProvider({ children }) {
         setCurrentTime(audio.currentTime)
         if (Number.isFinite(audio.duration) && audio.duration > 0) {
           setDuration(audio.duration)
+        } else if (currentTrack?.duration) {
+          setDuration(Number(currentTrack.duration))
         } else {
           // If duration is Infinity or streaming WebM, track max time smoothly
           setDuration((prev) => Math.max(prev, audio.currentTime))

@@ -31,51 +31,51 @@ export default function MemoryEditor({
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
         {showImage ? (
-      <div className="space-y-3">
-        {/* Image Upload Area */}
-        <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 aspect-[4/3]">
-          {(memory.image || memory.url) ? (
-            <>
-              <img
-                src={memory.image || memory.url}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => onImageRemove?.(memory.id)}
-                className="absolute end-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white shadow-md transition hover:bg-rose-600"
-                aria-label="حذف الصورة"
-              >
-                <X size={14} />
-              </button>
-            </>
-          ) : (
-            <div className="flex h-full items-center justify-center text-3xl text-rose-200">
-              ♥
+          <div className="w-full sm:w-28 shrink-0 flex flex-col items-center gap-2">
+            {/* Image Preview Box */}
+            <div className="relative w-28 h-28 overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-100 flex items-center justify-center shadow-inner">
+              {(memory.image || memory.url) ? (
+                <>
+                  <img
+                    src={memory.image || memory.url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onImageRemove?.(memory.id)}
+                    className="absolute start-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/55 text-white shadow-md transition hover:bg-rose-600 cursor-pointer"
+                    aria-label="حذف الصورة"
+                  >
+                    <X size={12} />
+                  </button>
+                </>
+              ) : (
+                <div className="text-xl text-rose-200">♥</div>
+              )}
             </div>
-          )}
-        </div>
-        <label className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-rose-200 bg-white px-3 py-2.5 text-xs text-rose-500 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600">
-          <ImagePlus size={14} />
-          <span>{imageHint}</span>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) onImageUpload(memory.id, file)
-              e.target.value = ''
-            }}
-          />
-        </label>
-      </div>
+            {/* Upload Button */}
+            <label className="w-28 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-rose-200 bg-white px-2 py-2 text-[10px] text-rose-500 font-bold text-center leading-normal transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600">
+              <ImagePlus size={12} className="mb-0.5" />
+              <span>{imageHint}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) onImageUpload(memory.id, file)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+          </div>
         ) : null}
 
-        <div className="space-y-3">
+        {/* Inputs (Date & Text) */}
+        <div className="flex-1 w-full space-y-3">
           <Field label="التاريخ (اختياري)">
             <DateInput
               value={memory.date ?? ''}
