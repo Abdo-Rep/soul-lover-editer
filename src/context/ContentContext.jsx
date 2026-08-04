@@ -618,6 +618,33 @@ export function ContentProvider({ children }) {
 
   const uploadMusic = useCallback(
     async (file, index = 0, durationSeconds = 0) => {
+      // Reset mode: clear the track src to allow re-recording/re-uploading
+      if (!file) {
+        patchContent((prev) => {
+          const tracks = [...getInitialTracks(prev.music)]
+          if (tracks[index]) {
+            tracks[index] = {
+              ...tracks[index],
+              src: '',
+              fileName: '',
+              sizeBytes: 0,
+            }
+          }
+          const firstActiveTrack = tracks.find((t) => t.src)
+          return {
+            ...prev,
+            music: {
+              ...prev.music,
+              src: firstActiveTrack ? firstActiveTrack.src : '',
+              fileName: firstActiveTrack ? firstActiveTrack.fileName : '',
+              title: firstActiveTrack ? firstActiveTrack.title : prev.music?.title || '',
+              tracks,
+            },
+          }
+        })
+        return ''
+      }
+
       const SINGLE_MAX_SIZE = 9 * 1024 * 1024 // 9 MB
       const TOTAL_MAX_SIZE = 40 * 1024 * 1024 // 40 MB
 

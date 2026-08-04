@@ -22,10 +22,14 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
   let storyMemoriesButton = ''
   let galleryFinalButton = ''
   let countdownsNextButton = ''
+  let appearanceMode = 'light'
 
   if (musicSrc.startsWith('{') || musicSrc.startsWith('[')) {
     try {
       const parsed = JSON.parse(musicSrc)
+      if (parsed.appearanceMode) {
+        appearanceMode = parsed.appearanceMode
+      }
       if (parsed.countdowns && Array.isArray(parsed.countdowns)) {
         countdownsList = parsed.countdowns
       }
@@ -55,6 +59,9 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
       if (parsed.countdowns && Array.isArray(parsed.countdowns) && countdownsList.length === 0) {
         countdownsList = parsed.countdowns
       }
+      if (parsed.appearanceMode && appearanceMode === 'light') {
+        appearanceMode = parsed.appearanceMode
+      }
       loveConfessionDate = parsed.loveConfession || ''
     } catch {}
   }
@@ -64,6 +71,7 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
     password: decrypt(row.visitor_password),
     adminPassword: decrypt(row.admin_password),
     appearance: {
+      mode: appearanceMode,
       primaryColor: row.primary_color,
       backgroundHeartColor: row.background_heart_color,
       heartOpacity: Number(row.heart_opacity || 0.65),
@@ -220,6 +228,7 @@ export async function saveRelationalContent(pool, slug, content) {
     mainSrc: mainSrcVal,
     tracks: tracksArr,
     countdowns: countdownsArr,
+    appearanceMode: content.appearance?.mode || 'light',
     extraButtons: {
       welcomeNextButton: content.welcome?.nextButton,
       storyMemoriesButton: content.story?.memoriesButton,
