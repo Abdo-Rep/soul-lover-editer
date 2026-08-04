@@ -62,66 +62,33 @@ export function MusicProvider({ children }) {
     }
   }, [content?.music?.volume])
 
-  // 1️⃣ Smooth track switching — pause → reset → load → wait canplay → play
+  const prevSrcRef = useRef('')
+
+  // 1️⃣ Reliable track switching — instant & non-blocking
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !activeMusicSrc) return
 
-    const currentSrc = audio.getAttribute('src') || ''
-    if (currentSrc === activeMusicSrc) return
+    if (prevSrcRef.current !== activeMusicSrc) {
+      prevSrcRef.current = activeMusicSrc
 
-    // Prevent overlapping switches
-    if (switchingRef.current) return
-    switchingRef.current = true
+      audio.pause()
+      audio.volume = targetVolumeRef.current || 1
+      audio.currentTime = 0
 
-    // Step 1: Immediately silence & pause current audio to kill any stutter
-    audio.pause()
-    audio.volume = 0
-    audio.currentTime = 0
+      setCurrentTime(0)
+      setDuration(currentTrack?.duration ? Number(currentTrack.duration) : 0)
 
-    // Step 2: Reset state
-    setCurrentTime(0)
-    setDuration(currentTrack?.duration ? Number(currentTrack.duration) : 0)
-
-    // Step 3: Set new source and load
-    audio.src = activeMusicSrc
-    audio.load()
-
-    // Step 4: Wait for enough data before playing
-    const onCanPlay = () => {
-      audio.removeEventListener('canplay', onCanPlay)
-      audio.removeEventListener('error', onError)
-      switchingRef.current = false
+      audio.src = activeMusicSrc
+      audio.load()
 
       if (isPlaying) {
-        // Fade volume in smoothly over 200ms
-        audio.volume = 0
-        audio.play().then(() => {
-          const vol = targetVolumeRef.current
-          const steps = 8
-          const stepTime = 25 // 8 steps × 25ms = 200ms fade
-          let step = 0
-          const fadeIn = setInterval(() => {
-            step++
-            audio.volume = Math.min((step / steps) * vol, vol)
-            if (step >= steps) clearInterval(fadeIn)
-          }, stepTime)
-        }).catch(() => {
+        audio.play().catch(() => {
           setIsPlaying(false)
         })
       }
     }
-
-    const onError = () => {
-      audio.removeEventListener('canplay', onCanPlay)
-      audio.removeEventListener('error', onError)
-      switchingRef.current = false
-      setIsPlaying(false)
-    }
-
-    audio.addEventListener('canplay', onCanPlay, { once: true })
-    audio.addEventListener('error', onError, { once: true })
-  }, [activeMusicSrc, safeIndex, isPlaying, currentTrack?.duration])
+  }, [activeMusicSrc, isPlaying, currentTrack?.duration])
 
   const primeAudio = useCallback(() => {
     const audio = audioRef.current
@@ -173,41 +140,16 @@ export function MusicProvider({ children }) {
     await playMusic()
   }, [isPlaying, pauseMusic, playMusic])
 
-  // Helper: fade out current audio then run callback
-  const fadeOutThen = useCallback((callback) => {
-    const audio = audioRef.current
-    if (!audio) { callback(); return }
-
-    const startVol = audio.volume
-    const steps = 6
-    const stepTime = 25 // 6 × 25ms = 150ms fade out
-    let step = 0
-
-    const fadeOut = setInterval(() => {
-      step++
-      audio.volume = Math.max(startVol * (1 - step / steps), 0)
-      if (step >= steps) {
-        clearInterval(fadeOut)
-        audio.pause()
-        audio.volume = 0
-        callback()
-      }
-    }, stepTime)
-  }, [])
-
   const nextTrack = useCallback(() => {
     if (tracks.length <= 1) return
-    fadeOutThen(() => {
-      setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)
-      setIsPlaying(true)
-      sessionStorage.setItem(MUSIC_KEY, 'true')
-    })
-  }, [tracks.length, fadeOutThen])
+    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length)
+    setIsPlaying(true)
+    sessionStorage.setItem(MUSIC_KEY, 'true')
+  }, [tracks.length])
 
   const prevTrack = useCallback(() => {
     const audio = audioRef.current
     if (!audio) return
-    // If audio played for > 3 seconds or only 1 track exists, restart from beginning
     if (audio.currentTime > 3 || tracks.length <= 1) {
       audio.currentTime = 0
       setCurrentTime(0)
@@ -216,12 +158,10 @@ export function MusicProvider({ children }) {
       }
       return
     }
-    fadeOutThen(() => {
-      setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
-      setIsPlaying(true)
-      sessionStorage.setItem(MUSIC_KEY, 'true')
-    })
-  }, [tracks.length, isPlaying, playMusic, fadeOutThen])
+    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length)
+    setIsPlaying(true)
+    sessionStorage.setItem(MUSIC_KEY, 'true')
+  }, [tracks.length, isPlaying, playMusic])
 
   // 2️⃣ Instant playback & smooth duration sync (Zero delay)
   useEffect(() => {

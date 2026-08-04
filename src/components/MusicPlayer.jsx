@@ -60,7 +60,8 @@ export default function MusicPlayer() {
     )
   }
 
-  const isVoice = isVoiceTrack(musicTitle)
+  const currentTrack = tracks[currentTrackIndex] || tracks[0]
+  const isVoice = Boolean(currentTrack?.isVoice || isVoiceTrack(musicTitle))
 
   const handleSliderChange = (e) => {
     const nextTime = Number(e.target.value)

@@ -28,11 +28,14 @@ function getMime(ext) {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.mp3': 'audio/mpeg',
+    '.mpga': 'audio/mpeg',
     '.wav': 'audio/wav',
     '.ogg': 'audio/ogg',
+    '.opus': 'audio/ogg',
     '.m4a': 'audio/mp4',
     '.aac': 'audio/aac',
     '.webm': 'audio/webm',
+    '.3gp': 'audio/3gpp',
   }
   return map[ext] || 'application/octet-stream'
 }
