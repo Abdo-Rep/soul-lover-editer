@@ -681,6 +681,13 @@ export function ContentProvider({ children }) {
       setMusicUploadError(null)
 
       try {
+        let localUrl = ''
+        try {
+          if (file && typeof URL !== 'undefined' && URL.createObjectURL) {
+            localUrl = URL.createObjectURL(file)
+          }
+        } catch {}
+
         const slug = getClientSlug()
         const url = await uploadAsset(file, 'music', slug)
         patchContent((prev) => {
@@ -688,9 +695,10 @@ export function ContentProvider({ children }) {
           const reportedDuration = durationSeconds || file.durationSeconds || 0
           tracks[index] = {
             ...tracks[index],
-            title: tracks[index]?.title || file.name.split('.').slice(0, -1).join('.') || `أغنية ${index + 1}`,
-            fileName: file.name,
+            title: tracks[index]?.title || file.name?.split('.').slice(0, -1).join('.') || `أغنية ${index + 1}`,
+            fileName: file.name || 'مقطع صوتي',
             src: url,
+            localUrl: localUrl || url,
             sizeBytes: file.size,
             ...(reportedDuration ? { duration: reportedDuration } : {}),
           }

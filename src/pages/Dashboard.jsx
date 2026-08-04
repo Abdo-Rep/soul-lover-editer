@@ -528,7 +528,29 @@ export default function Dashboard() {
                     {track.src ? (
                       <div className="space-y-2">
                         <p className="text-xs text-rose-400 truncate">الملف: {track.fileName || 'ملف صوتي'}</p>
-                        <audio controls src={track.src} className="w-full h-8" key={track.src} />
+                        {(() => {
+                          const audioSrc = track.localUrl || track.src
+                          return (
+                            <audio
+                              controls
+                              preload="auto"
+                              src={audioSrc}
+                              className="w-full h-8"
+                              key={audioSrc}
+                              onError={(e) => {
+                                // Auto-retry with cache-busting on load error
+                                const el = e.currentTarget
+                                if (!el.dataset.retried && track.src) {
+                                  el.dataset.retried = 'true'
+                                  setTimeout(() => {
+                                    el.src = track.src + (track.src.includes('?') ? '&' : '?') + 't=' + Date.now()
+                                    el.load()
+                                  }, 1000)
+                                }
+                              }}
+                            />
+                          )
+                        })()}
                         <button
                           type="button"
                           onClick={() => {

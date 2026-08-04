@@ -51,6 +51,13 @@ function ensureUniqueIds(items = []) {
 }
 
 function sanitizeMediaUrl(url) {
+  if (!url || typeof url !== 'string') return url
+  if (url.includes('/storage/v1/object/public/')) {
+    const parts = url.split('/storage/v1/object/public/')
+    if (parts.length > 1) {
+      return `https://media.soulove.app/supabase/${parts[1]}`
+    }
+  }
   return url
 }
 
