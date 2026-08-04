@@ -48,6 +48,33 @@ function apiPlugin() {
           }
         }
 
+        // Handle /api/media proxy for local dev (mirrors Vercel proxy)
+        if (url.pathname === '/api/media' && req.method === 'GET') {
+          const mediaPath = url.searchParams.get('path')
+          if (!mediaPath) {
+            return res.status(400).json({ error: 'Missing path' })
+          }
+          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+          const targetUrl = `${SUPABASE_URL}/storage/v1/object/public/site-media/${mediaPath}`
+          try {
+            const upstream = await fetch(targetUrl)
+            if (!upstream.ok) {
+              res.statusCode = upstream.status
+              return res.end('Not found')
+            }
+            const ct = upstream.headers.get('content-type') || 'application/octet-stream'
+            res.setHeader('Content-Type', ct)
+            res.setHeader('Cache-Control', 'public, max-age=31536000')
+            const buf = Buffer.from(await upstream.arrayBuffer())
+            res.statusCode = 200
+            return res.end(buf)
+          } catch (err) {
+            console.error('Dev media proxy error:', err)
+            res.statusCode = 500
+            return res.end('Proxy error')
+          }
+        }
+
         // Handle /api/upload for local dev server
         if (url.pathname === '/api/upload' && req.method === 'POST') {
           const chunks = []

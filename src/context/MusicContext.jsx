@@ -14,6 +14,22 @@ function readMusicPreference() {
   return stored === null ? null : stored === 'true'
 }
 
+// Convert http:// Supabase storage URLs to proxied /api/media URLs
+// to avoid mixed-content blocking on HTTPS sites (Vercel)
+function proxyMediaUrl(url) {
+  if (!url || typeof url !== 'string') return url
+  // Already a relative or blob URL — leave it
+  if (url.startsWith('/') || url.startsWith('blob:')) return url
+  // Match Supabase storage public URL pattern
+  const marker = '/storage/v1/object/public/site-media/'
+  const idx = url.indexOf(marker)
+  if (idx !== -1) {
+    const objectPath = url.substring(idx + marker.length)
+    return `/api/media?path=${encodeURIComponent(objectPath)}`
+  }
+  return url
+}
+
 export function MusicProvider({ children }) {
   const { content, musicSrc } = useContent()
   const audioRef = useRef(null)
@@ -53,7 +69,7 @@ export function MusicProvider({ children }) {
   // Bound index safely
   const safeIndex = currentTrackIndex >= tracks.length ? 0 : currentTrackIndex
   const currentTrack = tracks[safeIndex] || tracks[0]
-  const activeMusicSrc = currentTrack?.src || ''
+  const activeMusicSrc = proxyMediaUrl(currentTrack?.src || '')
 
   // Store target volume from content
   useEffect(() => {
