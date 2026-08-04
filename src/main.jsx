@@ -12,12 +12,37 @@ import App from './App.jsx'
 // Apply cached theme immediately before render to prevent FOUC
 applyCachedSiteTheme()
 
-// Register PWA Service Worker
+// Register PWA Service Worker with dynamic, strict routing scopes
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
+  window.addEventListener('load', async () => {
+    const path = window.location.pathname
+    const parts = path.split('/').filter(Boolean)
+    let swScope = '/'
+
+    if (parts[0] === 'soulove-admin') {
+      swScope = '/soulove-admin/'
+    } else if (parts.length >= 2 && (parts[1] === 'dashboard' || parts[1] === 'login')) {
+      const slug = parts[0]
+      swScope = `/${slug}/dashboard/`
+    } else if (parts.length >= 1) {
+      const slug = parts[0]
+      swScope = `/${slug}/`
+    }
+
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      for (const reg of registrations) {
+        const regScopePath = new URL(reg.scope).pathname
+        // Clean up conflicting non-matching scopes (especially the old root '/' scope)
+        if (regScopePath !== swScope) {
+          await reg.unregister()
+        }
+      }
+      // Register with the strict scope matching the manifest
+      await navigator.serviceWorker.register('/sw.js', { scope: swScope })
+    } catch (err) {
       console.log('PWA Service Worker Registration Failed:', err)
-    })
+    }
   })
 }
 
