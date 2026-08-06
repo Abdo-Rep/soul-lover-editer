@@ -50,7 +50,7 @@ class ErrorBoundary extends Component {
             direction: 'rtl',
             background: '#fff1f2',
             color: '#be123c',
-            fontFamily: 'Cairo, sans-serif',
+            fontFamily: 'Amiri, Cairo, sans-serif',
           }}
         >
           <p style={{ fontSize: '3rem' }}>💔</p>
