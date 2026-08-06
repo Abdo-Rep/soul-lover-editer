@@ -188,6 +188,7 @@ export default function Dashboard() {
     canUndo,
     canRedo,
     siteNotFound,
+    getClientSlug,
   } = useContent()
   const [activeTab, setActiveTab] = useState('general')
   const [isSaving, setIsSaving] = useState(false)
@@ -214,8 +215,14 @@ export default function Dashboard() {
         sessionStorage.removeItem(`romantic-site-skip-intro`)
       }
     }
-    adminLoginWithPassword(password)
-    await loadFromDatabase()
+    try {
+      adminLoginWithPassword(password)
+      await loadFromDatabase()
+    } catch (err) {
+      console.error('Failed to load database content during admin login:', err)
+      setError(err?.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
+      adminLogout()
+    }
   }
 
   const handleSave = async () => {
@@ -1111,6 +1118,9 @@ export default function Dashboard() {
     }
   }
 
+  const activeSlug = getClientSlug()
+  const visitorPath = activeSlug ? `/${activeSlug}` : '/'
+
   return (
     <div className="min-h-dvh overflow-x-hidden">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
@@ -1222,8 +1232,8 @@ export default function Dashboard() {
 
         <p className="mt-8 text-center text-xs text-rose-400">
           رابط الزائر:{' '}
-          <Link to="/" className="underline">
-            الدومين الرئيسي
+          <Link to={visitorPath} className="underline hover:text-rose-600">
+            صفحة الزائر
           </Link>
         </p>
 

@@ -14,12 +14,12 @@ function mergeSection(base, patch) {
 
 function resolveGalleryItems(stored) {
   if (Array.isArray(stored.galleryItems) && stored.galleryItems.length > 0) {
-    return stored.galleryItems
+    return stored.galleryItems.filter(Boolean)
   }
 
-  const fromMemories = (stored.memories ?? []).filter((item) =>
-    item.image?.startsWith('http'),
-  )
+  const fromMemories = (stored.memories ?? [])
+    .filter(Boolean)
+    .filter((item) => typeof item.image === 'string' && item.image.startsWith('http'))
 
   if (fromMemories.length > 0) {
     return fromMemories.map((item, index) => ({
@@ -33,14 +33,15 @@ function resolveGalleryItems(stored) {
 
 function ensureUniqueIds(items = []) {
   if (!Array.isArray(items)) return []
+  const cleanItems = items.filter(Boolean)
   let currentMax = 0
-  items.forEach((item) => {
+  cleanItems.forEach((item) => {
     const numId = Number(item?.id)
     if (Number.isFinite(numId) && numId > currentMax) {
       currentMax = numId
     }
   })
-  return items.map((item, index) => {
+  return cleanItems.map((item, index) => {
     const numId = Number(item?.id)
     if (Number.isFinite(numId) && numId > 0) {
       return item
@@ -105,7 +106,7 @@ export function mergeContent(stored) {
   const sanitizedMusic = {
     ...mergedMusic,
     src: sanitizeMediaUrl(mergedMusic.src),
-    tracks: (mergedMusic.tracks || []).map((t) => ({
+    tracks: (mergedMusic.tracks || []).filter(Boolean).map((t) => ({
       ...t,
       src: sanitizeMediaUrl(t.src),
     })),
