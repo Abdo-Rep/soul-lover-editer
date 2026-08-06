@@ -189,6 +189,7 @@ export default function Dashboard() {
     canRedo,
     siteNotFound,
     getClientSlug,
+    t,
   } = useContent()
   const [activeTab, setActiveTab] = useState('general')
   const [isSaving, setIsSaving] = useState(false)

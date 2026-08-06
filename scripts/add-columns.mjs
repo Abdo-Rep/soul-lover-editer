@@ -22,6 +22,10 @@ async function run() {
     `)
     console.log('✅ Column language added/verified!')
 
+    // Reload PostgREST schema cache so Supabase API sees the new columns
+    await client.query("NOTIFY pgrst, 'reload schema';")
+    console.log('✅ PostgREST schema reload triggered!')
+
     // Check columns
     const res = await client.query(`
       SELECT column_name, data_type 
