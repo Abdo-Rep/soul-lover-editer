@@ -710,14 +710,6 @@ export default function Dashboard() {
       case 'welcome':
         return (
           <Section title="صفحة الترحيب" description="أول صفحة بعد الدخول">
-            <Field label="تاريخ بداية العلاقة">
-              <DateInput
-                value={content.dates.relationshipStart}
-                onChange={(v) => {
-                  updateDate('relationshipStart', `${v}T00:00:00`)
-                }}
-              />
-            </Field>
             <Field label="العنوان الصغير">
               <TextInput
                 value={content.welcome.eyebrow}

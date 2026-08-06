@@ -9,6 +9,7 @@ export default function GalleryCard({ item, index = 0, onOpen }) {
 
   const hasDate = Boolean(formattedDate)
   const hasText = Boolean(item.text?.trim() || item.description?.trim())
+  const hasFooter = hasDate || hasText
 
   return (
     <button
@@ -16,8 +17,16 @@ export default function GalleryCard({ item, index = 0, onOpen }) {
       onClick={() => onOpen(index)}
       className="group w-full text-center transition active:scale-[0.98] h-full"
     >
-      <article className="overflow-hidden rounded-3xl border border-rose-100 dark:border-rose-800/50 bg-white dark:bg-slate-900/90 shadow-md shadow-rose-900/5 dark:shadow-rose-950/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 text-center w-full h-full flex flex-col justify-between">
-        <div className="relative aspect-square overflow-hidden bg-rose-50/60 dark:bg-slate-800/60 group/img cursor-pointer">
+      <article className={`overflow-hidden rounded-[24px] text-center w-full h-full flex flex-col justify-between transition-all duration-300 ${
+        hasFooter
+          ? 'border border-rose-100 dark:border-rose-800/50 bg-white dark:bg-slate-900/90 shadow-md shadow-rose-900/5 dark:shadow-rose-950/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30'
+          : 'bg-transparent shadow-none border-none hover:-translate-y-1'
+      }`}>
+        <div className={`relative aspect-square overflow-hidden bg-rose-50/60 dark:bg-slate-800/60 group/img cursor-pointer ${
+          !hasFooter
+            ? 'rounded-[24px] border border-rose-100/80 dark:border-rose-800/50 shadow-md shadow-rose-900/5 dark:shadow-rose-950/30 group-hover:shadow-xl group-hover:shadow-rose-300/20 dark:group-hover:shadow-rose-900/30'
+            : ''
+        }`}>
           {imgSrc ? (
             <>
               {!isLoaded && (
