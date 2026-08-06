@@ -923,7 +923,63 @@ export default function Dashboard() {
                       }}
                       onImageRemove={(id) => {
                         updateGalleryItem(id, { image: '' })
-                                  <Field label="تاريخ المناسبة">
+                      }}
+                      onRemove={removeGalleryItem}
+                      canRemove={(content.galleryItems ?? []).length > 0}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addGalleryItem()
+                  }}
+                  className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
+                >
+                  + إضافة صورة للمعرض
+                </button>
+              </Section>
+            </div>
+          </>
+        )
+
+      case 'countdowns':
+        return (
+          <Section
+            title="العدادات التنازلية ⏳"
+            description="إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة"
+          >
+            <div className="space-y-4">
+              {countdownsList.map((timer, idx) => (
+                <div
+                  key={timer.id || idx}
+                  className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3"
+                >
+                  <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
+                    <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+                      <Clock size={14} className="text-rose-500" />
+                      عداد رقم #{idx + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeCountdown(idx)}
+                      className="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1"
+                    >
+                      <Trash2 size={13} />
+                      حذف العداد
+                    </button>
+                  </div>
+
+                  <Field label="عنوان المناسبة">
+                    <TextInput
+                      value={timer.title || ''}
+                      onChange={(v) => updateCountdown(idx, 'title', v)}
+                      placeholder="مثال: عيد ميلادك 🎂"
+                    />
+                  </Field>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Field label="تاريخ المناسبة">
                       <DateInput
                         value={timer.date || ''}
                         onChange={(v) => updateCountdown(idx, 'date', v)}

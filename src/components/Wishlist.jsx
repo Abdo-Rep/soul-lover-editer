@@ -139,6 +139,7 @@ export default function Wishlist({ onNext }) {
                       <Sparkles size={12} className="text-rose-500" />
                       <span>{isEs ? 'Sueño por cumplir ✨' : isEn ? 'A dream we wait for ✨' : 'حُلم ننتظره ✨'}</span>
                     </span>
+                  )}
 
 
                   {/* Right Side: Text & Interactive Romantic Heart Button */}
