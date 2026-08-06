@@ -165,9 +165,7 @@ export default function CountdownPage({ onNext }) {
         </div>
 
         <RevealItem className="mt-8 w-full max-w-lg">
-          <NextButton onClick={onNext} defaultText="قائمة أمنياتنا 💖">
-            {content?.countdownsNextButton || 'قائمة أمنياتنا 💖'}
-          </NextButton>
+          <NextButton onClick={onNext} defaultText="قائمة أمنياتنا 💖" />
         </RevealItem>
       </RevealGroup>
     </FlowPage>

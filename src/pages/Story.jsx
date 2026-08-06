@@ -65,9 +65,7 @@ export default function Story({ onNext }) {
         </StoryTimeline>
 
         <RevealItem className="mt-6 w-full">
-          <NextButton onClick={onNext} defaultText="كملي لمعرض صورنا 📷">
-            {story?.memoriesButton}
-          </NextButton>
+          <NextButton onClick={onNext} defaultText="كملي لمعرض صورنا 📷" />
         </RevealItem>
       </RevealGroup>
 

@@ -22,23 +22,20 @@ export default function Enter({ onLogin }) {
     setSubmitting(true)
     setError('')
 
-    // ⭐ Prime/start music IMMEDIATELY on user click (synchronous)
-    primeAudio()
-
     try {
       const currentPass = passwordRef.current
       const isValid = await verifyPassword(currentPass)
       if (!isValid) {
-        pauseMusic()
         setError(content.login?.error || 'كلمة المرور غير صحيحة')
         setShake(true)
         window.setTimeout(() => setShake(false), 450)
         return
       }
 
+      // Prime/start music ONLY on successful validation
+      primeAudio()
       onLogin(currentPass)
     } catch {
-      pauseMusic()
       setError('تعذّر التحقق من كلمة المرور — حاول مرة أخرى')
     } finally {
       setSubmitting(false)

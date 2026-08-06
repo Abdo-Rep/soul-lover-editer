@@ -106,18 +106,16 @@ function hasMemoryContent(memory) {
 
 export function isVisibleMemory(memory) {
   return hasMemoryContent(memory)
-}
-
-export function TimelineMemoryCard({ memory, showConnector = true, onImageClick, onOpen }) {
+}export function TimelineMemoryCard({ memory, showConnector = true, onImageClick, onOpen }) {
   const hasImage = Boolean(memory.image?.trim() || memory.url?.trim())
   const imgSrc = memory.image || memory.url
-  const hasDate = Boolean(memory.date)
+  const formattedDate = memory.date ? formatDateLong(memory.date) : null
+  const hasDate = Boolean(formattedDate)
   const hasText = Boolean(memory.text?.trim())
   const [isLoaded, setIsLoaded] = useState(false)
 
   if (!hasImage && !hasDate && !hasText) return null
 
-  const formattedDate = memory.date ? formatDateLong(memory.date) : null
   const handleClick = () => {
     if (onOpen) onOpen()
     else if (onImageClick) onImageClick(imgSrc, memory.text || 'ذكرى')
@@ -126,7 +124,7 @@ export function TimelineMemoryCard({ memory, showConnector = true, onImageClick,
   return (
     <>
       <RevealItem as="div" role="listitem" className="w-full max-w-lg mx-auto">
-        <article className="group overflow-hidden rounded-[28px] border border-rose-100/90 dark:border-rose-800/50 bg-white dark:bg-slate-900/90 shadow-xl shadow-rose-900/5 dark:shadow-rose-950/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 text-center w-full flex flex-col justify-between">
+        <article className="group overflow-hidden rounded-[28px] border border-rose-100/90 dark:border-rose-800/50 bg-white dark:bg-slate-900/90 shadow-xl shadow-rose-900/5 dark:shadow-rose-955/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 text-center w-full flex flex-col justify-between">
           {hasImage ? (
             <button
               type="button"
@@ -153,10 +151,10 @@ export function TimelineMemoryCard({ memory, showConnector = true, onImageClick,
           ) : null}
 
           {(hasDate || hasText) ? (
-            <div className="p-5 sm:p-6 flex-1 flex flex-col items-center justify-center">
+            <div className="p-3.5 sm:p-4 flex-1 flex flex-col items-center justify-center">
               {/* 🎯 التاريخ بالعرض كأنه كلمة مكتوبة وعلى قد الكلام لتوفير المساحة */}
-              {hasDate && formattedDate && (
-                <div className="mx-auto mb-2.5 w-fit rounded-full border border-rose-100/90 dark:border-rose-700/60 bg-gradient-to-r from-rose-50/90 via-white to-pink-50/90 dark:from-slate-800/90 dark:via-slate-900 dark:to-slate-800/90 px-3.5 py-1 text-center shadow-xs transition-transform duration-300 group-hover:scale-105">
+              {hasDate && (
+                <div className="mx-auto mb-2 w-fit rounded-full border border-rose-100/90 dark:border-rose-700/60 bg-gradient-to-r from-rose-50/90 via-white to-pink-50/90 dark:from-slate-800/90 dark:via-slate-900 dark:to-slate-800/90 px-3.5 py-0.5 text-center shadow-xs transition-transform duration-300 group-hover:scale-105">
                   <span className="text-xs sm:text-sm font-bold text-rose-800 dark:text-rose-200 tracking-wide flex items-center justify-center gap-1.5">
                     <Calendar size={13} className="text-rose-500 dark:text-rose-400 shrink-0" />
                     <span>{formattedDate}</span>

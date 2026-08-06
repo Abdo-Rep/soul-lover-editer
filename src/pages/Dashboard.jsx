@@ -733,14 +733,6 @@ export default function Dashboard() {
                 rows={4}
               />
             </Field>
-            <Field label="زر التالي">
-              <TextInput
-                value={content.welcome.nextButton}
-                onChange={(v) => {
-                  updateField('welcome', 'nextButton', v)
-                }}
-              />
-            </Field>
           </Section>
         )
 
@@ -824,14 +816,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <Field label="زر الذكريات">
-              <TextInput
-                value={content.story.memoriesButton}
-                onChange={(v) => {
-                  updateField('story', 'memoriesButton', v)
-                }}
-              />
-            </Field>
             <p className="text-xs text-rose-400">
               ذكريات القصة تظهر في صفحة Our Story فقط — صور الألبوم في تبويب المعرض.
             </p>
@@ -905,14 +889,6 @@ export default function Dashboard() {
                   }}
                 />
               </Field>
-              <Field label="زر التالي (الانتقال للرسالة الأخيرة)">
-                <TextInput
-                  value={content.gallery.finalButton}
-                  onChange={(v) => {
-                    updateField('gallery', 'finalButton', v)
-                  }}
-                />
-              </Field>
             </Section>
 
             <div className="mt-4">
@@ -969,18 +945,6 @@ export default function Dashboard() {
             title="العدادات التنازلية ⏳"
             description="إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة"
           >
-            <div className="mb-4">
-              <Field label="زر التالي (الانتقال للصفحة التالية)">
-                <TextInput
-                  value={content.countdownsNextButton || ''}
-                  onChange={(v) => {
-                    updateRoot('countdownsNextButton', v)
-                  }}
-                  placeholder="مثال: الانتقال للرسالة الأخيرة ✨"
-                />
-              </Field>
-            </div>
-
             <div className="space-y-4">
               {countdownsList.map((timer, idx) => (
                 <div
