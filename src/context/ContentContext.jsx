@@ -852,6 +852,7 @@ export function ContentProvider({ children }) {
       redo,
       canUndo,
       canRedo,
+      getClientSlug,
     }),
     [
       content,
