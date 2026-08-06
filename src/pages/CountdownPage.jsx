@@ -8,14 +8,36 @@ import { useContent } from '../context/ContentContext'
 function calculateTimeLeft(targetDate, targetTime = '00:00') {
   if (!targetDate) return null
   const targetStr = `${targetDate}T${targetTime}:00`
-  const target = new Date(targetStr)
+  let target = new Date(targetStr)
   if (isNaN(target.getTime())) return null
 
   const now = new Date()
-  const diff = target.getTime() - now.getTime()
+  let diff = target.getTime() - now.getTime()
 
+  // If the date is in the past
   if (diff <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, isFinished: true }
+    // If the event occurred less than 24 hours ago, keep it in the celebrated/finished state
+    const oneDayMs = 24 * 60 * 60 * 1000
+    if (Math.abs(diff) < oneDayMs) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, isFinished: true }
+    }
+
+    // Otherwise, automatically roll it over to the next upcoming annual occurrence
+    const targetMonth = target.getMonth()
+    const targetDay = target.getDate()
+    const targetHours = target.getHours()
+    const targetMinutes = target.getMinutes()
+
+    const currentYear = now.getFullYear()
+    let rolledTarget = new Date(currentYear, targetMonth, targetDay, targetHours, targetMinutes)
+
+    // If that date in the current year has also passed by more than 24 hours, target next year
+    if (rolledTarget.getTime() - now.getTime() <= -oneDayMs) {
+      rolledTarget = new Date(currentYear + 1, targetMonth, targetDay, targetHours, targetMinutes)
+    }
+
+    target = rolledTarget
+    diff = target.getTime() - now.getTime()
   }
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
