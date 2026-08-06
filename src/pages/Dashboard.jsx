@@ -51,7 +51,7 @@ const TABS = [
 ]
 
 function AdminLoginForm({ onLogin }) {
-  const { content, isLoading, verifyAdminPassword } = useContent()
+  const { content, isLoading, verifyAdminPassword, getClientSlug } = useContent()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -82,6 +82,9 @@ function AdminLoginForm({ onLogin }) {
   if (isLoading) {
     return <ContentLoadingHearts />
   }
+
+  const slug = getClientSlug()
+  const visitorPath = slug ? `/${slug}` : '/'
 
   return (
     <div className="min-h-dvh overflow-x-hidden">
@@ -127,7 +130,7 @@ function AdminLoginForm({ onLogin }) {
           </form>
 
           <p className="mt-6 text-center text-xs text-rose-400">
-            <Link to="/" className="underline hover:text-rose-600">
+            <Link to={visitorPath} className="underline hover:text-rose-600">
               الذهاب لصفحة الزائر
             </Link>
           </p>
