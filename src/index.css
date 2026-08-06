@@ -10,10 +10,10 @@
 }
 
 @theme {
-  --font-sans: "Amiri", "Cairo", "NativeEmoji", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "Playpen Sans", "Amiri", "Cairo", "NativeEmoji", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
     emoji;
-  --font-display: "Amiri", "Alexandria", "IBM Plex Sans Arabic", "Aref Ruqaa", "Cairo", "NativeEmoji", ui-sans-serif, sans-serif,
+  --font-display: "Playpen Sans", "Amiri", "Alexandria", "IBM Plex Sans Arabic", "Aref Ruqaa", "Cairo", "NativeEmoji", ui-sans-serif, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji",
     emoji;
 

@@ -8,9 +8,12 @@ import { RevealGroup, RevealItem } from '../components/Reveal'
 import { useContent } from '../context/ContentContext'
 
 export default function Gallery({ onNext, showNext = true }) {
-  const { content } = useContent()
+  const { content, t } = useContent()
   const { gallery, galleryItems = [] } = content
   const [lightboxIndex, setLightboxIndex] = useState(null)
+
+  const isEn = content.language === 'en' || content.language === 'en-GB'
+  const isEs = content.language === 'es'
 
   const items = useMemo(
     () =>
@@ -47,7 +50,7 @@ export default function Gallery({ onNext, showNext = true }) {
           <div className="glass-card w-full rounded-3xl px-6 py-14 text-center">
             <p className="text-4xl">♥</p>
             <p className="mt-4 text-sm leading-relaxed text-rose-500">
-              صورنا الحلوة هتظهر هنا قريباً ♥
+              {isEs ? 'Nuestras fotos hermosas aparecerán aquí pronto ♥' : isEn ? 'Our beautiful photos will appear here soon ♥' : 'صورنا الحلوة هتظهر هنا قريباً ♥'}
             </p>
           </div>
         </RevealItem>
@@ -55,7 +58,7 @@ export default function Gallery({ onNext, showNext = true }) {
 
       {showNext && (
         <RevealItem className="mt-10 w-full">
-          <NextButton onClick={onNext} defaultText="الانتقال للرسالة الأخيرة 💌" />
+          <NextButton onClick={onNext} defaultText={t.finalTab || 'الرسالة الأخيرة 💌'} />
         </RevealItem>
       )}
 

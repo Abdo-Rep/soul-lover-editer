@@ -26,6 +26,8 @@ async function run() {
         admin_password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        is_active BOOLEAN DEFAULT TRUE,
+        language VARCHAR(10) DEFAULT 'ar',
         
         primary_color VARCHAR(50) DEFAULT '#fb7185',
         background_heart_color VARCHAR(50) DEFAULT '#be123c',

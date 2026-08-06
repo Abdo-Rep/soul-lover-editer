@@ -5,8 +5,11 @@ import { useContent } from '../context/ContentContext'
 import NextButton from './NextButton'
 
 export default function Wishlist({ onNext }) {
-  const { content, toggleWishlistItem } = useContent()
+  const { content, toggleWishlistItem, t } = useContent()
   const wishlist = content.wishlist ?? []
+
+  const isEn = content.language === 'en' || content.language === 'en-GB'
+  const isEs = content.language === 'es'
 
   const handleToggle = (id) => {
     toggleWishlistItem(id)
@@ -17,7 +20,7 @@ export default function Wishlist({ onNext }) {
   const isAllCompleted = wishlist.length > 0 && completedCount === wishlist.length
 
   return (
-    <div className="w-full max-w-lg mx-auto px-3 sm:px-4 py-4 dir-rtl">
+    <div className={`w-full max-w-lg mx-auto px-3 sm:px-4 py-4 ${isEn || isEs ? 'dir-ltr' : 'dir-rtl'}`}>
       {/* 👑 LUXURY HEADER & BADGES */}
       <div className="text-center mb-6">
         <motion.div
@@ -26,7 +29,9 @@ export default function Wishlist({ onNext }) {
           className="inline-flex items-center gap-2 rounded-full border border-rose-200/80 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/90 px-4 py-1.5 text-xs font-extrabold text-rose-800 shadow-md shadow-rose-900/5 mb-3.5 backdrop-blur-md"
         >
           <Sparkles size={14} className="text-rose-500 animate-spin" style={{ animationDuration: '6s' }} />
-          <span className="font-display tracking-wide">Our Bucket List ▪ قائمة أمنياتنا السعيدة</span>
+          <span className="font-display tracking-wide">
+            {isEs ? 'Nuestra lista de deseos 💖' : isEn ? 'Our Bucket List 💖' : 'أمنياتنا السعيدة 💖'}
+          </span>
           <Heart size={13} className="text-rose-500 fill-rose-500 animate-pulse" />
         </motion.div>
 
@@ -35,7 +40,7 @@ export default function Wishlist({ onNext }) {
           animate={{ opacity: 1, scale: 1 }}
           className="font-display text-2xl sm:text-3xl font-black text-rose-950 mb-2 tracking-tight drop-shadow-xs"
         >
-          حاجات نفسي نعملها سوا 💖
+          {isEs ? 'Cosas que quiero hacer contigo 💖' : isEn ? 'Things I want to do with you 💖' : 'حاجات نفسي نعملها سوا 💖'}
         </motion.h1>
 
         <motion.p
@@ -44,7 +49,7 @@ export default function Wishlist({ onNext }) {
           transition={{ delay: 0.1 }}
           className="text-xs sm:text-sm text-rose-700/90 max-w-md mx-auto font-bold leading-relaxed"
         >
-          أحلام صغيرة وحاجات حلوة بنتمناها، وكل ما نعمل حاجة منهم بنعلم عليها سوا 💕
+          {isEs ? 'Pequeños sueños e ilusiones, los marcamos juntos al cumplirlos 💕' : isEn ? 'Small dreams we wish for, marking them together as we live them 💕' : 'أحلام صغيرة وحاجات حلوة بنتمناها، وكل ما نعمل حاجة منهم بنعلم عليها سوا 💕'}
         </motion.p>
       </div>
 
@@ -69,8 +74,8 @@ export default function Wishlist({ onNext }) {
           <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm font-black text-rose-900 font-display">
               {isAllCompleted
-                ? '🎉 أنجزنا كل أحلامنا سوا!'
-                : `${completedCount} من أصل ${wishlist.length} أحلام تم تحقيقها`}
+                ? (isEs ? '🎉 ¡Cumplimos todos nuestros sueños juntos!' : isEn ? '🎉 We achieved all our dreams together!' : '🎉 أنجزنا كل أحلامنا سوا!')
+                : (isEs ? `${completedCount} de ${wishlist.length} deseos cumplidos` : isEn ? `${completedCount} of ${wishlist.length} wishes completed` : `${completedCount} من أصل ${wishlist.length} أحلام تم تحقيقها`)}
             </span>
             <Trophy size={16} className={isAllCompleted ? 'text-amber-500 animate-bounce' : 'text-rose-400'} />
           </div>
@@ -98,8 +103,12 @@ export default function Wishlist({ onNext }) {
             className="rounded-[30px] border border-rose-200/80 bg-white/90 p-8 text-center backdrop-blur-md shadow-lg shadow-rose-900/5"
           >
             <Heart className="mx-auto mb-3 text-rose-400 fill-rose-100 animate-bounce" size={44} />
-            <h4 className="text-base font-extrabold text-rose-900 font-display">القائمة فارغة الآن 💖</h4>
-            <p className="text-xs text-rose-500 font-semibold mt-1">يمكنك إضافة الأحلام والأمنيات الجميلة من لوحة التحكم</p>
+            <h4 className="text-base font-extrabold text-rose-900 font-display">
+              {isEs ? '¡La lista está vacía! 💖' : isEn ? 'The list is empty! 💖' : 'القائمة فارغة الآن 💖'}
+            </h4>
+            <p className="text-xs text-rose-500 font-semibold mt-1">
+              {isEs ? 'Puedes agregar deseos desde el panel de control' : isEn ? 'You can add dreams from the dashboard' : 'يمكنك إضافة الأحلام والأمنيات الجميلة من لوحة التحكم'}
+            </p>
           </motion.div>
         ) : (
           <AnimatePresence>
@@ -115,7 +124,7 @@ export default function Wishlist({ onNext }) {
                   onClick={() => handleToggle(item.id)}
                   className={`group relative overflow-hidden rounded-[24px] border p-4 cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 text-right backdrop-blur-md ${
                     isDone
-                      ? 'border-rose-300/80 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/80 dark:bg-rose-950/40 shadow-sm'
+                      ? 'border-rose-300/80 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/80 dark:bg-rose-955/40 shadow-sm'
                       : 'border-rose-100 dark:border-rose-900/40 bg-gradient-to-r from-white/95 via-rose-50/40 to-pink-50/50 dark:from-slate-900/90 dark:to-slate-800/90 shadow-md shadow-rose-900/5 hover:border-rose-300 hover:shadow-xl hover:shadow-rose-300/20 hover:-translate-y-0.5'
                   }`}
                 >
@@ -123,14 +132,14 @@ export default function Wishlist({ onNext }) {
                   {isDone ? (
                     <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-1 text-xs font-black text-white shadow-sm shadow-rose-200">
                       <CheckCircle2 size={13} className="text-white" />
-                      <span>تم بحب 💖</span>
+                      <span>{isEs ? 'Logrado 💖' : isEn ? 'Done 💖' : 'تم بحب 💖'}</span>
                     </span>
                   ) : (
                     <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-800/80 bg-gradient-to-r from-rose-50 via-white to-pink-50 dark:from-slate-800 dark:to-slate-900 px-3.5 py-1 text-xs font-extrabold text-rose-700 dark:text-rose-300 shadow-xs group-hover:border-rose-300">
                       <Sparkles size={12} className="text-rose-500" />
-                      <span>حُلم ننتظره ✨</span>
+                      <span>{isEs ? 'Sueño por cumplir ✨' : isEn ? 'A dream we wait for ✨' : 'حُلم ننتظره ✨'}</span>
                     </span>
-                  )}
+
 
                   {/* Right Side: Text & Interactive Romantic Heart Button */}
                   <div className="flex items-center gap-3.5 flex-1 min-w-0 justify-end dir-rtl">
@@ -173,9 +182,7 @@ export default function Wishlist({ onNext }) {
       {/* 🚀 NEXT STEP BUTTON */}
       {onNext && (
         <div className="mt-6 w-full flex justify-center">
-          <NextButton onClick={onNext} defaultText="الرسالة الأخيرة 💌">
-            الرسالة الأخيرة 💌
-          </NextButton>
+          <NextButton onClick={onNext} defaultText={t.finalTab || 'الرسالة الأخيرة 💌'} />
         </div>
       )}
     </div>

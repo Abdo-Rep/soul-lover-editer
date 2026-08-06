@@ -129,7 +129,7 @@ export function isVisibleMemory(memory) {
             <button
               type="button"
               onClick={handleClick}
-              className="relative block w-full aspect-[4/3] overflow-hidden bg-rose-50/60 dark:bg-slate-800/60 group/img cursor-pointer"
+              className="relative block w-full min-h-[200px] overflow-hidden bg-rose-50/60 dark:bg-slate-800/60 group/img cursor-pointer"
             >
               {/* Skeleton Loading Shimmer until image is ready */}
               {!isLoaded && (
@@ -141,7 +141,7 @@ export function isVisibleMemory(memory) {
                 src={imgSrc}
                 alt={hasText ? memory.text : 'ذكرى'}
                 onLoad={() => setIsLoaded(true)}
-                className={`h-full w-full object-cover transition-all duration-500 group-hover/img:scale-105 ${
+                className={`w-full h-auto max-h-[500px] object-contain transition-all duration-500 group-hover/img:scale-[1.02] ${
                   isLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 loading="eager"

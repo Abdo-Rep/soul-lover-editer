@@ -13,10 +13,13 @@ import StoryTimeline, {
 import { useContent } from '../context/ContentContext'
 
 export default function Story({ onNext }) {
-  const { content } = useContent()
+  const { content, t } = useContent()
   const { story, memories, dates } = content
   const visibleMemories = useMemo(() => memories.filter(isVisibleMemory), [memories])
   const [lightboxIndex, setLightboxIndex] = useState(null)
+
+  const isEn = content.language === 'en' || content.language === 'en-GB'
+  const isEs = content.language === 'es'
 
   return (
     <FlowPage variant="flow" className="pb-8">
@@ -57,15 +60,19 @@ export default function Story({ onNext }) {
             <RevealItem className="w-full max-w-lg mx-auto">
               <div className="rounded-3xl border border-rose-100 bg-white/70 p-6 text-center backdrop-blur-sm shadow">
                 <p className="text-2xl mb-2">📷</p>
-                <p className="text-sm text-rose-400 font-medium">لا توجد ذكريات بعد</p>
-                <p className="text-xs text-rose-300 mt-1">يمكن إضافتها من لوحة التحكم</p>
+                <p className="text-sm text-rose-400 font-medium">
+                  {isEs ? 'No hay recuerdos todavía' : isEn ? 'No memories yet' : 'لا توجد ذكريات بعد'}
+                </p>
+                <p className="text-xs text-rose-300 mt-1">
+                  {isEs ? 'Puedes agregarlos desde el panel' : isEn ? 'You can add them from the dashboard' : 'يمكن إضافتها من لوحة التحكم'}
+                </p>
               </div>
             </RevealItem>
           )}
         </StoryTimeline>
 
         <RevealItem className="mt-6 w-full">
-          <NextButton onClick={onNext} defaultText="أهم أيامنا ⏳" />
+          <NextButton onClick={onNext} defaultText={t.countdownsTab || 'أهم أيامنا ⏳'} />
         </RevealItem>
       </RevealGroup>
 

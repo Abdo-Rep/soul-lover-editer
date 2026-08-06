@@ -59,6 +59,9 @@ function useTick() {
 }
 
 function LiveCountdownCard({ timer, tick }) {
+  const { content } = useContent()
+  const isEn = content.language === 'en' || content.language === 'en-GB'
+  const isEs = content.language === 'es'
   const timeLeft = calculateTimeLeft(timer.date, timer.time)
   const [celebrated, setCelebrated] = useState(false)
 
@@ -83,7 +86,7 @@ function LiveCountdownCard({ timer, tick }) {
       {/* Timer Header */}
       <div className="mb-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 px-4 py-1.5 text-sm font-bold text-white shadow-md shadow-rose-200">
         <Clock size={15} className="text-white" />
-        <span className="font-display">{timer.title || 'مناسبة قادمة'}</span>
+        <span className="font-display">{timer.title || (isEs ? 'Evento próximo' : isEn ? 'Upcoming Event' : 'مناسبة قادمة')}</span>
         <Heart size={13} className="fill-white text-white" />
       </div>
 
@@ -96,8 +99,12 @@ function LiveCountdownCard({ timer, tick }) {
       {/* Live Digit Cards Grid */}
       {timeLeft.isFinished ? (
         <div className={`my-2 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-center transition-all duration-700 ${celebrated ? 'scale-105' : ''}`}>
-          <span className="text-2xl font-bold text-rose-600 block mb-1">🎉 حان الموعد السعيد! 🎉</span>
-          <span className="text-xs text-rose-500 font-semibold">المناسبة بدأت الآن مع أجمل الأماني 💖</span>
+          <span className="text-2xl font-bold text-rose-600 block mb-1">
+            {isEs ? '🎉 ¡Llegó el gran momento! 🎉' : isEn ? '🎉 The happy moment is here! 🎉' : '🎉 حان الموعد السعيد! 🎉'}
+          </span>
+          <span className="text-xs text-rose-500 font-semibold">
+            {isEs ? 'El evento ha comenzado con los mejores deseos 💖' : isEn ? 'The event has started with our best wishes 💖' : 'المناسبة بدأت الآن مع أجمل الأماني 💖'}
+          </span>
           {/* Mini heart burst on finish */}
           {celebrated && (
             <div className="flex justify-center gap-2 mt-3 text-lg animate-bounce">
@@ -112,7 +119,9 @@ function LiveCountdownCard({ timer, tick }) {
             <span className="font-display text-xl sm:text-2xl font-black text-rose-900 leading-none tabular-nums">
               {String(timeLeft.days).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-400 mt-1">أيام</span>
+            <span className="text-[10px] font-bold text-rose-400 mt-1">
+              {isEs ? 'Días' : isEn ? 'Days' : 'أيام'}
+            </span>
           </div>
 
           {/* Hours */}
@@ -120,7 +129,9 @@ function LiveCountdownCard({ timer, tick }) {
             <span className="font-display text-xl sm:text-2xl font-black text-rose-900 leading-none tabular-nums">
               {String(timeLeft.hours).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-400 mt-1">ساعات</span>
+            <span className="text-[10px] font-bold text-rose-400 mt-1">
+              {isEs ? 'Horas' : isEn ? 'Hours' : 'ساعات'}
+            </span>
           </div>
 
           {/* Minutes */}
@@ -128,15 +139,19 @@ function LiveCountdownCard({ timer, tick }) {
             <span className="font-display text-xl sm:text-2xl font-black text-rose-900 leading-none tabular-nums">
               {String(timeLeft.minutes).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-400 mt-1">دقائق</span>
+            <span className="text-[10px] font-bold text-rose-400 mt-1">
+              {isEs ? 'Minutos' : isEn ? 'Mins' : 'دقائق'}
+            </span>
           </div>
 
-          {/* Seconds — no animate-pulse (it clashes with the number changing every second) */}
+          {/* Seconds */}
           <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200/90 bg-gradient-to-b from-rose-500 to-pink-500 p-2.5 shadow-md shadow-rose-200 text-white">
             <span className="font-display text-xl sm:text-2xl font-black leading-none tabular-nums">
               {String(timeLeft.seconds).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-100 mt-1">ثواني</span>
+            <span className="text-[10px] font-bold text-rose-100 mt-1">
+              {isEs ? 'Segundos' : isEn ? 'Secs' : 'ثواني'}
+            </span>
           </div>
         </div>
       )}
@@ -145,8 +160,11 @@ function LiveCountdownCard({ timer, tick }) {
 }
 
 export default function CountdownPage({ onNext }) {
-  const { content } = useContent()
+  const { content, t } = useContent()
   const tick = useTick()
+
+  const isEn = content.language === 'en' || content.language === 'en-GB'
+  const isEs = content.language === 'es'
 
   // Use DB countdowns only — no hardcoded Christmas fallback
   const countdowns = content?.countdowns ?? []
@@ -158,13 +176,19 @@ export default function CountdownPage({ onNext }) {
         <RevealItem as="header" className="mb-6 w-full text-center">
           <p className="text-sm font-medium tracking-wide text-rose-400 flex items-center justify-center gap-1.5">
             <Sparkles size={14} className="text-rose-400" />
-            <span>نحو أجمل المواعيد</span>
+            <span>
+              {isEs ? 'Hacia los mejores momentos' : isEn ? 'Towards the best times' : 'نحو أجمل المواعيد'}
+            </span>
           </p>
           <h1 className="font-display mt-2 text-3xl font-bold text-rose-900">
-            العدادات التنازلية ⏳
+            {t.countdownsTab || 'العدادات التنازلية ⏳'}
           </h1>
           <p className="mt-1.5 text-xs text-rose-500 font-medium">
-            كل ثانية بتمر بتقربنا أكتر للمواسم واللحظات الحلوة اللي بنستناها سوا
+            {isEs 
+              ? 'Cada segundo que pasa nos acerca más a los momentos hermosos que esperamos juntos' 
+              : isEn 
+                ? 'Every second that passes brings us closer to the beautiful moments we wait for together' 
+                : 'كل ثانية بتمر بتقربنا أكتر للمواسم واللحظات الحلوة اللي بنستناها سوا'}
           </p>
         </RevealItem>
 
@@ -179,15 +203,19 @@ export default function CountdownPage({ onNext }) {
             <RevealItem className="w-full">
               <div className="rounded-3xl border border-rose-100 bg-white/80 p-8 text-center shadow-lg backdrop-blur-md">
                 <p className="text-4xl mb-3">⏳</p>
-                <p className="text-sm font-semibold text-rose-400">لا توجد عدادات تنازلية حتى الآن</p>
-                <p className="text-xs text-rose-300 mt-1">يمكن إضافتها من لوحة التحكم</p>
+                <p className="text-sm font-semibold text-rose-400">
+                  {isEs ? 'No hay cuentas regresivas todavía' : isEn ? 'No countdowns yet' : 'لا توجد عدادات تنازلية حتى الآن'}
+                </p>
+                <p className="text-xs text-rose-300 mt-1">
+                  {isEs ? 'Puedes agregarlas desde el panel' : isEn ? 'You can add them from the dashboard' : 'يمكن إضافتها من لوحة التحكم'}
+                </p>
               </div>
             </RevealItem>
           )}
         </div>
 
         <RevealItem className="mt-8 w-full max-w-lg">
-          <NextButton onClick={onNext} defaultText="قائمة أمنياتنا 💖" />
+          <NextButton onClick={onNext} defaultText={t.wishlistTab || 'قائمة أمنياتنا 💖'} />
         </RevealItem>
       </RevealGroup>
     </FlowPage>

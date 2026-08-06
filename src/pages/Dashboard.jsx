@@ -301,10 +301,10 @@ export default function Dashboard() {
       case 'general':
         return (
           <Section
-            title="إعدادات عامة"
-            description="اسم الموقع، وكلمة المرور"
+            title={t.generalSettings}
+            description={t.generalDesc}
           >
-            <Field label="اسم الموقع" hint="يظهر في تبويب المتصفح ولوحة التحكم">
+            <Field label={t.siteNameLabel} hint={content.language === 'en' || content.language === 'en-GB' ? 'Appears in browser tab and dashboard' : content.language === 'es' ? 'Aparece en la pestaña del navegador y el panel' : 'يظهر في تبويب المتصفح ولوحة التحكم'}>
               <TextInput
                 value={content.siteName}
                 onChange={(v) => {
@@ -313,8 +313,8 @@ export default function Dashboard() {
               />
             </Field>
             <Field
-              label="كلمة مرور الموقع (للزوار)"
-              hint="الكلمة التي يستخدمها شريكك لفتح الهدية"
+              label={t.visitorPasswordLabel}
+              hint={content.language === 'en' || content.language === 'en-GB' ? 'The password used by your partner to open the gift' : content.language === 'es' ? 'La contraseña que usa tu pareja para abrir el regalo' : 'الكلمة التي يستخدمها شريكك لفتح الهدية'}
             >
               <PasswordInput
                 showCopy={true}
@@ -325,7 +325,7 @@ export default function Dashboard() {
               />
             </Field>
             <Field
-              label="كلمة مرور لوحة التحكم (الداشبورد)"
+              label={t.adminPasswordLabel}
             >
               <PasswordInput
                 showCopy={true}
@@ -493,13 +493,13 @@ export default function Dashboard() {
         const tracksList = rawTracks.length > 0
           ? rawTracks
           : (content.music?.src
-            ? [{ id: 'default', title: content.music.title || 'أغنيتنا', fileName: content.music.fileName || 'romantic.mp3', src: content.music.src }]
-            : [{ id: 'track-1', title: 'أغنية 1', fileName: '', src: '' }])
+            ? [{ id: 'default', title: content.music.title || (content.language === 'en' || content.language === 'en-GB' ? 'Our Song' : content.language === 'es' ? 'Nuestra canción' : 'أغنيتنا'), fileName: content.music.fileName || 'romantic.mp3', src: content.music.src }]
+            : [{ id: 'track-1', title: (content.language === 'en' || content.language === 'en-GB' ? 'Track 1' : content.language === 'es' ? 'Pista 1' : 'أغنية 1'), fileName: '', src: '' }])
 
         return (
           <Section
-            title="الموسيقى"
-            description="يمكنك رفع وتسمية ملفات صوتية تعمل كقائمة تشغيل متتالية"
+            title={t.musicSettings}
+            description={t.musicDesc}
           >
             <div className="space-y-6">
               {tracksList.map((track, idx) => {
@@ -512,13 +512,15 @@ export default function Dashboard() {
                   <div key={trackKey} className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-rose-400">
-                        {currentMode === 'voice' ? `رسالة صوتية رقم ${idx + 1}` : `الأغنية رقم ${idx + 1}`}
+                        {currentMode === 'voice' 
+                          ? (content.language === 'en' || content.language === 'en-GB' ? `Voice Message #${idx + 1}` : content.language === 'es' ? `Mensaje de voz #${idx + 1}` : `رسالة صوتية رقم ${idx + 1}`) 
+                          : (content.language === 'en' || content.language === 'en-GB' ? `Track #${idx + 1}` : content.language === 'es' ? `Canción #${idx + 1}` : `الأغنية رقم ${idx + 1}`)}
                       </span>
                       <button
                         type="button"
                         onClick={() => removeMusic(idx)}
                         className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
-                        title="حذف هذا الصوت"
+                        title={t.deleteBtn}
                       >
                         <Trash2 size={12} />
                         حذف
@@ -531,7 +533,7 @@ export default function Dashboard() {
                         onChange={(v) => {
                           updateMusicTrackTitle(idx, v)
                         }}
-                        placeholder="اسم الأغنية أو الرسالة الصوتية..."
+                        placeholder={content.language === 'en' || content.language === 'en-GB' ? 'Track title or voice message...' : content.language === 'es' ? 'Nombre de canción o mensaje de voz...' : 'اسم الأغنية أو الرسالة الصوتية...'}
                       />
                     </Field>
 
@@ -653,7 +655,7 @@ export default function Dashboard() {
                     className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-1.5"
                   >
                     <Plus size={15} />
-                    + إضافة أغنية جديدة 🎵
+                    {content.language === 'en' || content.language === 'en-GB' ? '+ Add new song 🎵' : content.language === 'es' ? '+ Añadir nueva canción 🎵' : '+ إضافة أغنية جديدة 🎵'}
                   </button>
 
                   <button
@@ -662,7 +664,7 @@ export default function Dashboard() {
                     className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
                   >
                     <Mic size={15} className="text-rose-500" />
-                    + إضافة رسالة بصوتي 🎙️
+                    {content.language === 'en' || content.language === 'en-GB' ? '+ Add voice recording 🎙️' : content.language === 'es' ? '+ Grabar mensaje de voz 🎙️' : '+ إضافة رسالة بصوتي 🎙️'}
                   </button>
                 </div>
               )}
@@ -673,18 +675,18 @@ export default function Dashboard() {
       case 'login':
         return (
           <Section
-            title="صفحة دخول الزائر"
-            description="النصوص التي تظهر عند فتح الهدية (الصفحة الرئيسية)"
+            title={t.loginPageSettings}
+            description={t.loginDesc}
           >
             {[
-              ['eyebrow', 'العنوان الصغير'],
-              ['title', 'العنوان الرئيسي'],
-              ['subtitle', 'الوصف'],
-              ['passwordLabel', 'تسمية كلمة المرور'],
-              ['placeholder', 'نص الحقل الفارغ'],
-              ['button', 'نص الزر'],
-              ['error', 'رسالة الخطأ'],
-              ['footer', 'نص التذييل'],
+              ['eyebrow', t.fields.eyebrow],
+              ['title', t.fields.title],
+              ['subtitle', t.fields.subtitle],
+              ['passwordLabel', t.fields.passwordLabel],
+              ['placeholder', t.fields.placeholder],
+              ['button', t.fields.button],
+              ['error', t.fields.error],
+              ['footer', t.fields.footer],
             ].map(([key, label]) => (
               <Field key={key} label={label}>
                 {key === 'subtitle' ? (
@@ -709,8 +711,8 @@ export default function Dashboard() {
 
       case 'welcome':
         return (
-          <Section title="صفحة الترحيب" description="أول صفحة بعد الدخول">
-            <Field label="العنوان الصغير">
+          <Section title={t.welcomeSettings} description={t.welcomeDesc}>
+            <Field label={t.fields.eyebrow}>
               <TextInput
                 value={content.welcome.eyebrow}
                 onChange={(v) => {
@@ -718,7 +720,7 @@ export default function Dashboard() {
                 }}
               />
             </Field>
-            <Field label="العنوان الرئيسي">
+            <Field label={t.fields.title}>
               <TextInput
                 value={content.welcome.title}
                 onChange={(v) => {
@@ -726,7 +728,7 @@ export default function Dashboard() {
                 }}
               />
             </Field>
-            <Field label="النص">
+            <Field label={t.fields.subtitle}>
               <TextArea
                 value={content.welcome.subtitle}
                 onChange={(v) => {
@@ -740,8 +742,8 @@ export default function Dashboard() {
 
       case 'story':
         return (
-          <Section title="صفحة القصة" description="العناوين ومحتوى الخط الزمني">
-            <Field label="العنوان الصغير">
+          <Section title={t.storySettings} description={t.storyDesc}>
+            <Field label={t.fields.eyebrow}>
               <TextInput
                 value={content.story.eyebrow}
                 onChange={(v) => {
@@ -749,7 +751,7 @@ export default function Dashboard() {
                 }}
               />
             </Field>
-            <Field label="العنوان الرئيسي">
+            <Field label={t.fields.title}>
               <TextInput
                 value={content.story.title}
                 onChange={(v) => {
@@ -759,9 +761,9 @@ export default function Dashboard() {
             </Field>
 
             <div className="rounded-xl border border-rose-100 bg-rose-50/30 p-4">
-              <p className="mb-3 text-sm font-semibold text-rose-700">أول لقاء</p>
+              <p className="mb-3 text-sm font-semibold text-rose-700">{t.firstMeetingSec}</p>
               <div className="space-y-3">
-                <Field label="التسمية">
+                <Field label={t.fields.label}>
                   <TextInput
                     value={content.story.firstMeeting.label}
                     onChange={(v) => {
@@ -769,7 +771,7 @@ export default function Dashboard() {
                     }}
                   />
                 </Field>
-                <Field label="تاريخ أول لقاء">
+                <Field label={t.fields.firstMeeting}>
                   <DateInput
                     value={content.dates.firstMeeting}
                     onChange={(v) => {
@@ -777,7 +779,7 @@ export default function Dashboard() {
                     }}
                   />
                 </Field>
-                <Field label="الوصف">
+                <Field label={t.fields.description}>
                   <TextArea
                     value={content.story.firstMeeting.description}
                     onChange={(v) => {
@@ -789,9 +791,9 @@ export default function Dashboard() {
             </div>
 
             <div className="rounded-xl border border-rose-100 bg-rose-50/30 p-4">
-              <p className="mb-3 text-sm font-semibold text-rose-700">اعتراف الحب</p>
+              <p className="mb-3 text-sm font-semibold text-rose-700">{t.loveConfessionSec}</p>
               <div className="space-y-3">
-                <Field label="التسمية">
+                <Field label={t.fields.label}>
                   <TextInput
                     value={content.story.loveConfession.label}
                     onChange={(v) => {
@@ -799,7 +801,7 @@ export default function Dashboard() {
                     }}
                   />
                 </Field>
-                <Field label="تاريخ الاعتراف بالحب">
+                <Field label={t.fields.loveConfession}>
                   <DateInput
                     value={content.dates.loveConfession}
                     onChange={(v) => {
@@ -807,7 +809,7 @@ export default function Dashboard() {
                     }}
                   />
                 </Field>
-                <Field label="الرسالة">
+                <Field label={t.fields.message}>
                   <TextArea
                     value={content.story.loveConfession.message}
                     onChange={(v) => {
@@ -819,7 +821,7 @@ export default function Dashboard() {
             </div>
 
             <p className="text-xs text-rose-400">
-              ذكريات القصة تظهر في صفحة Our Story فقط — صور الألبوم في تبويب المعرض.
+              {content.language === 'en' || content.language === 'en-GB' ? 'Relationship milestones appear only on Our Story page.' : content.language === 'es' ? 'Los hitos de la relación aparecen solo en la página de nuestra historia.' : 'ذكريات القصة تظهر في صفحة القصة فقط.'}
             </p>
           </Section>
         )
@@ -827,8 +829,8 @@ export default function Dashboard() {
       case 'memories':
         return (
           <Section
-            title="ذكريات القصة"
-            description="نص + تاريخ في خط الزمن — صفحة Our Story فقط"
+            title={t.memoriesTab}
+            description={content.language === 'en' || content.language === 'en-GB' ? 'Stories + dates in timeline — Our Story page only' : content.language === 'es' ? 'Historias + fechas en la línea de tiempo — Solo página de historia' : 'نص + تاريخ في خط الزمن — صفحة القصة فقط'}
           >
             <div className="space-y-4">
               {content.memories.map((memory, index) => (
@@ -921,63 +923,7 @@ export default function Dashboard() {
                       }}
                       onImageRemove={(id) => {
                         updateGalleryItem(id, { image: '' })
-                      }}
-                      onRemove={removeGalleryItem}
-                      canRemove={(content.galleryItems ?? []).length > 0}
-                    />
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    addGalleryItem()
-                  }}
-                  className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
-                >
-                  + إضافة صورة للمعرض
-                </button>
-              </Section>
-            </div>
-          </>
-        )
-
-      case 'countdowns':
-        return (
-          <Section
-            title="العدادات التنازلية ⏳"
-            description="إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة"
-          >
-            <div className="space-y-4">
-              {countdownsList.map((timer, idx) => (
-                <div
-                  key={timer.id || idx}
-                  className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3"
-                >
-                  <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
-                    <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
-                      <Clock size={14} className="text-rose-500" />
-                      عداد رقم #{idx + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeCountdown(idx)}
-                      className="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1"
-                    >
-                      <Trash2 size={13} />
-                      حذف العداد
-                    </button>
-                  </div>
-
-                  <Field label="عنوان المناسبة">
-                    <TextInput
-                      value={timer.title || ''}
-                      onChange={(v) => updateCountdown(idx, 'title', v)}
-                      placeholder="مثال: عيد ميلادك 🎂"
-                    />
-                  </Field>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field label="تاريخ المناسبة">
+                                  <Field label="تاريخ المناسبة">
                       <DateInput
                         value={timer.date || ''}
                         onChange={(v) => updateCountdown(idx, 'date', v)}
@@ -1046,6 +992,7 @@ export default function Dashboard() {
             </Field>
           </Section>
         )
+
       case 'wishlist':
         return (
           <Section
@@ -1060,24 +1007,24 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-rose-400">
-                      عنصر #{index + 1}
+                      {(content.language === 'en' || content.language === 'en-GB' ? 'Item' : content.language === 'es' ? 'Elemento' : 'عنصر')} #{index + 1}
                     </span>
                     <button
                       type="button"
                       onClick={() => removeWishlistItem(item.id)}
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-rose-400 transition hover:bg-rose-50 hover:text-rose-600"
-                      title="حذف"
+                      title={content.language === 'es' ? 'Eliminar' : 'Delete'}
                     >
                       <Trash2 size={16} />
                     </button>
                   </div>
-                  <Field label="نص الأمنية">
+                  <Field label={content.language === 'en' || content.language === 'en-GB' ? 'Wish text' : content.language === 'es' ? 'Texto del deseo' : 'نص الأمنية'}>
                     <TextInput
                       value={item.text ?? ''}
                       onChange={(v) => {
                         updateWishlistItem(item.id, { text: v })
                       }}
-                      placeholder="اكتب أمنيتك الجميلة هنا..."
+                      placeholder={t.wishlistTextPlaceholder}
                     />
                   </Field>
                   <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -1089,7 +1036,7 @@ export default function Dashboard() {
                       }}
                       className="h-4 w-4 rounded border-rose-200 text-rose-500 focus:ring-rose-200"
                     />
-                    <span className="text-xs text-rose-800 font-medium">تم إنجازها</span>
+                    <span className="text-xs text-rose-800 font-medium">{t.wishlistCompleted}</span>
                   </label>
                 </div>
               ))}
@@ -1101,7 +1048,7 @@ export default function Dashboard() {
               }}
               className="mt-4 w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
             >
-              + إضافة عنصر جديد لقائمة الأمنيات
+              {t.addWishlistBtn}
             </button>
           </Section>
         )
@@ -1113,6 +1060,11 @@ export default function Dashboard() {
   const activeSlug = getClientSlug()
   const visitorPath = activeSlug ? `/${activeSlug}` : '/'
 
+  const tabs = TABS.map(tab => ({
+    ...tab,
+    label: t[`${tab.id}Tab`] || tab.label
+  }))
+
   return (
     <div className="min-h-dvh overflow-x-hidden">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
@@ -1120,17 +1072,17 @@ export default function Dashboard() {
           <div>
             <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
             <h1 className="font-display text-2xl font-bold text-rose-900">
-              لوحة التحكم
+              {t.dashboardTitle}
             </h1>
             <p className="text-sm text-rose-500">
               {saveMessage ||
                 (isDirty
-                  ? '● لديك تغييرات غير محفوظة — اضغط «حفظ»'
-                  : '✓ المحتوى محفوظ على قاعدة البيانات')}
+                  ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
+                  : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
               <span className="mt-1 block text-xs">
-                {syncStatus === 'loading' && '⏳ جاري التحميل من قاعدة البيانات...'}
-                {syncStatus === 'saving' && '💾 جاري الحفظ...'}
-                {syncStatus === 'error' && '⚠️ مشكلة في الاتصال'}
+                {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
+                {syncStatus === 'saving' && `💾 ${t.saving}`}
+                {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
                 {syncError ? ` — ${syncError}` : ''}
               </span>
             </p>
@@ -1141,7 +1093,7 @@ export default function Dashboard() {
               onClick={redo}
               disabled={!canRedo}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
-              title="إعادة التعديل"
+              title={content.language === 'es' ? 'Rehacer' : 'Redo'}
             >
               <Redo size={14} />
             </button>
@@ -1150,7 +1102,7 @@ export default function Dashboard() {
               onClick={undo}
               disabled={!canUndo}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
-              title="رجوع عن آخر تعديل"
+              title={content.language === 'es' ? 'Deshacer' : 'Undo'}
             >
               <Undo size={14} />
             </button>
@@ -1161,33 +1113,33 @@ export default function Dashboard() {
               className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={14} />
-              {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+              {isSaving ? t.saving : (content.language === 'en' || content.language === 'en-GB' ? 'Save' : content.language === 'es' ? 'Guardar' : 'حفظ')}
             </button>
             <button
               type="button"
               onClick={handlePreview}
               className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
-              title="معاينة الموقع"
+              title={content.language === 'es' ? 'Vista previa' : 'Preview site'}
             >
               <ExternalLink size={14} />
-              <span className="hidden sm:inline">معاينة</span>
+              <span className="hidden sm:inline">{content.language === 'es' ? 'Vista previa' : (content.language === 'en' || content.language === 'en-GB' ? 'Preview' : 'معاينة')}</span>
             </button>
-
+ 
             <button
               type="button"
               onClick={() => setShowQRModal(true)}
               className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95"
-              title="تحميل كود QR الخاص بموقعك"
+              title={content.language === 'es' ? 'Código QR' : 'QR Code'}
             >
               <QrCode size={14} className="text-rose-500" />
-              <span>كود QR 📱</span>
+              <span>{content.language === 'es' ? 'Código QR 📱' : (content.language === 'en' || content.language === 'en-GB' ? 'QR Code 📱' : 'كود QR 📱')}</span>
             </button>
             <button
               type="button"
               onClick={() => setShowLogoutModal(true)}
               className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200"
-              title="تسجيل الخروج"
-              aria-label="تسجيل الخروج"
+              title={t.logoutBtn}
+              aria-label={t.logoutBtn}
             >
               <LogOut size={16} />
             </button>
@@ -1197,7 +1149,7 @@ export default function Dashboard() {
         <PWAInstallBanner />
 
         <nav className="romantic-scrollbar mb-6 flex gap-2 overflow-x-auto pb-1">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"

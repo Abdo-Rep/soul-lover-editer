@@ -168,6 +168,7 @@ export default function SuperAdmin() {
   const [newSlug, setNewSlug] = useState('')
   const [newSitePass, setNewSitePass] = useState('soulove')
   const [newAdminPass, setNewAdminPass] = useState('soulove')
+  const [newLanguage, setNewLanguage] = useState('ar')
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
 
@@ -269,6 +270,7 @@ export default function SuperAdmin() {
           slug: newSlug,
           sitePassword: newSitePass || 'soulove',
           adminPassword: newAdminPass || 'soulove',
+          language: newLanguage,
         }),
       })
 
@@ -285,11 +287,33 @@ export default function SuperAdmin() {
       setNewSlug('')
       setNewSitePass('soulove')
       setNewAdminPass('soulove')
+      setNewLanguage('ar')
       fetchSites(token, email)
     } catch (err) {
       setCreateError(err.message)
     } finally {
       setIsCreating(false)
+    }
+  }
+
+  const handleToggleActive = async (slug, newStatus) => {
+    try {
+      const res = await fetch(`/api/super-admin`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'X-Admin-Email': email,
+        },
+        body: JSON.stringify({ slug, isActive: newStatus }),
+      })
+      if (res.ok) {
+        fetchSites(token, email)
+      } else {
+        setFetchError('فشل تعديل حالة الموقع')
+      }
+    } catch (err) {
+      setFetchError(err.message)
     }
   }
 
@@ -499,6 +523,8 @@ export default function SuperAdmin() {
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">الرابط (Slug)</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الزائر</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الداشبورد</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">اللغة</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">الحالة</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">الروابط والإجراءات</th>
                     </tr>
                   </thead>
@@ -513,6 +539,24 @@ export default function SuperAdmin() {
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-[#ff3b68] text-right">{site.slug}/</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.site_password}</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center text-white/90">
+                            {site.language === 'en' ? 'English 🇺🇸' : 
+                             site.language === 'es' ? 'Español 🇪🇸' : 
+                             site.language === 'en-GB' ? 'English 🇬🇧' : 'العربية 🇪🇬'}
+                          </td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleActive(site.slug, !site.is_active)}
+                              className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold text-white transition-all shadow-sm ${
+                                site.is_active !== false 
+                                  ? 'bg-[#10b981] hover:bg-[#0d9668] shadow-emerald-900/10' 
+                                  : 'bg-[#6b7280] hover:bg-[#5a616e] shadow-slate-900/10'
+                              }`}
+                            >
+                              {site.is_active !== false ? 'نشط' : 'غير نشط'}
+                            </button>
+                          </td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4">
                             <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                               <a
@@ -628,6 +672,22 @@ export default function SuperAdmin() {
                   className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
+                  لغة الموقع الافتراضية (Default Language)
+                </label>
+                <select
+                  value={newLanguage}
+                  onChange={(e) => setNewLanguage(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68] cursor-pointer"
+                >
+                  <option value="ar">العربية 🇪🇬</option>
+                  <option value="en">English (US) 🇺🇸</option>
+                  <option value="es">Español 🇪🇸</option>
+                  <option value="en-GB">English (UK) 🇬🇧</option>
+                </select>
               </div>
 
               {createError && (

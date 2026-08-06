@@ -12,6 +12,7 @@ import { defaultContent } from '../data/defaultContent'
 import { musicAsset } from '../data/musicAsset'
 import { getSeedContent, mergeContent, nextItemId } from '../utils/contentMerge'
 import { applySiteTheme } from '../utils/theme'
+import { useTranslation } from '../utils/i18n'
 import ThemeApplier from '../components/ThemeApplier'
 import {
   isAudioFile,
@@ -63,6 +64,13 @@ export function ContentProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
   const [syncError, setSyncError] = useState('')
+
+  const { t, code: langCode, isRtl } = useTranslation(content?.language || 'ar')
+
+  useEffect(() => {
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr'
+    document.documentElement.lang = langCode
+  }, [isRtl, langCode])
   const [musicUploadingIndex, setMusicUploadingIndex] = useState(null)
   const [musicUploadError, setMusicUploadError] = useState(null)
   const contentRef = useRef(content)
@@ -853,6 +861,9 @@ export function ContentProvider({ children }) {
       canUndo,
       canRedo,
       getClientSlug,
+      t,
+      langCode,
+      isRtl,
     }),
     [
       content,
@@ -894,6 +905,9 @@ export function ContentProvider({ children }) {
       canUndo,
       canRedo,
       getClientSlug,
+      t,
+      langCode,
+      isRtl,
     ],
   )
 

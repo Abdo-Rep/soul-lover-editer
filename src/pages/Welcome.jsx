@@ -3,7 +3,7 @@ import NextButton from '../components/NextButton'
 import { useContent } from '../context/ContentContext'
 
 export default function Welcome({ onNext }) {
-  const { content } = useContent()
+  const { content, t } = useContent()
   const { welcome } = content
 
   return (
@@ -22,7 +22,7 @@ export default function Welcome({ onNext }) {
         </div>
 
         <div className="mt-10 w-full">
-          <NextButton onClick={onNext} defaultText="قصتنا 💖" />
+          <NextButton onClick={onNext} defaultText={t.storyTab || 'قصتنا 💖'} />
         </div>
       </div>
     </FlowPage>

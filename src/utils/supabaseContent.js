@@ -73,7 +73,12 @@ export async function fetchRemoteContent(slug) {
   }
 
   const json = await res.json()
-  return mergeContent(json.data)
+  const content = mergeContent(json.data)
+  if (content) {
+    content.language = json.language || 'ar'
+    content.isActive = json.isActive !== false
+  }
+  return content
 }
 
 // 100% Server-Side Visitor Password Verification

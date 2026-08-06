@@ -14,6 +14,9 @@ export default function Enter({ onLogin }) {
   const { content, verifyPassword } = useContent()
   const { primeAudio, pauseMusic } = useMusic()
 
+  const isEn = content.language === 'en' || content.language === 'en-GB'
+  const isEs = content.language === 'es'
+
   const handleSubmit = async (event) => {
     event.preventDefault()
 
@@ -26,7 +29,7 @@ export default function Enter({ onLogin }) {
       const currentPass = passwordRef.current
       const isValid = await verifyPassword(currentPass)
       if (!isValid) {
-        setError(content.login?.error || 'كلمة المرور غير صحيحة')
+        setError(content.login?.error || (isEs ? 'Contraseña incorrecta' : isEn ? 'Invalid password' : 'كلمة المرور غير صحيحة'))
         setShake(true)
         window.setTimeout(() => setShake(false), 450)
         return
@@ -36,7 +39,7 @@ export default function Enter({ onLogin }) {
       primeAudio()
       onLogin(currentPass)
     } catch {
-      setError('تعذّر التحقق من كلمة المرور — حاول مرة أخرى')
+      setError(isEs ? 'Error al verificar la contraseña — intente de nuevo' : isEn ? 'Could not verify password — please try again' : 'تعذّر التحقق من كلمة المرور — حاول مرة أخرى')
     } finally {
       setSubmitting(false)
     }
@@ -60,7 +63,7 @@ export default function Enter({ onLogin }) {
             </div>
 
             <form
-              onSubmit={handleSubmit}
+               onSubmit={handleSubmit}
               className={`enter-card__form space-y-5 px-8 py-8 ${shake ? 'enter-shake' : ''}`}
             >
               <label className="block text-center">
@@ -85,7 +88,7 @@ export default function Enter({ onLogin }) {
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400 hover:text-rose-600 transition p-1"
-                    title={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                    title={showPassword ? (isEs ? 'Ocultar' : isEn ? 'Hide' : 'إخفاء') : (isEs ? 'Mostrar' : isEn ? 'Show' : 'إظهار')}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -106,7 +109,7 @@ export default function Enter({ onLogin }) {
                 disabled={submitting}
                 className="group relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 px-8 py-3.5 text-sm sm:text-base font-extrabold text-white shadow-lg shadow-rose-500/25 ring-2 ring-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-rose-500/40 active:scale-95 disabled:opacity-70 cursor-pointer"
               >
-                <span className="font-display tracking-wide">{submitting ? 'جاري التحقق...' : (content.login?.button || 'ادخل 💖')}</span>
+                <span className="font-display tracking-wide">{submitting ? (isEs ? 'Verificando...' : isEn ? 'Verifying...' : 'جاري التحقق...') : (content.login?.button || 'ادخل 💖')}</span>
               </button>
             </form>
           </div>

@@ -43,6 +43,10 @@ export default async function handler(req, res) {
       }
 
       const { row, content } = result
+      if (row.is_active === false) {
+        return res.status(404).json({ error: 'site_not_found' })
+      }
+      
       let sitePass = decrypt(row.visitor_password).trim()
       let adminPass = decrypt(row.admin_password).trim()
 
@@ -65,6 +69,8 @@ export default async function handler(req, res) {
         slug: row.slug,
         data: content,
         updatedAt: row.updated_at,
+        isActive: row.is_active !== false,
+        language: row.language || 'ar',
       })
     }
 
@@ -76,7 +82,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password,is_active`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
       if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
       const rows = await r.json()
 
@@ -85,6 +91,9 @@ export default async function handler(req, res) {
       }
 
       const row = rows[0]
+      if (row.is_active === false) {
+        return res.status(404).json({ error: 'site_not_found' })
+      }
       const vDecrypted = decrypt(row.visitor_password).trim()
       const aDecrypted = decrypt(row.admin_password).trim()
 
@@ -145,7 +154,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'payload_too_large', message: 'حجم طلب الحفظ يتجاوز الحد المسموح به.' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
       if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
       const rows = await r.json()
 
@@ -154,6 +163,9 @@ export default async function handler(req, res) {
       }
 
       const row = rows[0]
+      if (row.is_active === false) {
+        return res.status(404).json({ error: 'site_not_found' })
+      }
       const vDecrypted = decrypt(row.visitor_password).trim()
       const aDecrypted = decrypt(row.admin_password).trim()
 
