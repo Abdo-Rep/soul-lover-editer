@@ -51,7 +51,7 @@ const TABS = [
 ]
 
 function AdminLoginForm({ onLogin }) {
-  const { content, isLoading, verifyAdminPassword, getClientSlug } = useContent()
+  const { content, isLoading, verifyAdminPassword, getClientSlug, t } = useContent()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -67,13 +67,13 @@ function AdminLoginForm({ onLogin }) {
     try {
       const isValid = await verifyAdminPassword(password)
       if (!isValid) {
-        setError('كلمة المرور غير صحيحة')
+        setError(t.adminLoginErrorInvalid || 'كلمة المرور غير صحيحة')
         return
       }
 
       await onLogin(password)
     } catch {
-      setError('تعذّر التحقق — حاول مرة أخرى')
+      setError(t.adminLoginErrorFailed || 'تعذّر التحقق — حاول مرة أخرى')
     } finally {
       setSubmitting(false)
     }
@@ -99,22 +99,22 @@ function AdminLoginForm({ onLogin }) {
               <KeyRound className="text-rose-400" size={22} />
             </div>
             <h1 className="font-display text-2xl font-bold text-rose-900">
-              {content?.siteName || 'لوحة التحكم'}
+              {content?.siteName || t.adminLoginTitle || 'لوحة التحكم'}
             </h1>
             <p className="mt-2 text-sm text-rose-500">
-              لوحة التحكم — أدخل كلمة المرور لإدارة المحتوى
+              {t.adminLoginSubtitle || 'لوحة التحكم — أدخل كلمة المرور لإدارة المحتوى'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label="كلمة المرور">
+            <Field label={t.adminLoginPassword || 'كلمة المرور'}>
               <PasswordInput
                 value={password}
                 onChange={(v) => {
                   setPassword(v)
                   setError('')
                 }}
-                placeholder="أدخل كلمة المرور"
+                placeholder={t.adminLoginPlaceholder || 'أدخل كلمة المرور'}
               />
             </Field>
             {error ? (
@@ -123,15 +123,15 @@ function AdminLoginForm({ onLogin }) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 py-3 text-sm font-semibold text-white shadow-md disabled:opacity-70"
+              className="w-full rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 py-3 text-sm font-semibold text-white shadow-md disabled:opacity-70 cursor-pointer"
             >
-              {submitting ? 'جاري التحقق...' : 'دخول'}
+              {submitting ? (t.adminLoginVerifying || 'جاري التحقق...') : (t.adminLoginButton || 'دخول')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-xs text-rose-400">
             <Link to={visitorPath} className="underline hover:text-rose-600">
-              الذهاب لصفحة الزائر
+              {t.backToVisitor || 'الذهاب لصفحة الزائر'}
             </Link>
           </p>
         </motion.div>

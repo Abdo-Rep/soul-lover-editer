@@ -318,6 +318,27 @@ export default function SuperAdmin() {
     }
   }
 
+  const handleLanguageChange = async (slug, newLang) => {
+    try {
+      const res = await fetch(`/api/super-admin`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'X-Admin-Email': email,
+        },
+        body: JSON.stringify({ slug, language: newLang }),
+      })
+      if (res.ok) {
+        fetchSites(token, email)
+      } else {
+        setFetchError('فشل تعديل لغة الموقع')
+      }
+    } catch (err) {
+      setFetchError(err.message)
+    }
+  }
+
   const confirmDeleteSite = async () => {
     if (!deleteTargetSlug) return
     setIsDeleting(true)
@@ -526,10 +547,17 @@ export default function SuperAdmin() {
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-[#ff3b68] text-right">{site.slug}/</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.site_password}</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
-                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center text-white/90">
-                            {site.language === 'en' ? 'English 🇺🇸' : 
-                             site.language === 'es' ? 'Español 🇪🇸' : 
-                             site.language === 'en-GB' ? 'English 🇬🇧' : 'العربية 🇪🇬'}
+                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
+                            <select
+                              value={site.language || 'ar'}
+                              onChange={(e) => handleLanguageChange(site.slug, e.target.value)}
+                              className="px-2 py-1 rounded bg-[#060814] border border-[#19213d] text-white/90 text-xs focus:outline-none cursor-pointer"
+                            >
+                              <option value="ar">العربية 🇪🇬</option>
+                              <option value="en">English (US) 🇺🇸</option>
+                              <option value="es">Español 🇪🇸</option>
+                              <option value="en-GB">English (UK) 🇬🇧</option>
+                            </select>
                           </td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
                             <button
