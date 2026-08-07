@@ -596,7 +596,7 @@ export default function SuperAdmin() {
       {/* Create Modal */}
       {showCreateModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4 cursor-pointer"
           dir="rtl"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowCreateModal(false)
@@ -707,7 +707,7 @@ export default function SuperAdmin() {
       {/* Delete Confirmation Modal */}
       {deleteTargetSlug && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-slate-950/85 flex items-center justify-center p-4 cursor-pointer"
           dir="rtl"
           onClick={(e) => {
             if (e.target === e.currentTarget) setDeleteTargetSlug(null)
