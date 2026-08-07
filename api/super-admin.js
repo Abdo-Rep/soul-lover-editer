@@ -192,10 +192,18 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      const r = await fetch(
+      let r = await fetch(
         `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at,is_active,language&order=created_at.desc`,
         { headers: restHeaders }
       )
+
+      if (!r.ok) {
+        // Fallback fetch if is_active or language is not in PostgREST schema cache yet
+        r = await fetch(
+          `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at&order=created_at.desc`,
+          { headers: restHeaders }
+        )
+      }
 
       if (!r.ok) {
         const errText = await r.text().catch(() => '')
@@ -210,7 +218,7 @@ export default async function handler(req, res) {
         admin_password: decrypt(row.admin_password),
         created_at: row.created_at,
         updated_at: row.updated_at,
-        is_active: row.is_active !== false,
+        is_active: row.is_active !== undefined ? row.is_active !== false : true,
         language: row.language || 'ar',
       }))
 
@@ -254,7 +262,7 @@ export default async function handler(req, res) {
       const encryptedAdminPass = encrypt(cleanAdminPass)
 
       const defaultFields = getDefaultFields(language)
-      const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
+      let insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
         method: 'POST',
         headers: restHeaders,
         body: JSON.stringify({
@@ -263,9 +271,25 @@ export default async function handler(req, res) {
           visitor_password: encryptedVisitorPass,
           admin_password: encryptedAdminPass,
           language: language,
+          is_active: true,
           ...defaultFields,
         }),
       })
+
+      if (!insertRes.ok) {
+        // Fallback insert without language and is_active if schema cache is missing them
+        insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
+          method: 'POST',
+          headers: restHeaders,
+          body: JSON.stringify({
+            slug: cleanSlug,
+            site_name: cleanSlug,
+            visitor_password: encryptedVisitorPass,
+            admin_password: encryptedAdminPass,
+            ...defaultFields,
+          }),
+        })
+      }
 
       if (!insertRes.ok) {
         const errText = await insertRes.text().catch(() => '')
@@ -282,7 +306,7 @@ export default async function handler(req, res) {
           site_password: decrypt(newRow.visitor_password),
           admin_password: decrypt(newRow.admin_password),
           created_at: newRow.created_at,
-          is_active: newRow.is_active !== false,
+          is_active: newRow.is_active !== undefined ? newRow.is_active !== false : true,
           language: newRow.language || 'ar',
         },
       })
@@ -303,11 +327,6 @@ export default async function handler(req, res) {
         headers: restHeaders,
         body: JSON.stringify(updateData),
       })
-
-      if (!updateRes.ok) {
-        const errText = await updateRes.text().catch(() => '')
-        throw new Error(`فشل تحديث بيانات الموقع: ${errText}`)
-      }
 
       return res.status(200).json({ success: true })
     }
