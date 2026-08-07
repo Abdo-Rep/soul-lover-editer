@@ -14,7 +14,7 @@ export async function query(text, params) {
   const client = await pool.connect()
   try {
     // Set schema search path so queries automatically resolve to the correct schema
-    await client.query('SET search_path TO "old-romantic", "romantic-new-version", public;')
+    await client.query('SET search_path TO "romantic-new-version", public, "old-romantic";')
     return await client.query(text, params)
   } finally {
     client.release()
