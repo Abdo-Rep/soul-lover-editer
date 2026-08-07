@@ -33,14 +33,8 @@ export default function NotFound() {
         {/* Text Details */}
         <div className="space-y-3">
           <h1 className="text-2xl font-black text-white tracking-wide">
-            الموقع غير متوفر حالياً 🔒
+            هذا اللينك غير متاح الان 🔒
           </h1>
-          <p className="text-sm text-rose-300/80 leading-relaxed font-semibold">
-            عذراً، قد يكون هذا الموقع غير نشط مؤقتاً أو تم تعطيله من قبل الإدارة.
-          </p>
-          <p className="text-xs text-slate-500 font-medium">
-            يرجى مراجعة لوحة السوبر أدمن لتفعيل الموقع أو التواصل مع الدعم الفني.
-          </p>
         </div>
 
         {/* Decorative Divider */}
