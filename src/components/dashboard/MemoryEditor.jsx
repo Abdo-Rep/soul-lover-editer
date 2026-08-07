@@ -1,5 +1,6 @@
 import { ImagePlus, Trash2, X } from 'lucide-react'
 import { DateInput, Field, TextArea } from './DashboardFields'
+import { useContent } from '../../context/ContentContext'
 
 export default function MemoryEditor({
   memory,
@@ -9,24 +10,37 @@ export default function MemoryEditor({
   onImageRemove,
   onRemove,
   canRemove,
-  itemLabel = 'ذكرى',
-  imageHint = 'رفع صورة',
+  itemLabel,
+  imageHint,
   showImage = true,
 }) {
+  const { content } = useContent()
+  const lang = content?.language || 'ar'
+  const isEn = lang === 'en' || lang === 'en-GB'
+  const isEs = lang === 'es'
+
+  const defaultItemLabel = itemLabel || (isEs ? 'Recuerdo' : isEn ? 'Memory' : 'ذكرى')
+  const defaultImageHint = imageHint || (isEs ? 'Subir imagen' : isEn ? 'Upload image' : 'رفع صورة')
+
+  const deleteLabel = isEs ? 'Eliminar' : isEn ? 'Delete' : 'حذف'
+  const dateLabel = isEs ? 'Fecha (Opcional)' : isEn ? 'Date (Optional)' : 'التاريخ (اختياري)'
+  const textLabel = isEs ? 'Texto' : isEn ? 'Text' : 'النص'
+  const textPlaceholder = isEs ? 'Escribe los detalles aquí...' : isEn ? 'Write details here...' : 'اكتب تفاصيل أو كلام هذه الذكرى هنا...'
+
   return (
     <article className="rounded-xl border border-rose-100 bg-rose-50/40 p-4">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-semibold text-rose-700">
-          {itemLabel} #{index + 1}
+          {defaultItemLabel} #{index + 1}
         </span>
         {canRemove ? (
           <button
             type="button"
             onClick={() => onRemove(memory.id)}
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-rose-400 transition hover:bg-rose-100 hover:text-rose-600"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-rose-400 transition hover:bg-rose-100 hover:text-rose-600 cursor-pointer"
           >
             <Trash2 size={14} />
-            حذف
+            {deleteLabel}
           </button>
         ) : null}
       </div>
@@ -47,7 +61,7 @@ export default function MemoryEditor({
                     type="button"
                     onClick={() => onImageRemove?.(memory.id)}
                     className="absolute start-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/55 text-white shadow-md transition hover:bg-rose-600 cursor-pointer"
-                    aria-label="حذف الصورة"
+                    aria-label={isEs ? 'Eliminar imagen' : isEn ? 'Remove image' : 'حذف الصورة'}
                   >
                     <X size={12} />
                   </button>
@@ -59,7 +73,7 @@ export default function MemoryEditor({
             {/* Upload Button */}
             <label className="w-28 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-rose-200 bg-white px-2 py-2 text-[10px] text-rose-500 font-bold text-center leading-normal transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600">
               <ImagePlus size={12} className="mb-0.5" />
-              <span>{imageHint}</span>
+              <span>{defaultImageHint}</span>
               <input
                 type="file"
                 accept="image/*"
@@ -76,18 +90,18 @@ export default function MemoryEditor({
 
         {/* Inputs (Date & Text) */}
         <div className="flex-1 w-full space-y-3">
-          <Field label="التاريخ (اختياري)">
+          <Field label={dateLabel}>
             <DateInput
               value={memory.date ?? ''}
               onChange={(value) => onChange(memory.id, { date: value })}
             />
           </Field>
-          <Field label="النص">
+          <Field label={textLabel}>
             <TextArea
               value={memory.text ?? ''}
               onChange={(value) => onChange(memory.id, { text: value })}
               rows={3}
-              placeholder="اكتب تفاصيل أو كلام هذه الذكرى هنا..."
+              placeholder={textPlaceholder}
             />
           </Field>
         </div>

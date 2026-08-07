@@ -1,14 +1,34 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Sparkles } from 'lucide-react'
-
-const MONTH_NAMES_AR = [
-  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-]
-
-const DAYS_AR = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']
+import { useContent } from '../../context/ContentContext'
 
 export default function ModernDatePicker({ value, onChange, placeholder = 'اختر التاريخ' }) {
+  const { content } = useContent()
+  const lang = content?.language || 'ar'
+  const isEn = lang === 'en' || lang === 'en-GB'
+  const isEs = lang === 'es'
+
+  // Dynamic days & months translation
+  const MONTH_NAMES = isEs ? [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ] : isEn ? [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ] : [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+  ]
+
+  const DAYS = isEs 
+    ? ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] 
+    : isEn 
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] 
+    : ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']
+
+  const defaultPlaceholder = isEs ? 'Seleccionar fecha' : isEn ? 'Select date' : 'اختر التاريخ'
+  const finalPlaceholder = placeholder === 'اختر التاريخ' ? defaultPlaceholder : placeholder
+
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef(null)
 
@@ -94,18 +114,20 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
   const isCurrentMonthToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth ? today.getDate() : null
 
   // Format display text
-  let displayText = placeholder
+  let displayText = finalPlaceholder
   if (value) {
     const d = new Date(value)
     if (!isNaN(d.getTime())) {
-      displayText = `${d.getDate()} ${MONTH_NAMES_AR[d.getMonth()]} ${d.getFullYear()}`
+      displayText = isEn || isEs 
+        ? `${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+        : `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`
     } else {
       displayText = value
     }
   }
 
   return (
-    <div className="relative w-full text-right" ref={containerRef} dir="rtl">
+    <div className={`relative w-full ${lang === 'ar' ? 'text-right' : 'text-left'}`} ref={containerRef} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Trigger Button */}
       <button
         type="button"
@@ -116,7 +138,7 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
             : 'border-rose-200/80 bg-white/90 hover:border-rose-300 hover:bg-white'
         }`}
       >
-        <div className="flex items-center gap-2 text-rose-900">
+        <div className={`flex items-center gap-2 text-rose-900 ${lang !== 'ar' && 'flex-row-reverse'}`}>
           <CalendarIcon className="h-4 w-4 text-rose-400 transition-transform group-hover:scale-110" />
           <span className={value ? 'text-rose-950 font-semibold' : 'text-rose-400/80 font-normal'}>
             {displayText}
@@ -128,8 +150,8 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
               e.stopPropagation()
               handleClear()
             }}
-            className="rounded-full p-1 text-rose-400 hover:bg-rose-100 hover:text-rose-600 transition-colors"
-            title="مسح التاريخ"
+            className="rounded-full p-1 text-rose-400 hover:bg-rose-100 hover:text-rose-600 transition-colors cursor-pointer"
+            title={isEs ? 'Eliminar fecha' : isEn ? 'Clear date' : 'مسح التاريخ'}
           >
             <X className="h-3.5 w-3.5" />
           </span>
@@ -140,20 +162,20 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
 
       {/* Popover Calendar Modal */}
       {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-2xl border border-rose-100 bg-white p-4 shadow-2xl shadow-rose-900/10 backdrop-blur-lg animate-in fade-in zoom-in-95 duration-150">
+        <div className={`absolute ${lang === 'ar' ? 'right-0' : 'left-0'} z-50 mt-2 w-80 rounded-2xl border border-rose-100 bg-white p-4 shadow-2xl shadow-rose-900/10 backdrop-blur-lg animate-in fade-in zoom-in-95 duration-150`}>
           {/* Calendar Header */}
           <div className="mb-3 flex items-center justify-between pb-2 border-b border-rose-100/60">
             <button
               type="button"
               onClick={handlePrevMonth}
               className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors"
-              title="الشهر السابق"
+              title={isEs ? 'Mes anterior' : isEn ? 'Previous month' : 'الشهر السابق'}
             >
-              <ChevronRight className="h-4 w-4" />
+              {lang === 'ar' ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </button>
 
             <div className="flex items-center gap-1.5 font-bold text-rose-900 text-sm">
-              <span>{MONTH_NAMES_AR[currentMonth]}</span>
+              <span>{MONTH_NAMES[currentMonth]}</span>
               <select
                 value={currentYear}
                 onChange={(e) => setCurrentYear(Number(e.target.value))}
@@ -171,15 +193,15 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
               type="button"
               onClick={handleNextMonth}
               className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors"
-              title="الشهر التالي"
+              title={isEs ? 'Mes siguiente' : isEn ? 'Next month' : 'الشهر التالي'}
             >
-              <ChevronLeft className="h-4 w-4" />
+              {lang === 'ar' ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </button>
           </div>
 
           {/* Weekday Names */}
           <div className="mb-1.5 grid grid-cols-7 text-center text-[11px] font-bold text-rose-400">
-            {DAYS_AR.map((day, idx) => (
+            {DAYS.map((day, idx) => (
               <div key={idx} className="py-1">
                 {day}
               </div>
@@ -225,7 +247,7 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
               onClick={handleSetToday}
               className="font-bold text-rose-500 hover:text-rose-700 transition-colors"
             >
-              اليوم 🎯
+              {isEs ? 'Hoy 🎯' : isEn ? 'Today 🎯' : 'اليوم 🎯'}
             </button>
             {value && (
               <button
@@ -233,7 +255,7 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
                 onClick={handleClear}
                 className="text-rose-400 hover:text-rose-600 transition-colors"
               >
-                إلغاء التحديد
+                {isEs ? 'Limpiar' : isEn ? 'Clear' : 'إلغاء التحديد'}
               </button>
             )}
           </div>

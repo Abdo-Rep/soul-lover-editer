@@ -181,7 +181,7 @@ export default function CountdownPage({ onNext }) {
             </span>
           </p>
           <h1 className="font-display mt-2 text-3xl font-bold text-rose-900">
-            {t.countdownsTab || 'العدادات التنازلية ⏳'}
+            {t.countdownTab || 'العدادات التنازلية ⏳'}
           </h1>
           <p className="mt-1.5 text-xs text-rose-500 font-medium">
             {isEs 

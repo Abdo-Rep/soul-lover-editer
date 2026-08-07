@@ -61,8 +61,8 @@ function writeCache(slug, data) {
 
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(createInitialContent)
-  const [isLoading, setIsLoading] = useState(false)
   const [syncStatus, setSyncStatus] = useState('loading')
+  const isLoading = syncStatus === 'loading'
   const [syncError, setSyncError] = useState('')
 
   const { t, code: langCode, isRtl } = useTranslation(content?.language || 'ar')
@@ -179,10 +179,13 @@ export function ContentProvider({ children }) {
 
     try {
       const remote = await loadSiteContent(slug)
-      if (remote) {
+      if (remote && !remote.siteNotFound) {
         setSiteNotFound(false)
         applyLoadedContent(remote, slug)
       } else {
+        if (remote && remote.siteNotFound) {
+          setContent((prev) => ({ ...prev, language: remote.language }))
+        }
         setSiteNotFound(true)
         setSyncStatus('ready')
       }

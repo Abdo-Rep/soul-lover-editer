@@ -57,7 +57,12 @@ export async function fetchRemoteContent(slug) {
   const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`)
 
   if (res.status === 444 || res.status === 404) {
-    return null
+    try {
+      const errJson = await res.json()
+      return { siteNotFound: true, language: errJson.language || 'ar' }
+    } catch {
+      return { siteNotFound: true, language: 'ar' }
+    }
   }
 
   const contentType = res.headers.get('content-type') || ''

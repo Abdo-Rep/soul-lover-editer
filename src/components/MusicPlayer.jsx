@@ -1,3 +1,5 @@
+
+
 import { useState, useId } from 'react'
 import {
   Play,
@@ -14,6 +16,7 @@ import {
   RotateCw,
 } from 'lucide-react'
 import { useMusic } from '../context/MusicContext'
+import { useContent } from '../context/ContentContext'
 
 function isVoiceTrack(title = '') {
   const t = String(title).toLowerCase()
@@ -52,10 +55,14 @@ export default function MusicPlayer() {
     if (audioRef?.current) audioRef.current.volume = v
   }
 
+  const { content } = useContent()
+  const isEn = content?.language === 'en' || content?.language === 'en-GB'
+  const isEs = content?.language === 'es'
+
   if (!hasSource) {
     return (
       <div className="mx-auto w-full max-w-sm rounded-full border border-rose-100 bg-white/90 p-2.5 shadow-lg backdrop-blur-md text-center text-xs font-semibold text-rose-400">
-        🎵 يرجى رفع ملف صوتي من الداشبورد لتشغيل الموسيقى
+        🎵 {isEs ? 'Por favor, sube un archivo de audio desde el panel para reproducir música' : isEn ? 'Please upload an audio file from the dashboard to play music' : 'يرجى رفع ملف صوتي من الداشبورد لتشغيل الموسيقى'}
       </div>
     )
   }

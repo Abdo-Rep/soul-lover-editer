@@ -72,7 +72,7 @@ export default function Story({ onNext }) {
         </StoryTimeline>
 
         <RevealItem className="mt-6 w-full">
-          <NextButton onClick={onNext} defaultText={t.countdownsTab || 'أهم أيامنا ⏳'} />
+          <NextButton onClick={onNext} defaultText={t.countdownTab || 'أهم أيامنا ⏳'} />
         </RevealItem>
       </RevealGroup>
 

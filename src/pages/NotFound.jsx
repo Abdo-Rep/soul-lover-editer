@@ -1,11 +1,23 @@
 import { motion } from 'framer-motion'
-import { HeartOff, ShieldAlert } from 'lucide-react'
+import { HeartOff } from 'lucide-react'
+import { useContent } from '../context/ContentContext'
 
 export default function NotFound() {
+  const { content } = useContent()
+  const lang = content?.language || 'ar'
+  const isEn = lang === 'en' || lang === 'en-GB'
+  const isEs = lang === 'es'
+
+  const message = isEs 
+    ? 'Este enlace no está disponible ahora 🔒' 
+    : isEn 
+      ? 'This link is not available right now 🔒' 
+      : 'هذا اللينك غير متاح الان 🔒'
+
   return (
     <div
       className="min-h-screen bg-slate-950 flex items-center justify-center p-5 text-center select-none"
-      dir="rtl"
+      dir={lang === 'ar' ? 'rtl' : 'ltr'}
       style={{ fontFamily: "'Playpen Sans', 'Cairo', 'Tajawal', sans-serif" }}
     >
       {/* Background Ambient Glow */}
@@ -33,7 +45,7 @@ export default function NotFound() {
         {/* Text Details */}
         <div className="space-y-3">
           <h1 className="text-2xl font-black text-white tracking-wide">
-            هذا اللينك غير متاح الان 🔒
+            {message}
           </h1>
         </div>
 

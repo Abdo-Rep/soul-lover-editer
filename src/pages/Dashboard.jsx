@@ -343,16 +343,16 @@ export default function Dashboard() {
 
             <div className="border-b border-rose-100 pb-3">
               <h3 className="font-display text-base font-bold text-rose-900">
-                المظهر والألوان
+                {content.language === 'es' ? 'Apariencia y Colores' : content.language === 'en' || content.language === 'en-GB' ? 'Appearance & Colors' : 'المظهر والألوان'}
               </h3>
               <p className="mt-1 text-xs text-rose-400">
-                اختر نمط ولون الموقع — خلفية الصفحة وقارئ الأغاني والأزرار تتغير ديناميكياً بالكامل حسب لون العميل
+                {content.language === 'es' ? 'Elige el estilo y el color del sitio — el fondo, el reproductor y los botones se adaptarán dinámicamente' : content.language === 'en' || content.language === 'en-GB' ? 'Choose the style and color of the site — page background, music player and buttons will adapt dynamically' : 'اختر نمط ولون الموقع — خلفية الصفحة وقارئ الأغاني والأزرار تتغير ديناميكياً بالكامل حسب لون العميل'}
               </p>
             </div>
 
             <Field
-              label="نمط خلفية الموقع"
-              hint="اختر بين المظهر الفاتح الرومانسي أو المظهر الداكن الفخم"
+              label={content.language === 'es' ? 'Modo de fondo del sitio' : content.language === 'en' || content.language === 'en-GB' ? 'Site Background Mode' : 'نمط خلفية الموقع'}
+              hint={content.language === 'es' ? 'Elige entre modo claro romántico o modo oscuro lujoso' : content.language === 'en' || content.language === 'en-GB' ? 'Choose between romantic light mode or luxurious dark mode' : 'اختر بين المظهر الفاتح الرومانسي أو المظهر الداكن الفخم'}
             >
               <div className="grid grid-cols-2 gap-3 max-w-xs">
                 <button
@@ -365,7 +365,7 @@ export default function Dashboard() {
                   }`}
                 >
                   <span>☀️</span>
-                  <span>فاتح (Light)</span>
+                  <span>{content.language === 'es' ? 'Claro' : content.language === 'en' || content.language === 'en-GB' ? 'Light' : 'فاتح'}</span>
                 </button>
                 <button
                   type="button"
@@ -377,14 +377,14 @@ export default function Dashboard() {
                   }`}
                 >
                   <span>🌙</span>
-                  <span>داكن (Dark)</span>
+                  <span>{content.language === 'es' ? 'Oscuro' : content.language === 'en' || content.language === 'en-GB' ? 'Dark' : 'داكن'}</span>
                 </button>
               </div>
             </Field>
 
             <Field
-              label="اللون الرئيسي"
-              hint="اختر من درجات الألوان الجاهزة أو اضغط زر عجلة الألوان باللمس لاختيار أي لون"
+              label={content.language === 'es' ? 'Color primario' : content.language === 'en' || content.language === 'en-GB' ? 'Primary Color' : 'اللون الرئيسي'}
+              hint={content.language === 'es' ? 'Elige entre colores preestablecidos o haz clic en la rueda de colores para elegir uno personalizado' : content.language === 'en' || content.language === 'en-GB' ? 'Choose from pre-set colors or click the color wheel to select a custom color' : 'اختر من درجات الألوان الجاهزة أو اضغط زر عجلة الألوان باللمس لاختيار أي لون'}
             >
               <div className="space-y-4">
                 <div className="grid grid-cols-6 gap-3 pt-1">
@@ -412,7 +412,7 @@ export default function Dashboard() {
 
                 <div className="flex items-center gap-3 rounded-2xl border border-rose-100 bg-rose-50/50 p-2.5">
                   <label className="relative flex flex-1 cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-4 py-2.5 shadow-sm border border-rose-100">
-                    <span className="text-xs font-semibold text-rose-700">🎨 عجلة الألوان باللمس</span>
+                    <span className="text-xs font-semibold text-rose-700">{content.language === 'es' ? '🎨 Rueda de colores táctil' : content.language === 'en' || content.language === 'en-GB' ? '🎨 Custom Color Wheel' : '🎨 عجلة الألوان باللمس'}</span>
                     <input
                       type="color"
                       value={content.appearance?.primaryColor || '#fb7185'}
@@ -427,8 +427,8 @@ export default function Dashboard() {
             </Field>
 
             <Field
-              label="شفافية القلوب الطائرة"
-              hint="كلما زادت، ظهرت القلوب أوضح في الخلفية"
+              label={content.language === 'es' ? 'Opacidad de corazones flotantes' : content.language === 'en' || content.language === 'en-GB' ? 'Flying Hearts Opacity' : 'شفافية القلوب الطائرة'}
+              hint={content.language === 'es' ? 'Valores más altos hacen que los corazones sean más visibles en el fondo' : content.language === 'en' || content.language === 'en-GB' ? 'Higher values make the hearts appear more visible in the background' : 'كلما زادت، ظهرت القلوب أوضح في الخلفية'}
             >
               <input
                 type="range"
@@ -447,8 +447,8 @@ export default function Dashboard() {
             </Field>
 
             <Field
-              label="رمز قلب الخلفية"
-              hint="شكل القلب أو الإيموجي المستخدم في الخلفية المتحركة"
+              label={content.language === 'es' ? 'Símbolo de corazón del fondo' : content.language === 'en' || content.language === 'en-GB' ? 'Background Heart Symbol' : 'رمز قلب الخلفية'}
+              hint={content.language === 'es' ? 'El corazón o emoji usado en el fondo animado' : content.language === 'en' || content.language === 'en-GB' ? 'The heart shape or emoji used in the animated background' : 'شكل القلب أو الإيموجي المستخدم في الخلفية المتحركة'}
             >
               <TextInput
                 value={content.appearance?.backgroundHeart ?? '♥'}
@@ -460,8 +460,8 @@ export default function Dashboard() {
             </Field>
 
             <Field
-              label="رمز قلب الدخول والانفجار"
-              hint="شكل القلب أو الإيموجي المستخدم في شاشة الدخول والانفجارات"
+              label={content.language === 'es' ? 'Símbolo de login y explosión' : content.language === 'en' || content.language === 'en-GB' ? 'Login & Explosion Symbol' : 'رمز قلب الدخول والانفجار'}
+              hint={content.language === 'es' ? 'El corazón o emoji usado en el login y explosiones' : content.language === 'en' || content.language === 'en-GB' ? 'The heart shape or emoji used in the login screen and explosions' : 'شكل القلب أو الإيموجي المستخدم في شاشة الدخول والانفجارات'}
             >
               <TextInput
                 value={content.appearance?.pushHeart ?? '♥'}
@@ -474,19 +474,19 @@ export default function Dashboard() {
 
             {/* Live Theme Preview Box */}
             <div className="mt-4 rounded-2xl border border-rose-100/80 bg-rose-50/40 p-4 space-y-2">
-              <span className="text-xs font-bold text-rose-700 block">✨ معاينة مباشرة لمظهر ولون الصفحة:</span>
+              <span className="text-xs font-bold text-rose-700 block">{content.language === 'es' ? '✨ Vista previa en vivo del tema y apariencia del sitio:' : content.language === 'en' || content.language === 'en-GB' ? 'Live preview of site theme and appearance:' : '✨ معاينة مباشرة لمظهر ولون الصفحة:'}</span>
               <div className="rounded-2xl p-4 transition-all theme-neumorph-card flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full theme-neumorph-disc flex items-center justify-center text-white text-xs font-bold shadow-md">
                     {content.appearance?.backgroundHeart || '♥'}
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-rose-900">خلفية المظهر وقارئ الأغاني</p>
-                    <p className="text-[10px] text-rose-600 font-semibold">تتغيّر تلقائياً وبشكل ديناميكي حسب اختيارك</p>
+                    <p className="text-xs font-bold text-rose-900">{content.language === 'es' ? 'Fondo del tema y reproductor de música' : content.language === 'en' || content.language === 'en-GB' ? 'Theme background and music player' : 'خلفية المظهر وقارئ الأغاني'}</p>
+                    <p className="text-[10px] text-rose-600 font-semibold">{content.language === 'es' ? 'Cambia automática y dinámicamente según tu elección' : content.language === 'en' || content.language === 'en-GB' ? 'Changes automatically and dynamically based on your choice' : 'تتغيّر تلقائياً وبشكل ديناميكي حسب اختيارك'}</p>
                   </div>
                 </div>
                 <span className="px-3 py-1.5 rounded-xl text-[11px] font-bold theme-neumorph-btn-active pointer-events-none shadow-sm">
-                  لون الزر
+                  {content.language === 'es' ? 'Color de botón' : content.language === 'en' || content.language === 'en-GB' ? 'Button Color' : 'لون الزر'}
                 </span>
               </div>
             </div>
@@ -528,11 +528,11 @@ export default function Dashboard() {
                         title={t.deleteBtn}
                       >
                         <Trash2 size={12} />
-                        حذف
+                        {t.deleteBtn || 'حذف'}
                       </button>
                     </div>
 
-                    <Field label="عنوان الأغنية / الصوت">
+                    <Field label={content.language === 'es' ? 'Título de la canción / Audio' : content.language === 'en' || content.language === 'en-GB' ? 'Song / Audio Title' : 'عنوان الأغنية / الصوت'}>
                       <TextInput
                         value={track.title ?? ''}
                         onChange={(v) => {
@@ -544,7 +544,9 @@ export default function Dashboard() {
 
                     {track.src ? (
                       <div className="space-y-2">
-                        <p className="text-xs text-rose-400 truncate">الملف: {track.fileName || 'ملف صوتي'}</p>
+                        <p className="text-xs text-rose-400 truncate">
+                          {content.language === 'es' ? 'Archivo:' : content.language === 'en' || content.language === 'en-GB' ? 'File:' : 'الملف:'} {track.fileName || (content.language === 'es' ? 'Archivo de audio' : content.language === 'en' || content.language === 'en-GB' ? 'Audio file' : 'ملف صوتي')}
+                        </p>
                         {(() => {
                           const audioSrc = track.localUrl || track.src
                           return (
@@ -576,7 +578,7 @@ export default function Dashboard() {
                           }}
                           className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline"
                         >
-                          تغيير أو إعادة رفع الصوت
+                          {content.language === 'es' ? 'Cambiar o volver a subir audio' : content.language === 'en' || content.language === 'en-GB' ? 'Change or re-upload audio' : 'تغيير أو إعادة رفع الصوت'}
                         </button>
                       </div>
                     ) : (
@@ -604,7 +606,7 @@ export default function Dashboard() {
                                 className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1"
                               >
                                 <Music2 size={12} />
-                                التبديل إلى رفع ملف صوتي جاهز من الجهاز 📁
+                                {content.language === 'es' ? 'Cambiar a subir archivo de audio desde el dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Switch to uploading an audio file from your device 📁' : 'التبديل إلى رفع ملف صوتي جاهز من الجهاز 📁'}
                               </button>
                             </div>
                           </>
@@ -616,8 +618,12 @@ export default function Dashboard() {
                                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-inner">
                                   <Music2 size={22} />
                                 </div>
-                                <span className="text-xs font-bold text-rose-900">اختر ملف أغنية جاهز من جهازك 📁</span>
-                                <span className="text-[11px] text-rose-400 font-medium">يدعم صيغ MP3, M4A, WAV, AAC وغيرهم</span>
+                                <span className="text-xs font-bold text-rose-900">
+                                  {content.language === 'es' ? 'Elige un archivo de canción desde tu dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Choose an audio file from your device 📁' : 'اختر ملف أغنية جاهز من جهازك 📁'}
+                                </span>
+                                <span className="text-[11px] text-rose-400 font-medium">
+                                  {content.language === 'es' ? 'Soporta formatos MP3, M4A, WAV, AAC y otros' : content.language === 'en' || content.language === 'en-GB' ? 'Supports MP3, M4A, WAV, AAC and others' : 'يدعم صيغ MP3, M4A, WAV, AAC وغيرهم'}
+                                </span>
                                 <input
                                   type="file"
                                   accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
@@ -641,7 +647,7 @@ export default function Dashboard() {
                                 className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1"
                               >
                                 <Mic size={12} />
-                                التبديل إلى تسجيل صوتك المباشر 🎙️
+                                {content.language === 'es' ? 'Cambiar a grabar tu voz en vivo 🎙️' : content.language === 'en' || content.language === 'en-GB' ? 'Switch to recording your live voice 🎙️' : 'التبديل إلى تسجيل صوتك المباشر 🎙️'}
                               </button>
                             </div>
                           </>
@@ -843,19 +849,19 @@ export default function Dashboard() {
                   key={memory.id}
                   memory={memory}
                   index={index}
-                  itemLabel="ذكرى"
-                  imageHint="صورة اختيارية (تُضغط تلقائياً)"
+                  itemLabel={content.language === 'es' ? 'Recuerdo' : content.language === 'en' || content.language === 'en-GB' ? 'Memory' : 'ذكرى'}
+                  imageHint={content.language === 'es' ? 'Imagen opcional' : content.language === 'en' || content.language === 'en-GB' ? 'Optional image' : 'صورة اختيارية (تُضغط تلقائياً)'}
                   onChange={(id, patch) => {
                     updateMemory(id, patch)
                   }}
                   onImageUpload={async (id, file) => {
                     try {
-                      setSaveMessage('جاري رفع وضغط الصورة...')
+                      setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
                       await uploadMemoryImage(id, file)
-                      setSaveMessage('✓ تم رفع الصورة بنجاح!')
+                      setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
                     } catch (err) {
                       console.error('Upload error:', err)
-                      setSaveMessage(`✗ فشل الرفع: ${err.message || 'مشكلة في الاتصال بسيرفر التخزين'}`)
+                      setSaveMessage(content.language === 'es' ? `✗ Error al subir: ${err.message}` : content.language === 'en' || content.language === 'en-GB' ? `✗ Upload failed: ${err.message}` : `✗ فشل الرفع: ${err.message}`)
                     }
                   }}
                   onImageRemove={(id) => {
@@ -873,7 +879,7 @@ export default function Dashboard() {
               }}
               className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
             >
-              + إضافة ذكرى للقصة
+              {content.language === 'es' ? '+ Añadir recuerdo a la historia' : content.language === 'en' || content.language === 'en-GB' ? '+ Add story memory' : '+ إضافة ذكرى للقصة'}
             </button>
           </Section>
         )
@@ -881,8 +887,11 @@ export default function Dashboard() {
       case 'gallery':
         return (
           <>
-            <Section title="عناوين المعرض" description="نصوص صفحة الألبوم">
-              <Field label="العنوان الصغير">
+            <Section 
+              title={content.language === 'es' ? 'Títulos de la galería' : content.language === 'en' || content.language === 'en-GB' ? 'Gallery Titles' : 'عناوين المعرض'} 
+              description={content.language === 'es' ? 'Textos de la página de la galería' : content.language === 'en' || content.language === 'en-GB' ? 'Gallery page texts' : 'نصوص صفحة الألبوم'}
+            >
+              <Field label={t.fields.eyebrow}>
                 <TextInput
                   value={content.gallery.eyebrow}
                   onChange={(v) => {
@@ -890,7 +899,7 @@ export default function Dashboard() {
                   }}
                 />
               </Field>
-              <Field label="العنوان الرئيسي">
+              <Field label={t.fields.title}>
                 <TextInput
                   value={content.gallery.title}
                   onChange={(v) => {
@@ -902,8 +911,8 @@ export default function Dashboard() {
 
             <div className="mt-4">
               <Section
-                title="صور الألبوم"
-                description="صورة + تاريخ + وصف — صفحة المعرض فقط"
+                title={t.galleryTab}
+                description={content.language === 'es' ? 'Foto + Fecha + Descripción — Solo página de galería' : content.language === 'en' || content.language === 'en-GB' ? 'Photo + Date + Description — Gallery page only' : 'صورة + تاريخ + وصف — صفحة المعرض فقط'}
               >
                 <div className="space-y-4">
                   {(content.galleryItems ?? []).map((item, index) => (
@@ -911,19 +920,19 @@ export default function Dashboard() {
                       key={item.id}
                       memory={item}
                       index={index}
-                      itemLabel="صورة"
-                      imageHint="رفع صورة"
+                      itemLabel={content.language === 'es' ? 'Foto' : content.language === 'en' || content.language === 'en-GB' ? 'Photo' : 'صورة'}
+                      imageHint={content.language === 'es' ? 'Subir foto' : content.language === 'en' || content.language === 'en-GB' ? 'Upload photo' : 'رفع صورة'}
                       onChange={(id, patch) => {
                         updateGalleryItem(id, patch)
                       }}
                       onImageUpload={async (id, file) => {
                         try {
-                          setSaveMessage('جاري رفع وضغط الصورة...')
+                          setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
                           await uploadGalleryImage(id, file)
-                          setSaveMessage('✓ تم رفع الصورة بنجاح!')
+                          setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
                         } catch (err) {
                           console.error('Upload error:', err)
-                          setSaveMessage(`✗ فشل الرفع: ${err.message || 'مشكلة في الاتصال بسيرفر التخزين'}`)
+                          setSaveMessage(content.language === 'es' ? `✗ Error al subir: ${err.message}` : content.language === 'en' || content.language === 'en-GB' ? `✗ Upload failed: ${err.message}` : `✗ فشل الرفع: ${err.message}`)
                         }
                       }}
                       onImageRemove={(id) => {
@@ -941,7 +950,7 @@ export default function Dashboard() {
                   }}
                   className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
                 >
-                  + إضافة صورة للمعرض
+                  {content.language === 'es' ? '+ Añadir foto a la galería' : content.language === 'en' || content.language === 'en-GB' ? '+ Add photo to gallery' : '+ إضافة صورة للمعرض'}
                 </button>
               </Section>
             </div>
@@ -951,8 +960,8 @@ export default function Dashboard() {
       case 'countdowns':
         return (
           <Section
-            title="العدادات التنازلية ⏳"
-            description="إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة"
+            title={t.countdownTab || 'العدادات التنازلية ⏳'}
+            description={content.language === 'es' ? 'Administrar y seguir los contadores en vivo para próximos eventos' : content.language === 'en' || content.language === 'en-GB' ? 'Manage and track live countdowns for upcoming events' : 'إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة'}
           >
             <div className="space-y-4">
               {countdownsList.map((timer, idx) => (
@@ -963,7 +972,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
                     <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
                       <Clock size={14} className="text-rose-500" />
-                      عداد رقم #{idx + 1}
+                      {content.language === 'es' ? 'Contador' : content.language === 'en' || content.language === 'en-GB' ? 'Countdown' : 'عداد'} #{idx + 1}
                     </span>
                     <button
                       type="button"
@@ -971,27 +980,27 @@ export default function Dashboard() {
                       className="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1"
                     >
                       <Trash2 size={13} />
-                      حذف العداد
+                      {content.language === 'es' ? 'Eliminar contador' : content.language === 'en' || content.language === 'en-GB' ? 'Delete countdown' : 'حذف العداد'}
                     </button>
                   </div>
 
-                  <Field label="عنوان المناسبة">
+                  <Field label={content.language === 'es' ? 'Título del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Title' : 'عنوان المناسبة'}>
                     <TextInput
                       value={timer.title || ''}
                       onChange={(v) => updateCountdown(idx, 'title', v)}
-                      placeholder="مثال: عيد ميلادك 🎂"
+                      placeholder={content.language === 'es' ? 'Ej: Tu cumpleaños 🎂' : content.language === 'en' || content.language === 'en-GB' ? 'e.g. Your birthday 🎂' : 'مثال: عيد ميلادك 🎂'}
                     />
                   </Field>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field label="تاريخ المناسبة">
+                    <Field label={content.language === 'es' ? 'Fecha del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Date' : 'تاريخ المناسبة'}>
                       <DateInput
                         value={timer.date || ''}
                         onChange={(v) => updateCountdown(idx, 'date', v)}
                       />
                     </Field>
 
-                    <Field label="وقت المناسبة">
+                    <Field label={content.language === 'es' ? 'Hora del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Time' : 'وقت المناسبة'}>
                       <TextInput
                         value={timer.time || '00:00'}
                         onChange={(v) => updateCountdown(idx, 'time', v)}
@@ -1000,12 +1009,12 @@ export default function Dashboard() {
                     </Field>
                   </div>
 
-                  <Field label="وصف أو رسالة المناسبة">
+                  <Field label={content.language === 'es' ? 'Descripción o mensaje del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Description or Message' : 'وصف أو رسالة المناسبة'}>
                     <TextArea
                       value={timer.description || ''}
                       onChange={(v) => updateCountdown(idx, 'description', v)}
                       rows={2}
-                      placeholder="رسالة تظهر مع العداد التنازلي"
+                      placeholder={content.language === 'es' ? 'Un mensaje que se muestra con el contador' : content.language === 'en' || content.language === 'en-GB' ? 'A message displayed with the countdown' : 'رسالة تظهر مع العداد التنازلي'}
                     />
                   </Field>
                 </div>
@@ -1017,7 +1026,7 @@ export default function Dashboard() {
                 className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
               >
                 <Plus size={15} />
-                + إضافة عداد تنازلي جديد ⏳
+                {content.language === 'es' ? '+ Añadir nuevo contador ⏳' : content.language === 'en' || content.language === 'en-GB' ? '+ Add new countdown ⏳' : '+ إضافة عداد تنازلي جديد ⏳'}
               </button>
             </div>
           </Section>
@@ -1025,8 +1034,8 @@ export default function Dashboard() {
 
       case 'final':
         return (
-          <Section title="الصفحة الأخيرة" description="الرسالة الختامية">
-            <Field label="العنوان الصغير">
+          <Section title={t.finalPageSettings || 'الصفحة الأخيرة'} description={t.finalPageDesc || 'الرسالة الختامية'}>
+            <Field label={t.fields.eyebrow}>
               <TextInput
                 value={content.final.eyebrow}
                 onChange={(v) => {
@@ -1034,7 +1043,7 @@ export default function Dashboard() {
                 }}
               />
             </Field>
-            <Field label="العنوان الرئيسي">
+            <Field label={t.fields.title}>
               <TextInput
                 value={content.final.title}
                 onChange={(v) => {
@@ -1042,7 +1051,7 @@ export default function Dashboard() {
                 }}
               />
             </Field>
-            <Field label="الرسالة">
+            <Field label={content.language === 'es' ? 'Mensaje' : content.language === 'en' || content.language === 'en-GB' ? 'Message' : 'الرسالة'}>
               <TextArea
                 value={content.final.text}
                 onChange={(v) => {
@@ -1057,8 +1066,8 @@ export default function Dashboard() {
       case 'wishlist':
         return (
           <Section
-            title="قائمة الأمنيات"
-            description="حاجات نفسي نعملها سوا — تقدر تضيف وتعدل وتمسح العناصر"
+            title={t.wishlistTab || 'قائمة الأمنيات'}
+            description={t.wishlistDesc || 'حاجات نفسي نعملها سوا — تقدر تضيف وتعدل وتمسح العناصر'}
           >
             <div className="space-y-4">
               {(content.wishlist ?? []).map((item, index) => (
