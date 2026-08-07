@@ -156,10 +156,12 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
 
 export async function fetchCompleteSite(pool, slug) {
   try {
-    const siteDataDb = await query('SELECT * FROM sites WHERE slug = $1 LIMIT 1;', [slug])
-    if (siteDataDb.rows.length === 0) return null
+    const siteR = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}`, { headers: restHeaders })
+    if (!siteR.ok) return null
+    const siteData = await siteR.json()
+    if (!Array.isArray(siteData) || siteData.length === 0) return null
 
-    const row = siteDataDb.rows[0]
+    const row = siteData[0]
     const siteId = row.id
 
     const [memR, galR, wishR] = await Promise.all([
