@@ -198,7 +198,8 @@ export default async function handler(req, res) {
       )
 
       if (!r.ok) {
-        return res.status(500).json({ error: 'فشل جلب قائمة المواقع من الخادم' })
+        const errText = await r.text().catch(() => '')
+        return res.status(500).json({ error: `فشل جلب قائمة المواقع: ${r.status} - ${errText}` })
       }
 
       const rows = await r.json()

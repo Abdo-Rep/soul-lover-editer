@@ -202,7 +202,8 @@ export default function SuperAdmin() {
           setAuthError('بيانات الدخول غير صحيحة أو غير مسجلة بقاعدة البيانات')
           return
         }
-        throw new Error('فشل جلب قائمة المواقع')
+        const errJson = await res.json().catch(() => ({}))
+        throw new Error(errJson.error || 'فشل جلب قائمة المواقع')
       }
       const data = await res.json()
       setSites(data.sites || [])
@@ -436,15 +437,6 @@ export default function SuperAdmin() {
 
             <button
               type="button"
-              onClick={() => setShowCreateModal(true)}
-              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-colors shadow-md shadow-[#ff3b68]/20"
-            >
-              <PlusSvg className="w-4 h-4" />
-              <span>إضافة موقع</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => setShowLogoutModal(true)}
               className="p-2 sm:p-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 hover:text-white transition-colors"
               title="تسجيل الخروج"
@@ -455,28 +447,23 @@ export default function SuperAdmin() {
           </div>
         </div>
 
-        {/* 3 Stat Cards Row: Mobile-First 3 Columns aligned to the RIGHT */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        {/* 2 Cards Row: Sites stat and Add Site action button */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {/* Card 1: Sites */}
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right space-y-0.5">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right flex flex-col justify-center space-y-0.5">
             <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">المواقع المنشأة</span>
-            <span className="text-base sm:text-2xl font-bold text-[#ff3b68] block">{sites.length}</span>
+            <span className="text-base sm:text-2xl font-black text-[#ff3b68] block">{sites.length}</span>
           </div>
 
-          {/* Card 2: Server Status */}
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right space-y-0.5">
-            <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">حالة السيرفر</span>
-            <span className="text-[11px] sm:text-sm font-bold text-[#10b981] flex items-center gap-1 pt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse shrink-0"></span>
-              <span className="truncate">متصل (VPS)</span>
-            </span>
-          </div>
-
-          {/* Card 3: System Type */}
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right space-y-0.5">
-            <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">نوع النظام</span>
-            <span className="text-[11px] sm:text-sm font-bold text-white block pt-0.5 truncate">SaaS نسخه محسنه</span>
-          </div>
+          {/* Card 2: Add Site action button */}
+          <button
+            type="button"
+            onClick={() => setShowCreateModal(true)}
+            className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#ff3b68]/20 border border-[#ff3b68]/50"
+          >
+            <PlusSvg className="w-4 h-4" />
+            <span>إضافة موقع جديد 🚀</span>
+          </button>
         </div>
 
         {/* Main Sites Container */}

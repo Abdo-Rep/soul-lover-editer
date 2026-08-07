@@ -54,6 +54,7 @@
 }
 
 html {
+  font-size: 112.5%; /* كبر الفونت درجتين صغيرين */
   overflow-x: hidden;
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
