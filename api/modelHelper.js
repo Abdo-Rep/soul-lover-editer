@@ -1,4 +1,5 @@
 import { encrypt, decrypt } from './cryptoHelper.js'
+import { query } from './db.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -155,12 +156,10 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
 
 export async function fetchCompleteSite(pool, slug) {
   try {
-    const siteR = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}`, { headers: restHeaders })
-    if (!siteR.ok) return null
-    const siteData = await siteR.json()
-    if (!Array.isArray(siteData) || siteData.length === 0) return null
+    const siteDataDb = await query('SELECT * FROM sites WHERE slug = $1 LIMIT 1;', [slug])
+    if (siteDataDb.rows.length === 0) return null
 
-    const row = siteData[0]
+    const row = siteDataDb.rows[0]
     const siteId = row.id
 
     const [memR, galR, wishR] = await Promise.all([

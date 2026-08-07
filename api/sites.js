@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
 import { encrypt, decrypt } from './cryptoHelper.js'
+import { query } from './db.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
@@ -82,12 +83,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password,is_active`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
-      if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
-      const rows = await r.json()
+      const dbRes = await query(
+        'SELECT visitor_password, admin_password, is_active FROM sites WHERE slug = $1 LIMIT 1;',
+        [slug]
+      )
+      const rows = dbRes.rows
 
-      if (!Array.isArray(rows) || rows.length === 0) {
-      return res.status(404).json({ error: 'site_not_found' })
+      if (rows.length === 0) {
+        return res.status(404).json({ error: 'site_not_found' })
       }
 
       const row = rows[0]

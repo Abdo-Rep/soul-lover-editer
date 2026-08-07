@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
 import { encrypt, decrypt } from './cryptoHelper.js'
 
+import { query } from './db.js'
+
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
@@ -192,33 +194,19 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      let r = await fetch(
-        `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at,is_active,language&order=created_at.desc`,
-        { headers: restHeaders }
+      const dbRes = await query(
+        `SELECT slug, visitor_password, admin_password, created_at, updated_at, is_active, language 
+         FROM sites 
+         ORDER BY created_at DESC;`
       )
 
-      if (!r.ok) {
-        // Fallback fetch if is_active or language is not in PostgREST schema cache yet
-        r = await fetch(
-          `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at&order=created_at.desc`,
-          { headers: restHeaders }
-        )
-      }
-
-      if (!r.ok) {
-        const errText = await r.text().catch(() => '')
-        return res.status(500).json({ error: `فشل جلب قائمة المواقع: ${r.status} - ${errText}` })
-      }
-
-      const rows = await r.json()
-
-      const decryptedSites = rows.map((row) => ({
+      const decryptedSites = dbRes.rows.map((row) => ({
         slug: row.slug,
         site_password: decrypt(row.visitor_password),
         admin_password: decrypt(row.admin_password),
         created_at: row.created_at,
         updated_at: row.updated_at,
-        is_active: row.is_active !== undefined ? row.is_active !== false : true,
+        is_active: row.is_active !== false,
         language: row.language || 'ar',
       }))
 
@@ -243,16 +231,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'invalid_slug_format' })
       }
 
-      // Check if site already exists
-      const checkRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(cleanSlug)}&select=slug`,
-        { headers: restHeaders }
-      )
-      if (checkRes.ok) {
-        const checkRows = await checkRes.json()
-        if (Array.isArray(checkRows) && checkRows.length > 0) {
-          return res.status(409).json({ error: 'slug_already_exists' })
-        }
+      // Check if site already exists via SQL
+      const checkRes = await query('SELECT slug FROM sites WHERE slug = $1 LIMIT 1;', [cleanSlug])
+      if (checkRes.rows.length > 0) {
+        return res.status(409).json({ error: 'slug_already_exists' })
       }
 
       const cleanVisitorPass = String(sitePassword).trim().replace(/[\u0600-\u06FF\s]/g, '')
@@ -262,6 +244,8 @@ export default async function handler(req, res) {
       const encryptedAdminPass = encrypt(cleanAdminPass)
 
       const defaultFields = getDefaultFields(language)
+
+      // Insert default fields through REST API (fallback safe)
       let insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
         method: 'POST',
         headers: restHeaders,
@@ -277,7 +261,6 @@ export default async function handler(req, res) {
       })
 
       if (!insertRes.ok) {
-        // Fallback insert without language and is_active if schema cache is missing them
         insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
           method: 'POST',
           headers: restHeaders,
@@ -296,8 +279,18 @@ export default async function handler(req, res) {
         throw new Error(`فشل إنشاء الموقع: ${errText}`)
       }
 
-      const inserted = await insertRes.json()
-      const newRow = Array.isArray(inserted) ? inserted[0] : inserted
+      // 4. Force write language and active status using direct SQL immediately!
+      await query(
+        'UPDATE sites SET language = $1, is_active = TRUE, updated_at = NOW() WHERE slug = $2;',
+        [language, cleanSlug]
+      )
+
+      // Fetch newly created site details via SQL
+      const newRowRes = await query(
+        'SELECT slug, visitor_password, admin_password, created_at, is_active, language FROM sites WHERE slug = $1 LIMIT 1;',
+        [cleanSlug]
+      )
+      const newRow = newRowRes.rows[0]
 
       return res.status(201).json({
         success: true,
@@ -306,7 +299,7 @@ export default async function handler(req, res) {
           site_password: decrypt(newRow.visitor_password),
           admin_password: decrypt(newRow.admin_password),
           created_at: newRow.created_at,
-          is_active: newRow.is_active !== undefined ? newRow.is_active !== false : true,
+          is_active: newRow.is_active !== false,
           language: newRow.language || 'ar',
         },
       })
@@ -318,15 +311,23 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'slug_required' })
       }
 
-      const updateData = {}
-      if (isActive !== undefined) updateData.is_active = Boolean(isActive)
-      if (language !== undefined) updateData.language = String(language)
-
-      const updateRes = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
-        method: 'PATCH',
-        headers: restHeaders,
-        body: JSON.stringify(updateData),
-      })
+      // Perform updates directly via SQL to bypass PostgREST cache issues
+      if (isActive !== undefined && language !== undefined) {
+        await query(
+          'UPDATE sites SET is_active = $1, language = $2, updated_at = NOW() WHERE slug = $3;',
+          [Boolean(isActive), String(language), slug]
+        )
+      } else if (isActive !== undefined) {
+        await query(
+          'UPDATE sites SET is_active = $1, updated_at = NOW() WHERE slug = $2;',
+          [Boolean(isActive), slug]
+        )
+      } else if (language !== undefined) {
+        await query(
+          'UPDATE sites SET language = $1, updated_at = NOW() WHERE slug = $2;',
+          [String(language), slug]
+        )
+      }
 
       return res.status(200).json({ success: true })
     }
