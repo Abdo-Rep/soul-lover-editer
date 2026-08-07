@@ -30,8 +30,8 @@ export function normalizeAppearance(appearance = {}) {
       ? backgroundHeart
       : DEFAULT_BACKGROUND_HEART,
     heartOpacity: clamp(Number(appearance.heartOpacity ?? DEFAULT_APPEARANCE.heartOpacity), 0.1, 1),
-    backgroundHeart: appearance.backgroundHeart || '♥',
-    pushHeart: appearance.pushHeart || '♥',
+    backgroundHeart: appearance.backgroundHeart ?? '♥',
+    pushHeart: appearance.pushHeart ?? '♥',
   }
 }
 

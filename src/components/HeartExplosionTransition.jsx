@@ -30,7 +30,7 @@ function RisingHeart({ particle, heartSymbol }) {
 
 export default function HeartExplosionTransition({ onSwap, onComplete }) {
   const { content } = useContent()
-  const pushHeart = content.appearance?.pushHeart || '♥'
+  const pushHeart = content.appearance?.pushHeart ?? '♥'
   const onSwapRef = useRef(onSwap)
   const onCompleteRef = useRef(onComplete)
   const swappedRef = useRef(false)

@@ -3,7 +3,7 @@ import { useContent } from '../context/ContentContext'
 
 export default function TouchHeartEffect() {
   const { content } = useContent()
-  const pushHeartChar = content?.appearance?.pushHeart || '♥'
+  const pushHeartChar = content?.appearance?.pushHeart ?? '♥'
   const [particles, setParticles] = useState([])
 
   useEffect(() => {

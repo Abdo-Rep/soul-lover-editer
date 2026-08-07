@@ -69,7 +69,7 @@ function HeartBackground({ className = '' }) {
               '--heart-drift': `${heart.drift}px`,
             }}
           >
-            {content.appearance?.backgroundHeart || '♥'}
+            {content.appearance?.backgroundHeart ?? '♥'}
           </span>
         )
       })}

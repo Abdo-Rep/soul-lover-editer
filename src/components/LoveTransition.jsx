@@ -68,7 +68,7 @@ function TransitionParticle({ particle, phase, revealDuration, heartSymbol }) {
 
 export default function LoveTransition({ onCovered, onComplete, canExit }) {
   const { content } = useContent()
-  const pushHeart = content.appearance?.pushHeart || '♥'
+  const pushHeart = content.appearance?.pushHeart ?? '♥'
   const [phase, setPhase] = useState('expand')
   const onCoveredRef = useRef(onCovered)
   const onCompleteRef = useRef(onComplete)
