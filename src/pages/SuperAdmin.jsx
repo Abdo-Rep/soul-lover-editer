@@ -621,6 +621,17 @@ export default function SuperAdmin() {
 
       </div>
 
+      {/* Floating Action Button (FAB) - Bottom Right */}
+      <button
+        type="button"
+        onClick={() => setShowCreateModal(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5 rounded-full bg-gradient-to-r from-[#ff3b68] to-[#ff5b85] hover:from-[#e62e5c] hover:to-[#e64e74] text-white font-bold text-xs sm:text-sm shadow-2xl shadow-[#ff3b68]/40 border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
+        aria-label="إنشاء موقع جديد"
+      >
+        <PlusSvg className="w-4 h-4 sm:w-5 sm:h-5" />
+        <span className="font-bold">إنشاء موقع 🚀</span>
+      </button>
+
       {/* Create Modal */}
       {showCreateModal && (
         <div
