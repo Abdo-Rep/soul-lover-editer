@@ -319,12 +319,42 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
   const activeSlug = slug || getSlugFromPath() || 'default'
   const isAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i)
 
-  // Enforce 7MB max size for audio files
-  if (isAudio && file.size > 7 * 1024 * 1024) {
-    throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 7 ميجابايت (الحد الأقصى 7 MB)')
+  // Enforce 12MB max size for audio files
+  if (isAudio && file.size > 12 * 1024 * 1024) {
+    throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 12 ميجابايت (الحد الأقصى 12 MB)')
   }
 
   const token = activeSlug ? getAdminTokenForSync(activeSlug) : ''
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+  const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_5P_VM3IgahU8L9piC6RKWq_cgCBwlgW'
+
+  // For files larger than 4MB, upload directly to Supabase storage to bypass Vercel's 4.5MB Serverless function limit (Error 413)
+  if (file.size > 4 * 1024 * 1024) {
+    try {
+      const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : (isAudio ? '.mp3' : '.jpg')
+      const filename = `${category}-${Date.now()}${ext}`
+      const objectPath = `${activeSlug}/${category}/${filename}`
+      const uploadUrl = `${SUPABASE_URL}/storage/v1/object/site-media/${objectPath}`
+
+      const directRes = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          apikey: ANON_KEY,
+          Authorization: `Bearer ${ANON_KEY}`,
+          'Content-Type': file.type || 'application/octet-stream',
+          'x-upsert': 'true',
+        },
+        body: file,
+      })
+
+      if (directRes.ok) {
+        return `${SUPABASE_URL}/storage/v1/object/public/site-media/${objectPath}`
+      }
+    } catch (e) {
+      console.warn('Direct upload error for large file:', e)
+    }
+  }
+
   const formData = new FormData()
   formData.append('file', file)
   formData.append('category', category)
@@ -362,9 +392,6 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
 
   // Direct Supabase Storage fallback (resilient upload)
   try {
-    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
-    const SECRET_KEY = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || ''
-    const JWT_TOKEN = import.meta.env.VITE_SERVICE_ROLE_JWT || ''
     const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : '.jpg'
     const filename = `${category}-${Date.now()}${ext}`
     const objectPath = `${activeSlug}/${category}/${filename}`
@@ -373,8 +400,8 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
     const directRes = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
-        ...(SECRET_KEY ? { apikey: SECRET_KEY } : {}),
-        ...(JWT_TOKEN ? { Authorization: `Bearer ${JWT_TOKEN}` } : {}),
+        apikey: ANON_KEY,
+        Authorization: `Bearer ${ANON_KEY}`,
         'Content-Type': file.type || 'application/octet-stream',
         'x-upsert': 'true',
       },
