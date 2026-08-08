@@ -325,47 +325,33 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
   }
 
   const token = activeSlug ? getAdminTokenForSync(activeSlug) : ''
+  const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_5P_VM3IgahU8L9piC6RKWq_cgCBwlgW'
+  const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : (isAudio ? '.mp3' : '.jpg')
+  const filename = `${category}-${Date.now()}${ext}`
+  const objectPath = `${activeSlug}/${category}/${filename}`
 
-  // 1. Chunked Upload for any file > 2MB to strictly guarantee Vercel 4.5MB limit is NEVER exceeded
-  if (file.size > 2 * 1024 * 1024) {
-    const CHUNK_SIZE = 2 * 1024 * 1024 // 2MB per chunk (completely safe from 413)
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
-    const uploadId = `up-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-    
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * CHUNK_SIZE
-      const end = Math.min(file.size, start + CHUNK_SIZE)
-      const chunkBlob = file.slice(start, end)
+  // 1. Direct Edge Proxy upload (streams directly to Supabase Storage, bypassing Vercel serverless body limit)
+  try {
+    const proxyUrl = `/storage-proxy/site-media/${objectPath}`
+    const proxyRes = await fetch(proxyUrl, {
+      method: 'POST',
+      headers: {
+        apikey: ANON_KEY,
+        Authorization: `Bearer ${ANON_KEY}`,
+        'Content-Type': file.type || 'application/octet-stream',
+        'x-upsert': 'true',
+      },
+      body: file,
+    })
 
-      const chunkUrl = `/api/upload?category=${encodeURIComponent(category)}&slug=${encodeURIComponent(activeSlug)}&uploadId=${encodeURIComponent(uploadId)}&chunkIndex=${i}&totalChunks=${totalChunks}&fileName=${encodeURIComponent(file.name || 'audio.mp3')}`
-
-      const res = await fetch(chunkUrl, {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          'Content-Type': 'application/octet-stream',
-          'x-category': category,
-          'x-slug': activeSlug,
-          'x-upload-id': uploadId,
-          'x-chunk-index': String(i),
-          'x-total-chunks': String(totalChunks),
-        },
-        body: chunkBlob,
-      })
-
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}))
-        throw new Error(errJson.error || `خطأ في رفع الملف (${res.status})`)
-      }
-
-      if (i === totalChunks - 1) {
-        const json = await res.json()
-        if (json.url) return json.url
-      }
+    if (proxyRes.ok) {
+      return `/api/storage/site-media/${objectPath}`
     }
+  } catch (e) {
+    console.warn('Storage proxy upload failed, falling back to api/upload:', e)
   }
 
-  // Standard upload for small files (< 2MB)
+  // 2. Standard upload fallback via /api/upload
   const formData = new FormData()
   formData.append('file', file)
   formData.append('category', category)

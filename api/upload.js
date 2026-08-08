@@ -1,6 +1,4 @@
 import path from 'path'
-import fs from 'fs'
-import os from 'os'
 
 export const config = {
   api: {
@@ -55,7 +53,7 @@ async function ensureBucket() {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-category, x-slug, x-upload-id, x-chunk-index, x-total-chunks')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-category, x-slug')
   res.setHeader('Cache-Control', 'no-store')
 
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -63,10 +61,6 @@ export default async function handler(req, res) {
 
   const category = (req.query.category || req.headers['x-category'] || 'gallery').replace(/[^a-z0-9_-]/gi, '')
   const slug = (req.query.slug || req.headers['x-slug'] || 'default').replace(/[^a-z0-9_-]/gi, '')
-  const uploadId = (req.query.uploadId || req.headers['x-upload-id'] || '').replace(/[^a-z0-9_-]/gi, '')
-  const chunkIndex = parseInt(req.query.chunkIndex || req.headers['x-chunk-index'] || '0', 10)
-  const totalChunks = parseInt(req.query.totalChunks || req.headers['x-total-chunks'] || '1', 10)
-  const queryFileName = req.query.fileName || ''
 
   try {
     const chunks = []
@@ -79,35 +73,12 @@ export default async function handler(req, res) {
     }
 
     let fileData = buffer
-
-    // Handle chunked upload streaming to temporary storage
-    if (uploadId && totalChunks > 1) {
-      const tempFilePath = path.join(os.tmpdir(), `soulove-${uploadId}.bin`)
-      if (chunkIndex === 0) {
-        fs.writeFileSync(tempFilePath, buffer)
-      } else {
-        fs.appendFileSync(tempFilePath, buffer)
-      }
-
-      // If not the final chunk yet, acknowledge receipt and wait for remaining chunks
-      if (chunkIndex < totalChunks - 1) {
-        return res.status(200).json({ success: true, chunkReceived: chunkIndex })
-      }
-
-      // Final chunk received: read the complete assembled file
-      fileData = fs.readFileSync(tempFilePath)
-      try {
-        fs.unlinkSync(tempFilePath)
-      } catch {}
-    }
-
     const contentType = req.headers['content-type'] || ''
 
-    // Extract filename from multipart header or query params
     let ext = '.jpg'
     const bufferHead = buffer.slice(0, 2048).toString('binary')
     const filenameMatch = bufferHead.match(/filename="([^"]+)"/i)
-    const originalName = queryFileName || (filenameMatch ? filenameMatch[1] : '')
+    const originalName = filenameMatch ? filenameMatch[1] : (req.query.fileName || '')
 
     if (originalName) {
       const parsedExt = getExt(originalName)
@@ -120,8 +91,7 @@ export default async function handler(req, res) {
     else if (contentType.includes('audio/ogg')) ext = '.ogg'
     else if (contentType.includes('audio/wav')) ext = '.wav'
 
-    // Clean multipart boundaries if not using raw octet-stream chunks
-    if (!uploadId && contentType.includes('boundary='')) {
+    if (contentType.includes('boundary=')) {
       const boundaryStr = '--' + contentType.split('boundary=')[1].split(';')[0].trim()
       const boundaryBuf = Buffer.from(boundaryStr)
       const firstBoundaryIdx = buffer.indexOf(boundaryBuf)
