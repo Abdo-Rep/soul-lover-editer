@@ -25,6 +25,7 @@ import {
   verifyAdminPassword,
 } from '../utils/supabaseContent'
 import { compressImageToUnder90KB } from '../utils/imageCompressor'
+import { compressAudioToUnder4MB } from '../utils/audioCompressor'
 
 const ContentContext = createContext(null)
 
@@ -732,7 +733,8 @@ export function ContentProvider({ children }) {
         } catch {}
 
         const slug = getClientSlug()
-        const url = await uploadAsset(file, 'music', slug)
+        const uploadFile = await compressAudioToUnder4MB(file)
+        const url = await uploadAsset(uploadFile, 'music', slug)
         patchContent((prev) => {
           const tracks = getInitialTracks(prev.music)
           const reportedDuration = durationSeconds || file.durationSeconds || 0
