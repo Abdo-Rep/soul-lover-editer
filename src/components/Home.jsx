@@ -171,10 +171,6 @@ export default function Home() {
 
   const pageFadeClass = 'screen-fade-in'
 
-  if (isLoading) {
-    return <ContentLoadingHearts />
-  }
-
   if (siteNotFound) {
     return <NotFound />
   }

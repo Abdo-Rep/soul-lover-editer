@@ -79,10 +79,6 @@ function AdminLoginForm({ onLogin }) {
     }
   }
 
-  if (isLoading) {
-    return <ContentLoadingHearts />
-  }
-
   const slug = getClientSlug()
   const visitorPath = slug ? `/${slug}` : '/'
 
@@ -295,10 +291,6 @@ export default function Dashboard() {
 
   if (!isAdmin) {
     return <AdminLoginForm onLogin={handleAdminLogin} />
-  }
-
-  if (isLoading) {
-    return <ContentLoadingHearts />
   }
 
   const renderTab = () => {
