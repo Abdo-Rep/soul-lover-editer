@@ -319,42 +319,53 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
   const activeSlug = slug || getSlugFromPath() || 'default'
   const isAudio = file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a|aac|flac|webm)$/i)
 
-  // Enforce 12MB max size for audio files
-  if (isAudio && file.size > 12 * 1024 * 1024) {
-    throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 12 ميجابايت (الحد الأقصى 12 MB)')
+  // Enforce 15MB max size for audio files
+  if (isAudio && file.size > 15 * 1024 * 1024) {
+    throw new Error('حجم ملف الأغنية يفضل ألا يتجاوز 15 ميجابايت (الحد الأقصى 15 MB)')
   }
 
   const token = activeSlug ? getAdminTokenForSync(activeSlug) : ''
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
-  const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_5P_VM3IgahU8L9piC6RKWq_cgCBwlgW'
 
-  // For files larger than 4MB, upload directly to Supabase storage to bypass Vercel's 4.5MB Serverless function limit (Error 413)
-  if (file.size > 4 * 1024 * 1024) {
-    try {
-      const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : (isAudio ? '.mp3' : '.jpg')
-      const filename = `${category}-${Date.now()}${ext}`
-      const objectPath = `${activeSlug}/${category}/${filename}`
-      const uploadUrl = `${SUPABASE_URL}/storage/v1/object/site-media/${objectPath}`
+  // 1. Chunked Upload for any file > 2MB to strictly guarantee Vercel 4.5MB limit is NEVER exceeded
+  if (file.size > 2 * 1024 * 1024) {
+    const CHUNK_SIZE = 2 * 1024 * 1024 // 2MB per chunk (completely safe from 413)
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
+    const uploadId = `up-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE
+      const end = Math.min(file.size, start + CHUNK_SIZE)
+      const chunkBlob = file.slice(start, end)
 
-      const directRes = await fetch(uploadUrl, {
+      const chunkUrl = `/api/upload?category=${encodeURIComponent(category)}&slug=${encodeURIComponent(activeSlug)}&uploadId=${encodeURIComponent(uploadId)}&chunkIndex=${i}&totalChunks=${totalChunks}&fileName=${encodeURIComponent(file.name || 'audio.mp3')}`
+
+      const res = await fetch(chunkUrl, {
         method: 'POST',
         headers: {
-          apikey: ANON_KEY,
-          Authorization: `Bearer ${ANON_KEY}`,
-          'Content-Type': file.type || 'application/octet-stream',
-          'x-upsert': 'true',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'Content-Type': 'application/octet-stream',
+          'x-category': category,
+          'x-slug': activeSlug,
+          'x-upload-id': uploadId,
+          'x-chunk-index': String(i),
+          'x-total-chunks': String(totalChunks),
         },
-        body: file,
+        body: chunkBlob,
       })
 
-      if (directRes.ok) {
-        return `${SUPABASE_URL}/storage/v1/object/public/site-media/${objectPath}`
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}))
+        throw new Error(errJson.error || `خطأ في رفع الملف (${res.status})`)
       }
-    } catch (e) {
-      console.warn('Direct upload error for large file:', e)
+
+      if (i === totalChunks - 1) {
+        const json = await res.json()
+        if (json.url) return json.url
+      }
     }
   }
 
+  // Standard upload for small files (< 2MB)
   const formData = new FormData()
   formData.append('file', file)
   formData.append('category', category)
@@ -388,31 +399,6 @@ export async function uploadAsset(file, category = 'gallery', slug = '') {
     } catch (err) {
       lastError = err.message || 'فشل الاتصال'
     }
-  }
-
-  // Direct Supabase Storage fallback (resilient upload)
-  try {
-    const ext = file.name ? file.name.substring(file.name.lastIndexOf('.')).toLowerCase() : '.jpg'
-    const filename = `${category}-${Date.now()}${ext}`
-    const objectPath = `${activeSlug}/${category}/${filename}`
-    const uploadUrl = `${SUPABASE_URL}/storage/v1/object/site-media/${objectPath}`
-
-    const directRes = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        apikey: ANON_KEY,
-        Authorization: `Bearer ${ANON_KEY}`,
-        'Content-Type': file.type || 'application/octet-stream',
-        'x-upsert': 'true',
-      },
-      body: file,
-    })
-
-    if (directRes.ok) {
-      return `${SUPABASE_URL}/storage/v1/object/public/site-media/${objectPath}`
-    }
-  } catch (e) {
-    console.warn('Direct upload fallback error:', e)
   }
 
   throw new Error(lastError || 'تعذّر رفع الملف')
