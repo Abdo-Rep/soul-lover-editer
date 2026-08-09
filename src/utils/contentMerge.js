@@ -58,33 +58,14 @@ function sanitizeMediaUrl(url) {
   let objectPath = ''
   
   const rawMarker = '/storage/v1/object/public/site-media/'
-  const rawIdx = url.indexOf(rawMarker)
-  if (rawIdx !== -1) {
-    objectPath = url.substring(rawIdx + rawMarker.length)
-  } else {
-    const generalMarker = '/storage/v1/object/public/'
-    const generalIdx = url.indexOf(generalMarker)
-    if (generalIdx !== -1) {
-      objectPath = url.substring(generalIdx + generalMarker.length)
-      if (objectPath.startsWith('site-media/')) {
-        objectPath = objectPath.substring('site-media/'.length)
-      }
-    } else {
-      const proxyMarker1 = '/supabase/site-media/'
-      const proxyIdx1 = url.indexOf(proxyMarker1)
-      if (proxyIdx1 !== -1) {
-        objectPath = url.substring(proxyIdx1 + proxyMarker1.length)
-      } else {
-        const proxyMarker2 = '/supabase/'
-        const proxyIdx2 = url.indexOf(proxyMarker2)
-        if (proxyIdx2 !== -1) {
-          objectPath = url.substring(proxyIdx2 + proxyMarker2.length)
-          if (objectPath.startsWith('site-media/')) {
-            objectPath = objectPath.substring('site-media/'.length)
-          }
-        }
-      }
-    }
+  const signMarker = '/storage/v1/object/sign/site-media/'
+  
+  if (url.includes(rawMarker)) {
+    objectPath = url.split(rawMarker)[1]?.split('?')[0] || ''
+  } else if (url.includes(signMarker)) {
+    objectPath = url.split(signMarker)[1]?.split('?')[0] || ''
+  } else if (url.includes('/site-media/')) {
+    objectPath = url.split('/site-media/')[1]?.split('?')[0] || ''
   }
 
   if (objectPath) {
@@ -97,12 +78,110 @@ function sanitizeMediaUrl(url) {
   return url
 }
 
-export function mergeContent(stored) {
-  if (!stored || Object.keys(stored).length === 0) {
-    return structuredClone(defaultContent)
+export function getSeedContent(language = 'ar') {
+  const seed = structuredClone(defaultContent)
+  seed.language = language
+
+  if (language === 'es') {
+    seed.login = {
+      eyebrow: 'Un regalo de mi corazón',
+      title: 'Bienvenida mi amor',
+      subtitle: 'Detrás de esta puerta hay un pequeño mundo que construí para ti sola: nuestros recuerdos, nuestra historia y cada latido de amor en mi corazón.',
+      placeholder: 'Contraseña secreta',
+      passwordLabel: 'Contraseña',
+      button: 'Abre mi corazón',
+      error: 'Contraseña incorrecta, inténtalo de nuevo mi bella.',
+      footer: 'Hecho con amor, solo para ti',
+    }
+    seed.welcome = {
+      eyebrow: 'Finalmente llegaste',
+      title: 'Bienvenida, el amor más bello de mi vida',
+      subtitle: 'Todo lo que te espera aquí fue escrito y preparado pensando en ti: un viaje suave a través de nuestra historia, nuestro tiempo y el amor que vivimos juntos.',
+      nextButton: '',
+    }
+    seed.story = {
+      eyebrow: 'Una historia de amor',
+      title: 'Nuestra Historia',
+      firstMeeting: {
+        label: 'El primer día que nos conocimos',
+        description: 'Aún no lo sabía, pero mi corazón ya estaba encontrando su camino hacia ti.',
+      },
+      loveConfession: {
+        label: 'El día que dije "Te amo"',
+        message: 'Tres pequeñas palabras, y de repente el mundo se volvió más cálido, más suave e infinitamente más hermoso.',
+      },
+      memoriesButton: '',
+    }
+    seed.gallery = {
+      eyebrow: 'Nuestro Álbum',
+      title: 'Recuerdos',
+      finalButton: '',
+    }
+    seed.final = {
+      eyebrow: 'Una carta final',
+      title: 'Por siempre y para siempre',
+      text: 'Dondequiera que nos lleve la vida, mi corazón siempre encontrará el camino de regreso a ti. Eres mi sueño que quiero vivir todos los días, y mi pulso que extraño a cada momento. Gracias por ser tú.',
+    }
+    seed.music = {
+      fileName: 'romantic.mp3',
+      title: 'Nuestra canción',
+      src: '',
+      volume: 0.35,
+    }
+  } else if (language === 'en' || language === 'en-GB') {
+    seed.login = {
+      eyebrow: 'A gift from my heart',
+      title: 'Welcome my love',
+      subtitle: 'Behind this door is a small world I built for you alone — our memories, our story, and every heartbeat of love in my heart.',
+      placeholder: 'Secret password',
+      passwordLabel: 'Password',
+      button: 'Open my heart',
+      error: 'Incorrect password, try again my beautiful.',
+      footer: 'Made with love, for you alone',
+    }
+    seed.welcome = {
+      eyebrow: 'You finally arrived',
+      title: 'Welcome, the most beautiful love in my life',
+      subtitle: 'Everything waiting for you here was written and prepared with you in mind — a gentle journey through our story, our time, and the love we live together.',
+      nextButton: '',
+    }
+    seed.story = {
+      eyebrow: 'A Love Story',
+      title: 'Our Story',
+      firstMeeting: {
+        label: 'The first day we met',
+        description: 'I did not know it yet, but my heart was already finding its way to you.',
+      },
+      loveConfession: {
+        label: 'The day I said "I love you"',
+        message: 'Three small words — and suddenly the world became warmer, softer, and infinitely more beautiful.',
+      },
+      memoriesButton: '',
+    }
+    seed.gallery = {
+      eyebrow: 'Our Album',
+      title: 'Memories',
+      finalButton: '',
+    }
+    seed.final = {
+      eyebrow: 'A final letter',
+      title: 'Forever and always',
+      text: 'Wherever life takes us, my heart will always find its way back to you. You are my dream that I want to live every day, and my pulse that I miss every moment. Thank you for being you.',
+    }
   }
 
-  const mergedMusic = mergeSection(defaultContent.music, stored.music)
+  return seed
+}
+
+export function mergeContent(stored) {
+  const lang = stored?.language || 'ar'
+  const baseDefault = getSeedContent(lang)
+
+  if (!stored || Object.keys(stored).length === 0) {
+    return baseDefault
+  }
+
+  const mergedMusic = mergeSection(baseDefault.music, stored.music)
   const sanitizedMusic = {
     ...mergedMusic,
     src: sanitizeMediaUrl(mergedMusic.src),
@@ -113,32 +192,33 @@ export function mergeContent(stored) {
   }
 
   return {
-    ...defaultContent,
+    ...baseDefault,
     ...stored,
-    siteName: stored.siteName || defaultContent.siteName,
+    language: lang,
+    siteName: stored.siteName || baseDefault.siteName,
     password: stored.password ?? '',
     adminPassword: stored.adminPassword ?? '',
-    dates: mergeSection(defaultContent.dates, stored.dates),
+    dates: mergeSection(baseDefault.dates, stored.dates),
     music: sanitizedMusic,
-    login: mergeSection(defaultContent.login, stored.login),
-    welcome: mergeSection(defaultContent.welcome, stored.welcome),
+    login: mergeSection(baseDefault.login, stored.login),
+    welcome: mergeSection(baseDefault.welcome, stored.welcome),
     story: {
-      ...defaultContent.story,
+      ...baseDefault.story,
       ...stored.story,
-      memoriesButton: stored.story?.memoriesButton ?? defaultContent.story.memoriesButton,
+      memoriesButton: stored.story?.memoriesButton ?? baseDefault.story.memoriesButton,
       firstMeeting: mergeSection(
-        defaultContent.story.firstMeeting,
+        baseDefault.story.firstMeeting,
         stored.story?.firstMeeting,
       ),
       loveConfession: mergeSection(
-        defaultContent.story.loveConfession,
+        baseDefault.story.loveConfession,
         stored.story?.loveConfession,
       ),
     },
-    gallery: mergeSection(defaultContent.gallery, stored.gallery),
-    final: mergeSection(defaultContent.final, stored.final),
+    gallery: mergeSection(baseDefault.gallery, stored.gallery),
+    final: mergeSection(baseDefault.final, stored.final),
     appearance: normalizeAppearance({
-      ...defaultContent.appearance,
+      ...baseDefault.appearance,
       ...stored.appearance,
     }),
     memories: ensureUniqueIds(stored.memories ?? []).map((m) => ({
@@ -150,14 +230,10 @@ export function mergeContent(stored) {
       image: sanitizeMediaUrl(item.image),
       url: sanitizeMediaUrl(item.url || item.image),
     })),
-    wishlist: ensureUniqueIds(Array.isArray(stored.wishlist) ? stored.wishlist : defaultContent.wishlist),
+    wishlist: ensureUniqueIds(Array.isArray(stored.wishlist) ? stored.wishlist : baseDefault.wishlist),
     countdowns: ensureUniqueIds(Array.isArray(stored.countdowns) ? stored.countdowns : []),
-    countdownsNextButton: stored.countdownsNextButton ?? defaultContent.countdownsNextButton,
+    countdownsNextButton: stored.countdownsNextButton ?? baseDefault.countdownsNextButton,
   }
-}
-
-export function getSeedContent() {
-  return structuredClone(defaultContent)
 }
 
 export function nextItemId(items = []) {

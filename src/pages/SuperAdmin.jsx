@@ -491,9 +491,9 @@ export default function SuperAdmin() {
         <div className="rounded-2xl sm:rounded-3xl bg-[#080b1a] border border-[#19213d] p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-[#19213d]/60">
-            <h2 className="text-sm sm:text-base font-bold text-white">
-              المواقع المسجلة ({sites.length})
-            </h2>
+            <span className="text-sm font-bold text-white/90">
+              ({sites.length})
+            </span>
             <button
               type="button"
               onClick={() => fetchSites(token, email)}

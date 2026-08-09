@@ -27,9 +27,22 @@ import {
 import { compressImageToUnder90KB } from '../utils/imageCompressor'
 import { compressAudioToUnder4MB } from '../utils/audioCompressor'
 
-const ContentContext = createContext(null)
+function getSlugFromCurrentPath() {
+  if (typeof window === 'undefined') return ''
+  const parts = window.location.pathname.split('/').filter(Boolean)
+  if (parts.length === 0) return ''
+  if (parts[0] === 'soulove-admin' || parts[0] === 'api' || parts[0] === 'dashboard') return ''
+  return parts[0]
+}
 
 function createInitialContent() {
+  const slug = getSlugFromCurrentPath()
+  if (slug) {
+    const cached = readCache(slug)
+    if (cached) return cached
+    const cachedLang = typeof localStorage !== 'undefined' ? localStorage.getItem(`soulove-lang-${slug}`) : null
+    if (cachedLang) return getSeedContent(cachedLang)
+  }
   return getSeedContent()
 }
 
@@ -56,7 +69,12 @@ function readCache(slug) {
 
 function writeCache(slug, data) {
   if (!slug || !data) return
-  try { localStorage.setItem(`soulove-cache-${slug}`, JSON.stringify(data)) } catch { /* quota full */ }
+  try { 
+    localStorage.setItem(`soulove-cache-${slug}`, JSON.stringify(data))
+    if (data.language) {
+      localStorage.setItem(`soulove-lang-${slug}`, data.language)
+    }
+  } catch { /* quota full */ }
 }
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -228,8 +246,9 @@ export function ContentProvider({ children }) {
       setPersistedContent(cached)
       setSyncStatus('refreshing')
     } else {
-      // No cache yet — show seed while fetching
-      const seed = getSeedContent()
+      // No cache yet — show seed in the remembered language while fetching
+      const cachedLang = typeof localStorage !== 'undefined' ? localStorage.getItem(`soulove-lang-${slug}`) : null
+      const seed = getSeedContent(cachedLang || 'ar')
       setContent(seed)
       setPersistedContent(seed)
       setSyncStatus('loading')
