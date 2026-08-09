@@ -1124,7 +1124,7 @@ export default function Dashboard() {
 
   const tabs = TABS.map(tab => ({
     ...tab,
-    label: t[`${tab.id}Tab`] || tab.label
+    label: t[`${tab.id}Tab`] || t[`${tab.id.replace(/s$/, '')}Tab`] || tab.label
   }))
 
   return (
@@ -1237,9 +1237,9 @@ export default function Dashboard() {
         </motion.div>
 
         <p className="mt-8 text-center text-xs text-rose-400">
-          رابط الزائر:{' '}
+          {t.visitorLink || 'رابط الزائر:'}{' '}
           <Link to={visitorPath} className="underline hover:text-rose-600">
-            صفحة الزائر
+            {t.visitorPage || 'صفحة الزائر'}
           </Link>
         </p>
 
