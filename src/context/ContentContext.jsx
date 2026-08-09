@@ -27,6 +27,8 @@ import {
 import { compressImageToUnder90KB } from '../utils/imageCompressor'
 import { compressAudioToUnder4MB } from '../utils/audioCompressor'
 
+const ContentContext = createContext(null)
+
 function getSlugFromCurrentPath() {
   if (typeof window === 'undefined') return ''
   const parts = window.location.pathname.split('/').filter(Boolean)
