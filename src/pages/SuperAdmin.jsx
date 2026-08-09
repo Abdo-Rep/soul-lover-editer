@@ -468,23 +468,10 @@ export default function SuperAdmin() {
           </div>
         </div>
 
-        {/* 2 Cards Row: Sites stat and Add Site action button */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          {/* Card 1: Sites */}
-          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right flex flex-col justify-center space-y-0.5">
-            <span className="text-[10px] sm:text-xs text-[#7786a5] font-medium block truncate">المواقع المنشأة</span>
-            <span className="text-base sm:text-2xl font-black text-[#ff3b68] block">{sites.length}</span>
-          </div>
-
-          {/* Card 2: Add Site action button */}
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#ff3b68]/20 border border-[#ff3b68]/50"
-          >
-            <PlusSvg className="w-4 h-4" />
-            <span>إضافة موقع جديد 🚀</span>
-          </button>
+        {/* Sites Stat Card */}
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right flex items-center justify-between">
+          <span className="text-xs sm:text-sm text-[#7786a5] font-medium">المواقع المنشأة</span>
+          <span className="text-xl sm:text-2xl font-black text-[#ff3b68]">{sites.length}</span>
         </div>
 
         {/* Main Sites Container */}
@@ -524,10 +511,9 @@ export default function SuperAdmin() {
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-[#19213d] bg-[#0b0e20]">
-                <table className="w-full min-w-[620px] text-right border-collapse" dir="rtl">
+                <table className="w-full min-w-[540px] text-right border-collapse" dir="rtl">
                   <thead>
                     <tr className="border-b border-[#19213d] bg-[#0f142d] text-[11px] sm:text-xs text-[#7786a5] font-semibold">
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">اسم الموقع / العميل</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">الرابط (Slug)</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الزائر</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الداشبورد</th>
@@ -543,8 +529,7 @@ export default function SuperAdmin() {
 
                       return (
                         <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
-                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-bold text-white text-right">{site.slug}</td>
-                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-[#ff3b68] text-right">{site.slug}/</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono font-bold text-[#ff3b68] text-right">/{site.slug}</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.site_password}</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
@@ -621,15 +606,15 @@ export default function SuperAdmin() {
 
       </div>
 
-      {/* Floating Action Button (FAB) - Bottom Right */}
+      {/* Floating Action Button (FAB) - Circular Plus Button on Bottom Right */}
       <button
         type="button"
         onClick={() => setShowCreateModal(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 sm:px-5 sm:py-3.5 rounded-full bg-gradient-to-r from-[#ff3b68] to-[#ff5b85] hover:from-[#e62e5c] hover:to-[#e64e74] text-white font-bold text-xs sm:text-sm shadow-2xl shadow-[#ff3b68]/40 border border-white/20 transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
-        aria-label="إنشاء موقع جديد"
+        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#ff3b68] to-[#ff5b85] hover:from-[#e62e5c] hover:to-[#e64e74] text-white shadow-2xl shadow-[#ff3b68]/50 border border-white/25 transition-all hover:scale-110 active:scale-90 cursor-pointer backdrop-blur-md"
+        aria-label="إضافة موقع جديد"
+        title="إضافة موقع جديد"
       >
-        <PlusSvg className="w-4 h-4 sm:w-5 sm:h-5" />
-        <span className="font-bold">إنشاء موقع 🚀</span>
+        <PlusSvg className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
       </button>
 
       {/* Create Modal */}
