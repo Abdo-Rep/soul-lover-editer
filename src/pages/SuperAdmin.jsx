@@ -468,11 +468,6 @@ export default function SuperAdmin() {
           </div>
         </div>
 
-        {/* Sites Stat Card */}
-        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-[#0b0e20] border border-[#19213d] text-right flex items-center justify-between">
-          <span className="text-xs sm:text-sm text-[#7786a5] font-medium">المواقع المنشأة</span>
-          <span className="text-xl sm:text-2xl font-black text-[#ff3b68]">{sites.length}</span>
-        </div>
 
         {/* Main Sites Container */}
         <div className="rounded-2xl sm:rounded-3xl bg-[#080b1a] border border-[#19213d] p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
