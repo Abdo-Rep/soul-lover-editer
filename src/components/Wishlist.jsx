@@ -95,7 +95,7 @@ export default function Wishlist({ onNext }) {
       </motion.div>
 
       {/* 🌹 LUXURY ROMANTIC WISH CARDS LIST */}
-      <div className="space-y-3.5 max-h-[52dvh] overflow-y-auto pr-1 romantic-scrollbar pb-4">
+      <div className="space-y-3.5 max-h-[58dvh] overflow-y-auto pr-1 romantic-scrollbar pb-28 sm:pb-32">
         {wishlist.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -144,7 +144,7 @@ export default function Wishlist({ onNext }) {
                   {/* Right Side: Text & Interactive Romantic Heart Button */}
                   <div className="flex items-center gap-3.5 flex-1 min-w-0 justify-end dir-rtl">
                     <span
-                      className={`text-sm sm:text-base font-extrabold leading-relaxed truncate ${
+                      className={`text-sm sm:text-base font-extrabold leading-relaxed break-words text-right flex-1 ${
                         isDone ? 'text-rose-900/50 dark:text-rose-300/60 line-through' : 'text-rose-950 dark:text-white font-display'
                       }`}
                     >
