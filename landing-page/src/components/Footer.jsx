@@ -45,23 +45,22 @@ export default function Footer({ onOpenOrder }) {
           </button>
         </div>
 
-        {/* ⚡ Developed by APEX Badge (Direct Link) */}
-        <div className="pt-4 border-t border-white/5 space-y-2 text-center" dir="ltr">
-          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-300 font-medium">
-            <span>Developed by</span>
+        {/* ⚡ Footer Credits */}
+        <div className="pt-4 border-t border-white/5 space-y-1.5 text-center" dir="ltr">
+          <div className="text-xs text-slate-300 font-bold tracking-wide">
+            © {new Date().getFullYear()} Soulove
+          </div>
+          <div className="text-xs text-slate-400 font-medium">
+            <span>Designed & developed by </span>
             <a
               href="https://apex-scale.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 font-extrabold text-cyan-400 hover:text-cyan-300 transition-all hover:scale-105 underline decoration-cyan-500/50 underline-offset-4 tracking-wider"
             >
-              <span>APEX</span>
+              <span>ĀPEX</span>
               <ExternalLink size={12} className="text-cyan-400" />
             </a>
-          </div>
-
-          <div className="text-[11px] text-slate-500">
-            <span>© {new Date().getFullYear()} Soulove Platform. All rights reserved.</span>
           </div>
         </div>
       </div>
