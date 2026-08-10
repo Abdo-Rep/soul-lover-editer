@@ -474,18 +474,18 @@ export default function AdminDashboard({ onExitAdmin }) {
         </div>
       )}
 
-      {/* 📱 Sliding Side Drawer / Hamburger Menu Modal */}
+      {/* 📱 Sliding Side Drawer / Hamburger Menu Modal (Pinned to RIGHT) */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 animate-in fade-in duration-200" dir="rtl">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMenuOpen(false)}
           />
 
-          {/* Drawer Panel */}
+          {/* Drawer Panel Fixed on the RIGHT */}
           <div
-            className="relative w-full max-w-xs sm:max-w-sm h-full bg-[#0b0e20] border-r sm:border-l border-[#ff3b68]/30 shadow-2xl flex flex-col justify-between p-5 overflow-y-auto z-10"
+            className="fixed top-0 right-0 bottom-0 w-full max-w-xs sm:max-w-sm h-full bg-[#0b0e20] border-l border-[#ff3b68]/30 shadow-2xl flex flex-col justify-between p-5 overflow-y-auto z-10 animate-in slide-in-from-right-full duration-300"
             dir="rtl"
           >
             <div className="space-y-5">
