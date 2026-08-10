@@ -175,6 +175,7 @@ export function TimelineMemoryCard({ memory, showConnector = true, onImageClick,
         </article>
       </RevealItem>
       {showConnector ? <CardConnector /> : null}
+    </>
   )
 }
 
