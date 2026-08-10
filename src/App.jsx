@@ -13,9 +13,11 @@ export default function App() {
         {/* Secret Super Admin Control Panel */}
         <Route path="/soulove-admin" element={<SuperAdmin />} />
 
-        {/* Dedicated Landing Page Routes */}
+        {/* Dedicated Landing Page & Admin Routes */}
         <Route path="/" element={<RootLanding />} />
         <Route path="/landing" element={<RootLanding />} />
+        <Route path="/landing/admin" element={<RootLanding defaultRoute="admin" />} />
+        <Route path="/landing-admin" element={<RootLanding defaultRoute="admin" />} />
         <Route path="/landing-page" element={<RootLanding />} />
         <Route path="/order-success" element={<RootLanding />} />
         <Route path="/thank-you" element={<RootLanding />} />

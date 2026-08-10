@@ -13,15 +13,16 @@ import AdminDashboard from './components/AdminDashboard'
 import OrderSuccessPage from './components/OrderSuccessPage'
 import { getLandingData, initMetaPixel, syncFromSupabase } from './data/landingStore'
 
-export default function App() {
+export default function App({ initialRoute }) {
   const [currentRoute, setCurrentRoute] = useState(() => {
+    if (initialRoute) return initialRoute
     if (typeof window !== 'undefined') {
       const hash = window.location.hash || ''
       const path = window.location.pathname || ''
-      if (hash.startsWith('#order-success') || hash.startsWith('#thank-you') || path === '/order-success' || path === '/thank-you') {
+      if (hash.startsWith('#order-success') || hash.startsWith('#thank-you') || path === '/order-success' || path === '/thank-you' || path === '/landing/success') {
         return 'success'
       }
-      if (hash === '#admin' || path === '/admin') {
+      if (hash === '#admin' || path === '/admin' || path === '/landing/admin' || path === '/landing-admin') {
         return 'admin'
       }
     }
@@ -66,11 +67,11 @@ export default function App() {
       const hash = window.location.hash || ''
       const path = window.location.pathname || ''
 
-      if (hash.startsWith('#order-success') || hash.startsWith('#thank-you') || path === '/order-success' || path === '/thank-you') {
+      if (hash.startsWith('#order-success') || hash.startsWith('#thank-you') || path === '/order-success' || path === '/thank-you' || path === '/landing/success') {
         const match = hash.match(/id=([^&]+)/)
         if (match) setCurrentOrderId(match[1])
         setCurrentRoute('success')
-      } else if (hash === '#admin' || path === '/admin') {
+      } else if (hash === '#admin' || path === '/admin' || path === '/landing/admin' || path === '/landing-admin') {
         setCurrentRoute('admin')
       } else {
         setCurrentRoute('home')
