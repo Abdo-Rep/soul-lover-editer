@@ -16,6 +16,11 @@ import {
   Layers,
   HelpCircle,
   Star,
+  Menu,
+  X,
+  LogOut,
+  ArrowRight,
+  ChevronLeft,
 } from 'lucide-react'
 import {
   getLandingData,
@@ -91,6 +96,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [authError, setAuthError] = useState(false)
 
   const [activeTab, setActiveTab] = useState('orders')
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [data, setData] = useState(getLandingData())
   const [orders, setOrders] = useState(getStoredOrders())
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -443,14 +449,14 @@ export default function AdminDashboard({ onExitAdmin }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#070913] text-slate-100 p-4 sm:p-8 relative selection:bg-[#ff3b68] selection:text-white" dir="rtl" style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#070913] text-slate-100 p-3 sm:p-6 relative selection:bg-[#ff3b68] selection:text-white" dir="rtl" style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}>
       
       {/* 🔔 Floating Real-time Order Alert Toast Banner */}
       {newOrderToast && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md p-4 rounded-2xl bg-emerald-950 border-2 border-emerald-500 shadow-2xl shadow-emerald-500/30 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md p-3.5 rounded-2xl bg-emerald-950 border-2 border-emerald-500 shadow-2xl shadow-emerald-500/30 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold animate-bounce">
-              <BellRing size={20} />
+            <div className="w-9 h-9 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold animate-bounce">
+              <BellRing size={18} />
             </div>
             <div>
               <h4 className="text-xs font-black text-emerald-300">{newOrderToast.title}</h4>
@@ -461,170 +467,232 @@ export default function AdminDashboard({ onExitAdmin }) {
           <button
             type="button"
             onClick={() => setNewOrderToast(null)}
-            className="text-xs text-emerald-400 hover:text-white p-1"
+            className="text-xs text-emerald-400 hover:text-white p-1 cursor-pointer"
           >
             ✕
           </button>
         </div>
       )}
 
-      <div className="max-w-5xl mx-auto space-y-5">
-        
-        {/* Top Header */}
-        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[#0f142d] border border-[#ff3b68]/30 shadow-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shadow-[#ff3b68]/30" style={{ background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)' }}>
-              <ShieldCheck size={22} />
+      {/* 📱 Sliding Side Drawer / Hamburger Menu Modal */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMenuOpen(false)}
+          />
+
+          {/* Drawer Panel */}
+          <div
+            className="relative w-full max-w-xs sm:max-w-sm h-full bg-[#0b0e20] border-r sm:border-l border-[#ff3b68]/30 shadow-2xl flex flex-col justify-between p-5 overflow-y-auto z-10"
+            dir="rtl"
+          >
+            <div className="space-y-5">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#ff3b68] flex items-center justify-center text-white font-bold shadow-md shadow-[#ff3b68]/30">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white">إعدادات وقائمة التحكم</h3>
+                    <p className="text-[10px] text-slate-400">Soulove Platform</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Navigation Sections List */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1">
+                  الأقسام والصفحات
+                </span>
+                {[
+                  { id: 'orders', label: '📦 الطلبات الواردة', badge: orders.length },
+                  { id: 'pricing', label: '🏷️ السعر والباقة', badge: null },
+                  { id: 'demo', label: '📱 النموذج الحي والباسورد', badge: null },
+                  { id: 'pixels', label: '📊 بكسل الفيسبوك والإعلانات', badge: null },
+                  { id: 'hero', label: '📝 الهيدر والشارات', badge: null },
+                  { id: 'features', label: `✨ المميزات (${data.featuresSection?.items?.length || 0})`, badge: null },
+                  { id: 'steps', label: `⚡ خطوات العمل (${data.stepsSection?.items?.length || 0})`, badge: null },
+                  { id: 'reviews', label: `⭐ آراء العملاء (${data.reviewsSection?.items?.length || 0})`, badge: null },
+                  { id: 'faqs', label: `💡 الأسئلة الشائعة (${data.faqsSection?.items?.length || 0})`, badge: null },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(item.id)
+                      setIsMenuOpen(false)
+                    }}
+                    className={`w-full p-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                      activeTab === item.id
+                        ? 'bg-[#ff3b68] text-white shadow-md shadow-[#ff3b68]/30 font-black'
+                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge !== null && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-white text-[#ff3b68]">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* PWA & Notification Tools in Drawer */}
+              <div className="space-y-2 pt-3 border-t border-white/10">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2">
+                  أدوات التطبيق والتنبيهات
+                </span>
+
+                {/* PWA Install */}
+                <button
+                  type="button"
+                  onClick={handleInstallPwa}
+                  className="w-full p-2.5 rounded-xl bg-[#12183a] border border-cyan-500/30 text-cyan-200 hover:bg-[#18214f] text-xs font-bold flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Smartphone size={16} className="text-cyan-400" />
+                    <span>{isPwaInstalled ? '✅ التطبيق مثبت' : '📲 تثبيت التطبيق (PWA)'}</span>
+                  </div>
+                  {!isPwaInstalled && <Download size={13} className="text-cyan-400" />}
+                </button>
+
+                {/* Notifications */}
+                <button
+                  type="button"
+                  onClick={handleEnableNotifications}
+                  className="w-full p-2.5 rounded-xl bg-[#12183a] border border-amber-500/30 text-amber-200 hover:bg-[#18214f] text-xs font-bold flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <BellRing size={16} className="text-amber-400" />
+                    <span>{notificationsEnabled ? '🔔 الإشعارات مفعّلة' : '🔔 تفعيل الإشعارات'}</span>
+                  </div>
+                </button>
+
+                {/* Sound Chime & Test */}
+                <div className="p-2.5 rounded-xl bg-[#12183a] border border-purple-500/30 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-purple-200 font-bold">
+                    <Volume2 size={16} className="text-purple-400" />
+                    <span>صوت الرنة</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={handleTestNotification}
+                      className="px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 text-[10px] font-bold cursor-pointer"
+                    >
+                      🔊 تجربة
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSoundEnabled(!soundEnabled)}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold cursor-pointer ${
+                        soundEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'
+                      }`}
+                    >
+                      {soundEnabled ? 'مفعّل' : 'مكتوم'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-black text-white">لوحة تحكم وتخصيص صفحة الهبوط ⚙️</h1>
-              <p className="text-xs text-slate-300">تحكم كامل في جميع الكروت، العناوين، الأسعار، الباسورد، والطلبات</p>
+
+            {/* Bottom Logout Button */}
+            <div className="pt-4 border-t border-white/10">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 hover:text-rose-200 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <LogOut size={16} />
+                <span>تسجيل الخروج وقفل اللوحة 🔒</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Container */}
+      <div className="max-w-4xl mx-auto space-y-4">
+        
+        {/* 🌟 Compact & Sleek Top Bar (Mobile-First & Clean) */}
+        <header className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl bg-[#0f142d] border border-[#ff3b68]/30 shadow-lg">
+          {/* Right: Hamburger Menu Button */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(true)}
+              className="px-3 py-2 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#ff3b68]/30 active:scale-95 transition-transform"
+            >
+              <Menu size={16} />
+              <span>القائمة ☰</span>
+              {orders.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-white text-[#ff3b68] leading-none">
+                  {orders.length}
+                </span>
+              )}
+            </button>
+
+            <div className="hidden sm:block">
+              <h1 className="text-sm font-black text-white leading-none">لوحة التحكم ⚙️</h1>
+              <p className="text-[10px] text-slate-400">Soulove Platform</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          {/* Left: Quick Actions (Save & Preview) */}
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={handleSaveAll}
-              className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-transform"
+              className="px-3.5 py-2 rounded-xl text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition-transform"
               style={{
                 background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
                 color: '#ffffff',
                 border: 'none',
               }}
             >
-              <Save size={16} />
-              <span>{saveSuccess ? '✅ تم الحفظ بنجاح!' : 'حفظ التعديلات 💾'}</span>
+              <Save size={14} />
+              <span>{saveSuccess ? '✅ تم الحفظ!' : 'حفظ 💾'}</span>
             </button>
 
             <button
               type="button"
               onClick={onExitAdmin}
-              className="px-4 py-2.5 rounded-xl bg-[#181f44] hover:bg-[#202a5c] border border-white/10 text-slate-300 hover:text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+              className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#181f44] hover:bg-[#202a5c] border border-white/10 text-slate-300 hover:text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+              title="معاينة الموقع"
             >
-              <span>معاينة الموقع</span>
               <ExternalLink size={14} />
-            </button>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="px-3.5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:text-rose-200 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
-              title="تسجيل الخروج وقفل اللوحة"
-            >
-              <KeyRound size={14} />
-              <span>خروج</span>
+              <span className="hidden sm:inline">معاينة</span>
             </button>
           </div>
         </header>
 
-        {/* 📱 Quick PWA App Installation & Notification Alert Ribbon */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          {/* PWA Install Button */}
-          <button
-            type="button"
-            onClick={handleInstallPwa}
-            className={`p-3 rounded-2xl border flex items-center justify-between gap-3 text-right cursor-pointer transition-all ${
-              isPwaInstalled
-                ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300'
-                : 'bg-[#12183a] border-cyan-500/40 text-cyan-200 hover:bg-[#18214f]'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Smartphone className={isPwaInstalled ? 'text-emerald-400' : 'text-cyan-400'} size={20} />
-              <div>
-                <span className="text-xs font-black block">
-                  {isPwaInstalled ? '✅ التطبيق مثبت على جهازك' : '📲 تثبيت اللوحة كتطبيق (PWA)'}
-                </span>
-                <span className="text-[10px] text-slate-400">
-                  {isPwaInstalled ? 'تعمل الآن بوضع التطبيق المستقل' : 'أيقونة مباشرة وسريعة على الشاشة الرئيسية'}
-                </span>
-              </div>
-            </div>
-            {!isPwaInstalled && <Download size={15} className="text-cyan-400" />}
-          </button>
-
-          {/* Browser Notifications Toggle */}
-          <button
-            type="button"
-            onClick={handleEnableNotifications}
-            className={`p-3 rounded-2xl border flex items-center justify-between gap-3 text-right cursor-pointer transition-all ${
-              notificationsEnabled
-                ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300'
-                : 'bg-[#12183a] border-amber-500/40 text-amber-200 hover:bg-[#18214f]'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <BellRing className={notificationsEnabled ? 'text-emerald-400' : 'text-amber-400'} size={20} />
-              <div>
-                <span className="text-xs font-black block">
-                  {notificationsEnabled ? '🔔 إشعارات الطلبات: مفعّلة' : '🔔 تفعيل إشعارات الطلبات'}
-                </span>
-                <span className="text-[10px] text-slate-400">
-                  {notificationsEnabled ? 'تصلك تنبيهات فورية مع كل طلب' : 'اضغط لمنح إذن الإشعارات للهاتف/المتصفح'}
-                </span>
-              </div>
-            </div>
-          </button>
-
-          {/* Sound & Chime Controls */}
-          <div className="p-3 rounded-2xl bg-[#12183a] border border-purple-500/30 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Volume2 className="text-purple-400" size={20} />
-              <div>
-                <span className="text-xs font-black text-purple-200 block">صوت تنبيه الطلبات</span>
-                <span className="text-[10px] text-slate-400">رنة تنبيه رومانسية فورية</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleTestNotification}
-                className="px-2.5 py-1 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-[10px] font-bold cursor-pointer"
-                title="تجربة صوت الرنة الآن"
-              >
-                🔊 تجربة الرنة
-              </button>
-              <button
-                type="button"
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                className={`px-2 py-1 rounded-xl text-[10px] font-bold cursor-pointer ${
-                  soundEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'
-                }`}
-              >
-                {soundEnabled ? 'مفعّل' : 'مكتوم'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-[#0b0e20] border border-[#19213d]">
-          {[
-            { id: 'orders', label: `📦 الطلبات (${orders.length})` },
-            { id: 'pricing', label: '🏷️ السعر والباقة' },
-            { id: 'demo', label: '📱 النموذج الحي والباسورد' },
-            { id: 'pixels', label: '📊 بكسل الفيسبوك وتتبع الإعلانات' },
-            { id: 'hero', label: '📝 الهيدر والشارات' },
-            { id: 'features', label: `✨ المميزات (${data.featuresSection?.items?.length || 0})` },
-            { id: 'steps', label: `⚡ خطوات العمل (${data.stepsSection?.items?.length || 0})` },
-            { id: 'reviews', label: `⭐ آراء العملاء (${data.reviewsSection?.items?.length || 0})` },
-            { id: 'faqs', label: `💡 الأسئلة (${data.faqsSection?.items?.length || 0})` },
-          ].map((tab) => (
+        {/* Back to Orders Banner if in another Tab */}
+        {activeTab !== 'orders' && (
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[#121736] border border-[#ff3b68]/30">
             <button
-              key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === tab.id
-                  ? 'bg-[#ff3b68] text-white shadow-md shadow-[#ff3b68]/30'
-                  : 'text-slate-300 hover:text-white hover:bg-[#141a38]'
-              }`}
+              onClick={() => setActiveTab('orders')}
+              className="text-xs text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1.5 cursor-pointer"
             >
-              {tab.label}
+              <ArrowRight size={14} />
+              <span>← العودة لقائمة الطلبات (الرئيسية)</span>
             </button>
-          ))}
-        </div>
+            <span className="text-[11px] text-slate-400 font-bold">
+              القسم الحالي: {activeTab}
+            </span>
+          </div>
+        )}
 
         {/* 1. Tab: Pricing */}
         {activeTab === 'pricing' && (
@@ -1538,16 +1606,16 @@ export default function AdminDashboard({ onExitAdmin }) {
 
         {/* 8. Tab: Orders Manager */}
         {activeTab === 'orders' && (
-          <div className="p-6 rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-6">
+          <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-4 sm:space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <ShoppingBag className="text-[#ff3b68]" size={20} />
-                  <span>إدارة الطلبات الواردة من الفورم 📦 ({orders.length})</span>
+                <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                  <ShoppingBag className="text-[#ff3b68]" size={18} />
+                  <span>إدارة الطلبات الواردة 📦 ({orders.length})</span>
                 </h2>
-                <span className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
+                <span className="text-[11px] sm:text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>مزامنة سحابية فورية نشطة — يتم فحص الطلبات كل 10 ثوانٍ تلقائياً</span>
+                  <span>مزامنة سحابية فورية كل 10 ثوانٍ مع صوت ورنة للطلب</span>
                 </span>
               </div>
 
@@ -1555,34 +1623,34 @@ export default function AdminDashboard({ onExitAdmin }) {
                 <button
                   type="button"
                   onClick={handleTestNotification}
-                  className="px-3.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
                 >
-                  <BellRing size={14} className="text-purple-300" />
-                  <span>🔔 تجربة إشعار ورنة طلب</span>
+                  <BellRing size={13} className="text-purple-300" />
+                  <span>🔔 تجربة رنة الطلب</span>
                 </button>
               </div>
             </div>
 
             {orders.length === 0 ? (
-              <div className="p-10 text-center rounded-2xl bg-[#070913] border border-[#19213d] space-y-2">
-                <ShoppingBag size={40} className="text-slate-600 mx-auto" />
-                <p className="text-slate-400 text-sm font-bold">لا يوجد طلبات واردة حتى الآن.</p>
-                <p className="text-slate-500 text-xs">أي عميل يملأ النموذج في صفحة الهبوط ستظهر بياناته هنا فوراً مع صوت تنبيه وإشعار فوري.</p>
+              <div className="p-8 sm:p-12 text-center rounded-2xl bg-[#070913] border border-[#19213d] space-y-2">
+                <ShoppingBag size={36} className="text-slate-600 mx-auto" />
+                <p className="text-slate-300 text-sm font-bold">لا يوجد طلبات جديدة حتى الآن.</p>
+                <p className="text-slate-500 text-xs">بمجرد تسجيل أي عميل لطلب جديد في صفحة الهبوط ستظهر بياناته هنا فوراً مع صوت تنبيه وإشعار فوري.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    className="p-5 rounded-2xl bg-[#070913] border border-[#19213d] space-y-3 transition-all hover:border-[#ff3b68]/30"
+                    className="p-4 sm:p-5 rounded-2xl bg-[#0c1026] border border-[#1d254a] hover:border-[#ff3b68]/40 space-y-3 transition-all"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-black text-white">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-sm sm:text-base font-black text-white">
                           {order.yourName} & {order.partnerName} 💖
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#ff3b68]/20 text-[#ff8fa3]">
-                          #{order.id.slice(-6)}
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ff3b68]/20 text-[#ff8fa3]">
+                          #{order.id.slice(-5)}
                         </span>
                       </div>
 
@@ -1591,12 +1659,12 @@ export default function AdminDashboard({ onExitAdmin }) {
                         <select
                           value={order.status || 'جديد'}
                           onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                          className={`px-3 py-1 rounded-xl text-xs font-bold border cursor-pointer focus:outline-none ${
+                          className={`px-2.5 py-1 rounded-xl text-xs font-bold border cursor-pointer focus:outline-none ${
                             order.status === 'تم التسليم'
-                              ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-400'
+                              ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-400'
                               : order.status === 'قيد التجهيز'
-                              ? 'bg-amber-950/80 border-amber-500/50 text-amber-400'
-                              : 'bg-rose-950/80 border-rose-500/50 text-rose-400'
+                              ? 'bg-amber-950/90 border-amber-500/50 text-amber-400'
+                              : 'bg-rose-950/90 border-rose-500/50 text-rose-400'
                           }`}
                         >
                           <option value="جديد">🔴 جديد</option>
@@ -1607,53 +1675,53 @@ export default function AdminDashboard({ onExitAdmin }) {
                         <button
                           type="button"
                           onClick={() => handleDeleteOrder(order.id)}
-                          className="p-1.5 text-slate-500 hover:text-rose-400 cursor-pointer"
+                          className="p-1.5 text-slate-500 hover:text-rose-400 cursor-pointer transition-colors"
                           title="حذف الطلب"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-300">
                       <div>
-                        <span className="text-slate-500 block">رقم الهاتف:</span>
+                        <span className="text-slate-500 text-[11px] block">رقم الهاتف:</span>
                         <a
                           href={`tel:${order.phone}`}
-                          className="font-bold text-white font-mono hover:underline"
+                          className="font-bold text-cyan-300 font-mono text-xs hover:underline"
                         >
                           {order.phone}
                         </a>
                       </div>
 
                       <div>
-                        <span className="text-slate-500 block">الباقة:</span>
-                        <span className="font-bold text-slate-200">{order.package}</span>
+                        <span className="text-slate-500 text-[11px] block">الباقة:</span>
+                        <span className="font-bold text-slate-200">{order.package || 'باقة الحب'}</span>
                       </div>
 
                       <div>
-                        <span className="text-slate-500 block">تاريخ الطلب:</span>
+                        <span className="text-slate-500 text-[11px] block">تاريخ الطلب:</span>
                         <span className="text-slate-400">{new Date(order.createdAt).toLocaleString('ar-EG')}</span>
                       </div>
                     </div>
 
                     {order.notes && (
                       <div className="p-2.5 rounded-xl bg-white/5 text-xs text-slate-300">
-                        <span className="font-bold text-slate-400 block mb-0.5">ملاحظات العميل:</span>
+                        <span className="font-bold text-slate-400 block mb-0.5 text-[11px]">ملاحظات العميل:</span>
                         <span>{order.notes}</span>
                       </div>
                     )}
 
                     {/* Direct WhatsApp Contact Button */}
-                    <div className="pt-2 flex gap-2">
+                    <div className="pt-1">
                       <a
                         href={`https://wa.me/${order.phone?.replace(/[^0-9]/g, '')}?text=مرحباً ${encodeURIComponent(order.yourName)} 💖 بخصوص طلبك لإنشاء موقع Soulove الخاص بكما`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5"
+                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
                       >
-                        <MessageCircle size={14} />
-                        <span>مراسلة العميل عبر الواتساب</span>
+                        <MessageCircle size={15} />
+                        <span>مراسلة العميل عبر الواتساب 💬</span>
                       </a>
                     </div>
                   </div>
