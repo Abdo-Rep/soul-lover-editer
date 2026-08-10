@@ -77,27 +77,29 @@ export default function Hero({ hero = {}, onOpenOrder, onScrollToDemo }) {
         </div>
 
         {/* Trust Badges */}
-        <div className="pt-4 grid grid-cols-3 gap-2 text-[10px] sm:text-xs text-slate-400 font-bold border-t border-white/5">
+        <div className="pt-4 grid grid-cols-3 gap-2 text-[10px] sm:text-xs text-slate-300 font-bold border-t border-white/10">
           <div
-            className="flex flex-col items-center gap-1 p-2 rounded-xl"
-            style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+            className="flex flex-col items-center justify-center text-center gap-1.5 p-2.5 rounded-2xl min-h-[68px]"
+            style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}
           >
-            <ShieldCheck size={16} className="text-emerald-400" />
-            <span>خصوصية وقفل</span>
+            <ShieldCheck size={18} className="text-emerald-400 shrink-0" />
+            <span className="leading-tight">خصوصية وقفل</span>
           </div>
+
           <div
-            className="flex flex-col items-center gap-1 p-2 rounded-xl"
-            style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+            className="flex flex-col items-center justify-center text-center gap-1.5 p-2.5 rounded-2xl min-h-[68px]"
+            style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}
           >
-            <Music size={16} className="text-[#ff3b68]" />
-            <span>أغاني ورسائل</span>
+            <Music size={18} className="text-[#ff3b68] shrink-0" />
+            <span className="leading-tight">أغاني ورسائل</span>
           </div>
+
           <div
-            className="flex flex-col items-center gap-1 p-2 rounded-xl"
-            style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+            className="flex flex-col items-center justify-center text-center gap-1.5 p-2.5 rounded-2xl min-h-[68px]"
+            style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)' }}
           >
-            <Heart size={16} className="text-[#ff758c] fill-[#ff758c]" />
-            <span className="truncate">{trustBadge}</span>
+            <Heart size={18} className="text-[#ff758c] fill-[#ff758c] shrink-0" />
+            <span className="leading-tight text-[9.5px] sm:text-xs">{trustBadge || '+1,500 عميل سعيد 💖'}</span>
           </div>
         </div>
       </div>

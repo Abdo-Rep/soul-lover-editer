@@ -156,7 +156,7 @@ export default function App({ initialRoute }) {
   // 3. Main Landing Page View (Mobile-First Architecture)
   return (
     <div
-      className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-between selection:bg-[#ff3b68] selection:text-white pb-20 sm:pb-0"
+      className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-between selection:bg-[#ff3b68] selection:text-white"
       dir="rtl"
       style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
     >
@@ -230,36 +230,6 @@ export default function App({ initialRoute }) {
 
       {/* 🔻 Footer */}
       <Footer onOpenOrder={handleOpenOrder} />
-
-      {/* 📱 Sticky Mobile Bottom CTA Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-[#0b0e20]/95 backdrop-blur-xl border-t border-white/10 p-3 sm:hidden shadow-2xl">
-        <div className="max-w-lg mx-auto flex items-center gap-2">
-          <a
-            href={`https://wa.me/201020304050?text=${encodeURIComponent('مرحباً! أود الاستفسار عن تفاصيل إنشاء موقع Soulove 💖')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-emerald-600/30"
-            title="تواصل واتساب"
-          >
-            <MessageCircle size={20} />
-          </a>
-
-          <button
-            type="button"
-            onClick={() => handleOpenOrder()}
-            className="flex-1 py-3 rounded-2xl text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 transition-all"
-            style={{
-              background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
-              color: '#ffffff',
-              boxShadow: '0 8px 20px -4px rgba(255, 59, 104, 0.5)',
-              border: 'none',
-            }}
-          >
-            <Gift size={16} />
-            <span>اصنع موقعك الخاص الآن 🚀 ({landingData.pricing?.price || 399} ج.م)</span>
-          </button>
-        </div>
-      </div>
 
       {/* 📦 Direct Order Modal */}
       <OrderModal
