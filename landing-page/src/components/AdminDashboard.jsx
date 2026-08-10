@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react'
 import {
   Save,
   Package,
@@ -21,6 +20,10 @@ import {
   LogOut,
   ArrowRight,
   ChevronLeft,
+  Webhook,
+  Send,
+  Copy,
+  Code2,
 } from 'lucide-react'
 import {
   getLandingData,
@@ -112,6 +115,9 @@ export default function AdminDashboard({ onExitAdmin }) {
   })
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [newOrderToast, setNewOrderToast] = useState(null)
+  const [testWebhookLoading, setTestWebhookLoading] = useState(false)
+  const [testWebhookResult, setTestWebhookResult] = useState(null)
+  const [copiedApi, setCopiedApi] = useState(false)
   const knownOrderIdsRef = React.useRef(new Set(getStoredOrders().map((o) => o.id)))
 
   // Sub-forms local states
@@ -226,21 +232,40 @@ export default function AdminDashboard({ onExitAdmin }) {
     }
   }
 
-  const handleTestNotification = () => {
-    playOrderChime()
-    setNewOrderToast({
-      title: '🔔 تجربة إشعار وصوت الطلب!',
-      body: 'كريم & سارة (باقة الحب المتكاملة VIP 👑)',
-      phone: '01012345678',
-    })
-    setTimeout(() => setNewOrderToast(null), 5000)
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification('🔔 تجربة إشعار وصل طلب جديد!', {
-          body: 'العميل: كريم & سارة - باقة الحب VIP - 01012345678',
-          icon: '/apple-touch-icon.png',
-        })
-      } catch (e) {}
+  const handleTestWebhook = async () => {
+    const url = data.webhook?.url?.trim()
+    if (!url) {
+      alert('يرجى إدخال رابط الـ Webhook أولاً قبل إجراء التجربة.')
+      return
+    }
+    setTestWebhookLoading(true)
+    setTestWebhookResult(null)
+    try {
+      const testPayload = {
+        event: 'test_order_notification',
+        orderId: 'TEST_' + Date.now().toString().slice(-4),
+        createdAt: new Date().toISOString(),
+        status: 'جديد',
+        yourName: 'كريم (تجربة)',
+        partnerName: 'سارة (تجربة)',
+        phone: '01012345678',
+        package: 'باقة الحب VIP 👑',
+        notes: 'طلب تجريبي لاختبار الأتمتة وإرسال الواتساب',
+        whatsappFormattedMessage: `🎉 *وصلك طلب تجريبي جديد في Soulove!* 💖\n\n👤 *اسم الشاب:* كريم (تجربة)\n👰 *اسم البنت:* سارة (تجربة)\n📱 *رقم الواتساب:* 01012345678\n📦 *الباقة:* باقة الحب VIP (260 ج.م)\n⏰ *تاريخ الطلب:* ${new Date().toLocaleString('ar-EG')}`,
+      }
+
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testPayload),
+      })
+
+      setTestWebhookResult({ success: true, message: '✅ تم إرسال البيانات التجريبية بنجاح إلى رابط الـ Webhook!' })
+    } catch (err) {
+      setTestWebhookResult({ success: false, message: '⚠️ تعذر الإرسال: ' + err.message })
+    } finally {
+      setTestWebhookLoading(false)
     }
   }
 
@@ -524,6 +549,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                 </span>
                 {[
                   { id: 'orders', label: '📦 الطلبات الواردة', badge: orders.length },
+                  { id: 'webhook', label: '⚡ ربط الواتساب والـ Webhook (API)', badge: 'جديد' },
                   { id: 'pricing', label: '🏷️ السعر والباقة', badge: null },
                   { id: 'demo', label: '📱 النموذج الحي والباسورد', badge: null },
                   { id: 'pixels', label: '📊 بكسل الفيسبوك والإعلانات', badge: null },
@@ -697,8 +723,130 @@ export default function AdminDashboard({ onExitAdmin }) {
               <span>← العودة لقائمة الطلبات (الرئيسية)</span>
             </button>
             <span className="text-[11px] text-slate-400 font-bold">
-              القسم الحالي: {activeTab}
+              القسم الحالي: {activeTab === 'webhook' ? 'ربط الواتساب والأتمتة' : activeTab}
             </span>
+          </div>
+        )}
+
+        {/* ⚡ Tab: Webhook & WhatsApp Automation API */}
+        {activeTab === 'webhook' && (
+          <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <Webhook className="text-[#ff3b68]" size={20} />
+                <span>ربط الواتساب والأتمتة الفورية (Webhooks & API) ⚡</span>
+              </h2>
+            </div>
+
+            {/* Explanation Banner */}
+            <div className="p-4 rounded-2xl bg-[#0f1533] border border-cyan-500/30 text-xs space-y-1.5 text-cyan-200">
+              <span className="font-black text-white text-sm flex items-center gap-1.5">
+                <Send size={15} className="text-cyan-400" />
+                <span>كيف يعمل نظام إرسال الطلبات للواتساب؟</span>
+              </span>
+              <p className="text-slate-300 leading-relaxed">
+                بمجرد قيام أي عميل بملء فورم الطلب في صفحة الهبوط، يقوم السيرفر بإرسال طلب <span className="text-amber-300 font-mono">POST Webhook</span> فوري إلى الرابط الخاص بك (سواء كنت تستخدم <strong>n8n</strong> أو <strong>Make.com</strong> أو <strong>بوابة واتساب WhatsApp Gateway</strong>) ليتم إرسال رسالة الواتساب إلى هاتفك أو إلى العميل فوراً وبدون أي تأخير!
+              </p>
+            </div>
+
+            {/* Webhook URL Input */}
+            <div className="p-5 rounded-2xl bg-[#070913] border border-[#1d254a] space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-white mb-1.5">
+                  رابط الـ Webhook الخاص بك (Webhook URL):
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://your-n8n-domain.com/webhook/soulove-new-order"
+                  value={data.webhook?.url || ''}
+                  onChange={(e) =>
+                    setData({
+                      ...data,
+                      webhook: { ...data.webhook, url: e.target.value },
+                    })
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0c1024] border border-[#232d56] text-white text-xs font-mono focus:outline-none focus:border-[#ff3b68]"
+                  dir="ltr"
+                />
+                <span className="text-[11px] text-slate-400 block mt-1">
+                  ضع رابط الـ Webhook من n8n أو Make.com وسيتم إرسال كل طلب جديد إليه في أجزاء من الثانية.
+                </span>
+              </div>
+
+              {/* Test Webhook Trigger Button */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleTestWebhook}
+                  disabled={testWebhookLoading}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-xs flex items-center gap-2 cursor-pointer shadow-md active:scale-95 transition-all disabled:opacity-50"
+                >
+                  <Send size={15} />
+                  <span>{testWebhookLoading ? 'جاري الإرسال التجريبي...' : '🚀 تجربة إرسال Webhook فوري الآن'}</span>
+                </button>
+
+                {testWebhookResult && (
+                  <span className={`text-xs font-bold ${testWebhookResult.success ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {testWebhookResult.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Direct REST API Access */}
+            <div className="p-5 rounded-2xl bg-[#070913] border border-[#1d254a] space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Code2 size={16} className="text-amber-400" />
+                  <span>رابط الـ API المباشر لجلب كافة الطلبات (GET Orders API):</span>
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#0c1024] border border-[#1d254a]" dir="ltr">
+                <span className="flex-1 font-mono text-[11px] text-amber-300 truncate select-all">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/api/landing?action=orders` : '/api/landing?action=orders'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const apiUrl = `${window.location.origin}/api/landing?action=orders`
+                    navigator.clipboard?.writeText(apiUrl)
+                    setCopiedApi(true)
+                    setTimeout(() => setCopiedApi(false), 2500)
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy size={13} />
+                  <span>{copiedApi ? 'تم النسخ ✅' : 'نسخ'}</span>
+                </button>
+              </div>
+
+              <span className="text-[11px] text-slate-400 block">
+                يمكنك استدعاء هذا الرابط في أي وقت من خلال n8n أو كود بايثون أو أي سكريبت لجلب كل الطلبات بصيغة JSON نظيفة ومرتبة.
+              </span>
+            </div>
+
+            {/* Sample Webhook JSON Payload */}
+            <div className="p-5 rounded-2xl bg-[#070913] border border-[#1d254a] space-y-2">
+              <span className="text-xs font-bold text-white block">
+                شكل البيانات (JSON Payload) التي ستصل إلى الـ Webhook:
+              </span>
+              <pre
+                className="p-3.5 rounded-xl bg-[#04060d] text-emerald-400 font-mono text-[11px] overflow-x-auto leading-relaxed border border-white/5"
+                dir="ltr"
+              >
+{`{
+  "event": "new_order",
+  "orderId": "1786321456",
+  "yourName": "كريم",
+  "partnerName": "سارة",
+  "phone": "01012345678",
+  "package": "باقة الحب VIP",
+  "createdAt": "2026-08-10T07:20:00.000Z",
+  "whatsappFormattedMessage": "🎉 *وصلك طلب جديد في Soulove!* 💖\\n\\n👤 *اسم الشاب:* كريم\\n👰 *اسم البنت:* سارة\\n📱 *رقم الواتساب:* 01012345678\\n📦 *الباقة:* باقة الحب VIP"
+}`}
+              </pre>
+            </div>
           </div>
         )}
 

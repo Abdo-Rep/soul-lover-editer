@@ -205,6 +205,7 @@ export function getLandingData() {
       pricing: { ...defaultLandingData.pricing, ...(parsed.pricing || {}) },
       reviewsSection: { ...defaultLandingData.reviewsSection, ...(parsed.reviewsSection || {}) },
       faqsSection: { ...defaultLandingData.faqsSection, ...(parsed.faqsSection || {}) },
+      webhook: { ...defaultLandingData.webhook, ...(parsed.webhook || {}) },
     }
   } catch {
     return defaultLandingData

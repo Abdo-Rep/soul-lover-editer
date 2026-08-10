@@ -122,6 +122,36 @@ export default async function handler(req, res) {
           ]
         )
 
+        // 🚀 Auto-trigger Webhook (e.g. n8n, Make.com, WhatsApp Gateway) if configured
+        try {
+          const configRes = await query("SELECT data FROM landing_config WHERE id = 'main' LIMIT 1;")
+          const configData = configRes.rows.length > 0 ? configRes.rows[0].data : {}
+          const webhookUrl = configData?.webhook?.url || body.webhookUrl
+
+          if (webhookUrl && typeof webhookUrl === 'string' && webhookUrl.startsWith('http')) {
+            const webhookPayload = {
+              event: 'new_order',
+              orderId,
+              createdAt,
+              status,
+              yourName: body.yourName,
+              partnerName: body.partnerName,
+              phone: body.phone,
+              package: body.package || 'باقة الحب VIP',
+              notes: body.notes || '',
+              whatsappFormattedMessage: `🎉 *وصلك طلب جديد في Soulove!* 💖\n\n👤 *اسم الشاب:* ${body.yourName || 'غير محدد'}\n👰 *اسم البنت:* ${body.partnerName || 'غير محدد'}\n📱 *رقم الواتساب:* ${body.phone || 'غير محدد'}\n📦 *الباقة:* ${body.package || 'باقة الحب VIP'}\n⏰ *تاريخ الطلب:* ${new Date(createdAt).toLocaleString('ar-EG')}`,
+            }
+
+            fetch(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(webhookPayload),
+            }).catch((err) => console.warn('Webhook trigger fetch warning:', err.message))
+          }
+        } catch (webhookErr) {
+          console.warn('Webhook dispatch skipped:', webhookErr.message)
+        }
+
         return res.status(200).json({
           success: true,
           order: {
