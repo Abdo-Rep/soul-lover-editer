@@ -244,7 +244,7 @@ export function MusicProvider({ children }) {
     let lastTimeUpdate = 0
     const onTimeUpdate = () => {
       const now = performance.now()
-      if (now - lastTimeUpdate > 80) { // smooth 80ms update
+      if (!isSeekingRef.current && now - lastTimeUpdate > 80) { // smooth 80ms update
         lastTimeUpdate = now
         setCurrentTime(audio.currentTime)
         if (Number.isFinite(audio.duration) && audio.duration > 0) {
@@ -299,14 +299,22 @@ export function MusicProvider({ children }) {
     }
   }, [activeMusicSrc, tracks.length, nextTrack, currentTrack?.duration])
 
+  const isSeekingRef = useRef(false)
   const seekTo = useCallback(
     (time) => {
       const audio = audioRef.current
       if (!audio || !Number.isFinite(time)) return
 
-      const nextTime = Math.min(Math.max(time, 0), duration || audio.duration || 0)
-      audio.currentTime = nextTime
+      const maxDur = duration || audio.duration || 0
+      const nextTime = Math.min(Math.max(time, 0), maxDur > 0 ? maxDur : time)
+      isSeekingRef.current = true
+      try {
+        audio.currentTime = nextTime
+      } catch {}
       setCurrentTime(nextTime)
+      setTimeout(() => {
+        isSeekingRef.current = false
+      }, 250)
     },
     [duration],
   )

@@ -70,11 +70,25 @@ export default function MusicPlayer() {
   const currentTrack = tracks[currentTrackIndex] || tracks[0]
   const isVoice = Boolean(currentTrack?.isVoice || isVoiceTrack(musicTitle))
 
-  const handleSliderChange = (e) => {
+  const [isScrubbing, setIsScrubbing] = useState(false)
+  const [scrubTime, setScrubTime] = useState(0)
+
+  const displayedTime = isScrubbing ? scrubTime : currentTime
+
+  const handleSliderInput = (e) => {
+    setIsScrubbing(true)
+    const nextTime = Number(e.target.value)
+    if (!Number.isNaN(nextTime)) {
+      setScrubTime(nextTime)
+    }
+  }
+
+  const handleSliderCommit = (e) => {
     const nextTime = Number(e.target.value)
     if (!Number.isNaN(nextTime)) {
       seekTo(nextTime)
     }
+    setIsScrubbing(false)
   }
 
   const handleSeekBack10 = () => seekTo(Math.max(0, currentTime - 10))
@@ -326,16 +340,27 @@ export default function MusicPlayer() {
                     min={0}
                     max={duration || 100}
                     step={0.1}
-                    value={currentTime}
-                    onChange={handleSliderChange}
+                    value={displayedTime}
+                    onInput={handleSliderInput}
+                    onChange={handleSliderCommit}
+                    onPointerDown={() => {
+                      setIsScrubbing(true)
+                      setScrubTime(currentTime)
+                    }}
+                    onPointerUp={handleSliderCommit}
+                    onTouchStart={() => {
+                      setIsScrubbing(true)
+                      setScrubTime(currentTime)
+                    }}
+                    onTouchEnd={handleSliderCommit}
                     aria-label="شريط التقدم"
                     aria-valuemin={0}
                     aria-valuemax={Math.round(duration || 100)}
-                    aria-valuenow={Math.round(currentTime)}
+                    aria-valuenow={Math.round(displayedTime)}
                     aria-valuetext={`${currentTimeLabel} من ${durationLabel}`}
                     className="w-full h-2 rounded-lg bg-rose-200/60 dark:bg-rose-900/40 appearance-none cursor-pointer accent-[var(--theme-500)] focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                   />
-                  <div className="flex justify-between text-xs font-extrabold text-rose-700 mt-1.5">
+                  <div className="flex justify-between text-xs font-extrabold text-rose-700 dark:text-rose-300 mt-1.5">
                     <span>{currentTimeLabel}</span>
                     <span>{durationLabel}</span>
                   </div>

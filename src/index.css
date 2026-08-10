@@ -890,29 +890,38 @@ html.dark textarea::placeholder {
 }
 
 /* Text color contrast adjustments in dark mode */
+html.dark .text-rose-950,
 html.dark .text-rose-900,
 html.dark .text-rose-800,
 html.dark .text-rose-700,
 html.dark .text-slate-800,
 html.dark .text-slate-900,
 html.dark .text-gray-800,
-html.dark .text-gray-900 {
+html.dark .text-gray-900,
+html.dark [class*="text-rose-950"],
+html.dark [class*="text-rose-900"],
+html.dark [class*="text-rose-800"] {
   color: #f8fafc !important;
 }
 
 html.dark .text-rose-600,
-html.dark .text-rose-500 {
-  color: var(--theme-400, #fb7185) !important;
+html.dark .text-rose-500,
+html.dark [class*="text-rose-600"],
+html.dark [class*="text-rose-500"] {
+  color: var(--theme-300, #fda4af) !important;
 }
 
-html.dark .text-rose-400 {
-  color: color-mix(in srgb, var(--theme-400, #fb7185) 85%, white) !important;
+html.dark .text-rose-400,
+html.dark [class*="text-rose-400"] {
+  color: color-mix(in srgb, var(--theme-300, #fda4af) 85%, white) !important;
 }
 
 /* Borders in dark mode */
 html.dark .border-rose-50,
 html.dark .border-rose-100,
-html.dark .border-rose-200 {
+html.dark .border-rose-200,
+html.dark [class*="border-rose-100"],
+html.dark [class*="border-rose-200"] {
   border-color: color-mix(in srgb, var(--theme-300, #fda4af) 30%, transparent) !important;
 }
 

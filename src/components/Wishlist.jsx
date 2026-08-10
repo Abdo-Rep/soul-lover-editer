@@ -124,19 +124,19 @@ export default function Wishlist({ onNext }) {
                   onClick={() => handleToggle(item.id)}
                   className={`group relative overflow-hidden rounded-[24px] border p-4 cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 text-right backdrop-blur-md ${
                     isDone
-                      ? 'border-rose-300/80 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/80 dark:bg-rose-955/40 shadow-sm'
-                      : 'border-rose-100 dark:border-rose-900/40 bg-gradient-to-r from-white/95 via-rose-50/40 to-pink-50/50 dark:from-slate-900/90 dark:to-slate-800/90 shadow-md shadow-rose-900/5 hover:border-rose-300 hover:shadow-xl hover:shadow-rose-300/20 hover:-translate-y-0.5'
+                      ? 'border-rose-300/80 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/80 dark:border-rose-700/60 dark:from-slate-900/95 dark:to-rose-950/70 shadow-sm'
+                      : 'border-rose-100 dark:border-rose-800/60 bg-gradient-to-r from-white/95 via-rose-50/40 to-pink-50/50 dark:from-slate-900/95 dark:to-slate-800/90 shadow-md shadow-rose-900/5 hover:border-rose-300 dark:hover:border-rose-600 hover:shadow-xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 hover:-translate-y-0.5'
                   }`}
                 >
                   {/* Left Side: Dynamic Status Badge */}
                   {isDone ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-1 text-xs font-black text-white shadow-sm shadow-rose-200">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-1 text-xs font-black text-white shadow-sm shadow-rose-200 dark:shadow-rose-900">
                       <CheckCircle2 size={13} className="text-white" />
                       <span>{isEs ? 'Logrado 💖' : isEn ? 'Done 💖' : 'تم بحب 💖'}</span>
                     </span>
                   ) : (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-800/80 bg-gradient-to-r from-rose-50 via-white to-pink-50 dark:from-slate-800 dark:to-slate-900 px-3.5 py-1 text-xs font-extrabold text-rose-700 dark:text-rose-300 shadow-xs group-hover:border-rose-300">
-                      <Sparkles size={12} className="text-rose-500" />
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-700/60 bg-gradient-to-r from-rose-50 via-white to-pink-50 dark:from-slate-800/90 dark:to-slate-900 px-3.5 py-1 text-xs font-extrabold text-rose-700 dark:text-rose-200 shadow-xs group-hover:border-rose-300">
+                      <Sparkles size={12} className="text-rose-500 dark:text-rose-400" />
                       <span>{isEs ? 'Sueño por cumplir ✨' : isEn ? 'A dream we wait for ✨' : 'حُلم ننتظره ✨'}</span>
                     </span>
                   )}
@@ -146,7 +146,7 @@ export default function Wishlist({ onNext }) {
                   <div className="flex items-center gap-3.5 flex-1 min-w-0 justify-end dir-rtl">
                     <span
                       className={`text-sm sm:text-base font-extrabold leading-relaxed truncate ${
-                        isDone ? 'text-rose-900/50 dark:text-rose-300/50 line-through' : 'text-rose-950 dark:text-rose-100 font-display'
+                        isDone ? 'text-rose-900/50 dark:text-rose-300/60 line-through' : 'text-rose-950 dark:text-white font-display'
                       }`}
                     >
                       {item.text}
