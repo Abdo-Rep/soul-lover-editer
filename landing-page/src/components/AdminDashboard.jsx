@@ -23,10 +23,62 @@ import {
   getStoredOrders,
   updateOrderStatus,
   deleteOrder,
+  syncFromSupabase,
 } from '../data/landingStore'
+import { Bell, BellRing, Download, Volume2, Smartphone } from 'lucide-react'
 
 const ADMIN_PASSWORD = 'Mohammedosha1#'
 const AUTH_STORAGE_KEY = 'soulove_landing_admin_auth_v1'
+
+// 🔔 Pleasant Web Audio Synthesizer Chime (Zero External Files Required)
+function playOrderChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext
+    if (!AudioCtx) return
+    const ctx = new AudioCtx()
+    if (ctx.state === 'suspended') {
+      ctx.resume()
+    }
+
+    // Note 1 (E6 - 1318Hz)
+    const osc1 = ctx.createOscillator()
+    const gain1 = ctx.createGain()
+    osc1.type = 'sine'
+    osc1.frequency.setValueAtTime(1318.5, ctx.currentTime)
+    gain1.gain.setValueAtTime(0.25, ctx.currentTime)
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+    osc1.connect(gain1)
+    gain1.connect(ctx.destination)
+    osc1.start(ctx.currentTime)
+    osc1.stop(ctx.currentTime + 0.5)
+
+    // Note 2 (G6 - 1567Hz)
+    const osc2 = ctx.createOscillator()
+    const gain2 = ctx.createGain()
+    osc2.type = 'sine'
+    osc2.frequency.setValueAtTime(1567.98, ctx.currentTime + 0.12)
+    gain2.gain.setValueAtTime(0.3, ctx.currentTime + 0.12)
+    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7)
+    osc2.connect(gain2)
+    gain2.connect(ctx.destination)
+    osc2.start(ctx.currentTime + 0.12)
+    osc2.stop(ctx.currentTime + 0.7)
+
+    // Note 3 (C7 - 2093Hz) - Celebration bell
+    const osc3 = ctx.createOscillator()
+    const gain3 = ctx.createGain()
+    osc3.type = 'sine'
+    osc3.frequency.setValueAtTime(2093.0, ctx.currentTime + 0.25)
+    gain3.gain.setValueAtTime(0.35, ctx.currentTime + 0.25)
+    gain3.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2)
+    osc3.connect(gain3)
+    gain3.connect(ctx.destination)
+    osc3.start(ctx.currentTime + 0.25)
+    osc3.stop(ctx.currentTime + 1.2)
+  } catch (e) {
+    console.log('Audio chime synthesis error:', e)
+  }
+}
 
 export default function AdminDashboard({ onExitAdmin }) {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -38,10 +90,23 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [passwordInput, setPasswordInput] = useState('')
   const [authError, setAuthError] = useState(false)
 
-  const [activeTab, setActiveTab] = useState('pricing')
+  const [activeTab, setActiveTab] = useState('orders')
   const [data, setData] = useState(getLandingData())
   const [orders, setOrders] = useState(getStoredOrders())
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // 📲 PWA & Notification States
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [isPwaInstalled, setIsPwaInstalled] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission === 'granted'
+    }
+    return false
+  })
+  const [soundEnabled, setSoundEnabled] = useState(true)
+  const [newOrderToast, setNewOrderToast] = useState(null)
+  const knownOrderIdsRef = React.useRef(new Set(getStoredOrders().map((o) => o.id)))
 
   // Sub-forms local states
   const [newPricingFeature, setNewPricingFeature] = useState('')
@@ -50,9 +115,128 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [newReview, setNewReview] = useState({ name: '', rating: 5, date: 'الآن', comment: '' })
   const [newFaq, setNewFaq] = useState({ q: '', a: '' })
 
+  // 1. Listen for PWA Install Prompt
   useEffect(() => {
-    setOrders(getStoredOrders())
+    const handleBeforeInstall = (e) => {
+      e.preventDefault()
+      setInstallPrompt(e)
+    }
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsPwaInstalled(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
   }, [])
+
+  // 2. Real-time Background Polling Engine for New Orders & Instant Notifications
+  useEffect(() => {
+    if (!isAuthenticated) return
+
+    // Initial populate of known order IDs
+    const initial = getStoredOrders()
+    setOrders(initial)
+    knownOrderIdsRef.current = new Set(initial.map((o) => o.id))
+
+    const pollInterval = setInterval(async () => {
+      const serverData = await syncFromSupabase()
+      if (serverData && Array.isArray(serverData.orders)) {
+        const freshOrders = serverData.orders
+        setOrders(freshOrders)
+
+        // Check for any new incoming orders
+        const brandNewOrders = freshOrders.filter((o) => !knownOrderIdsRef.current.has(o.id))
+        if (brandNewOrders.length > 0) {
+          const newest = brandNewOrders[0]
+
+          // 1. Play Chime Sound
+          if (soundEnabled) {
+            playOrderChime()
+          }
+
+          // 2. Show Toast Alert
+          setNewOrderToast({
+            title: `🎉 وصلك طلب جديد الآن!`,
+            body: `${newest.yourName || 'عميل'} & ${newest.partnerName || 'الشريك'} (${newest.package || 'باقة الحب'})`,
+            phone: newest.phone,
+          })
+          setTimeout(() => setNewOrderToast(null), 8000)
+
+          // 3. Fire Native Browser / System Push Notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              new Notification('🎉 وصلك طلب جديد في Soulove!', {
+                body: `العميل: ${newest.yourName} & ${newest.partnerName} (${newest.package || 'باقة الحب'}) - ${newest.phone}`,
+                icon: '/apple-touch-icon.png',
+                vibrate: [200, 100, 200],
+              })
+            } catch (e) {
+              console.log('Notification dispatch note:', e)
+            }
+          }
+
+          // Update ref
+          freshOrders.forEach((o) => knownOrderIdsRef.current.add(o.id))
+        }
+      }
+    }, 10000) // checks every 10 seconds
+
+    return () => clearInterval(pollInterval)
+  }, [isAuthenticated, soundEnabled])
+
+  // PWA Install Trigger
+  const handleInstallPwa = async () => {
+    if (!installPrompt) {
+      alert('📱 لتثبيت التطبيق على هاتفك:\n- على أندرويد/كروم: اضغط على القائمة (⋮) ثم "إضافة إلى الشاشة الرئيسية" (Install App).\n- على آيفون/سفاري: اضغط على زر المشاركة (Share) ثم "إضافة إلى الصفحة الرئيسية" (Add to Home Screen).')
+      return
+    }
+    installPrompt.prompt()
+    const { outcome } = await installPrompt.userChoice
+    if (outcome === 'accepted') {
+      setIsPwaInstalled(true)
+      setInstallPrompt(null)
+    }
+  }
+
+  // Request Notification Permission Trigger
+  const handleEnableNotifications = async () => {
+    if (!('Notification' in window)) {
+      alert('متصفحك لا يدعم الإشعارات المباشرة.')
+      return
+    }
+    const permission = await Notification.requestPermission()
+    if (permission === 'granted') {
+      setNotificationsEnabled(true)
+      playOrderChime()
+      try {
+        new Notification('🔔 تم تفعيل إشعارات الطلبات بنجاح!', {
+          body: 'ستصلك إشعارات فورية ورنات تنبيه عند تسجيل أي عميل لطلب جديد.',
+          icon: '/apple-touch-icon.png',
+        })
+      } catch (e) {}
+    } else {
+      setNotificationsEnabled(false)
+    }
+  }
+
+  const handleTestNotification = () => {
+    playOrderChime()
+    setNewOrderToast({
+      title: '🔔 تجربة إشعار وصوت الطلب!',
+      body: 'كريم & سارة (باقة الحب المتكاملة VIP 👑)',
+      phone: '01012345678',
+    })
+    setTimeout(() => setNewOrderToast(null), 5000)
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification('🔔 تجربة إشعار وصل طلب جديد!', {
+          body: 'العميل: كريم & سارة - باقة الحب VIP - 01012345678',
+          icon: '/apple-touch-icon.png',
+        })
+      } catch (e) {}
+    }
+  }
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -259,10 +443,34 @@ export default function AdminDashboard({ onExitAdmin }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#070913] text-slate-100 p-4 sm:p-8" dir="rtl" style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}>
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#070913] text-slate-100 p-4 sm:p-8 relative selection:bg-[#ff3b68] selection:text-white" dir="rtl" style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}>
+      
+      {/* 🔔 Floating Real-time Order Alert Toast Banner */}
+      {newOrderToast && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md p-4 rounded-2xl bg-emerald-950 border-2 border-emerald-500 shadow-2xl shadow-emerald-500/30 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold animate-bounce">
+              <BellRing size={20} />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-emerald-300">{newOrderToast.title}</h4>
+              <p className="text-[11px] text-white font-bold">{newOrderToast.body}</p>
+              <p className="text-[10px] text-emerald-400 font-mono">{newOrderToast.phone}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNewOrderToast(null)}
+            className="text-xs text-emerald-400 hover:text-white p-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      <div className="max-w-5xl mx-auto space-y-5">
         
-        {/* Header */}
+        {/* Top Header */}
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[#0f142d] border border-[#ff3b68]/30 shadow-xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shadow-[#ff3b68]/30" style={{ background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)' }}>
@@ -310,9 +518,90 @@ export default function AdminDashboard({ onExitAdmin }) {
           </div>
         </header>
 
+        {/* 📱 Quick PWA App Installation & Notification Alert Ribbon */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          {/* PWA Install Button */}
+          <button
+            type="button"
+            onClick={handleInstallPwa}
+            className={`p-3 rounded-2xl border flex items-center justify-between gap-3 text-right cursor-pointer transition-all ${
+              isPwaInstalled
+                ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300'
+                : 'bg-[#12183a] border-cyan-500/40 text-cyan-200 hover:bg-[#18214f]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Smartphone className={isPwaInstalled ? 'text-emerald-400' : 'text-cyan-400'} size={20} />
+              <div>
+                <span className="text-xs font-black block">
+                  {isPwaInstalled ? '✅ التطبيق مثبت على جهازك' : '📲 تثبيت اللوحة كتطبيق (PWA)'}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  {isPwaInstalled ? 'تعمل الآن بوضع التطبيق المستقل' : 'أيقونة مباشرة وسريعة على الشاشة الرئيسية'}
+                </span>
+              </div>
+            </div>
+            {!isPwaInstalled && <Download size={15} className="text-cyan-400" />}
+          </button>
+
+          {/* Browser Notifications Toggle */}
+          <button
+            type="button"
+            onClick={handleEnableNotifications}
+            className={`p-3 rounded-2xl border flex items-center justify-between gap-3 text-right cursor-pointer transition-all ${
+              notificationsEnabled
+                ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300'
+                : 'bg-[#12183a] border-amber-500/40 text-amber-200 hover:bg-[#18214f]'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <BellRing className={notificationsEnabled ? 'text-emerald-400' : 'text-amber-400'} size={20} />
+              <div>
+                <span className="text-xs font-black block">
+                  {notificationsEnabled ? '🔔 إشعارات الطلبات: مفعّلة' : '🔔 تفعيل إشعارات الطلبات'}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  {notificationsEnabled ? 'تصلك تنبيهات فورية مع كل طلب' : 'اضغط لمنح إذن الإشعارات للهاتف/المتصفح'}
+                </span>
+              </div>
+            </div>
+          </button>
+
+          {/* Sound & Chime Controls */}
+          <div className="p-3 rounded-2xl bg-[#12183a] border border-purple-500/30 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Volume2 className="text-purple-400" size={20} />
+              <div>
+                <span className="text-xs font-black text-purple-200 block">صوت تنبيه الطلبات</span>
+                <span className="text-[10px] text-slate-400">رنة تنبيه رومانسية فورية</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleTestNotification}
+                className="px-2.5 py-1 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-[10px] font-bold cursor-pointer"
+                title="تجربة صوت الرنة الآن"
+              >
+                🔊 تجربة الرنة
+              </button>
+              <button
+                type="button"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className={`px-2 py-1 rounded-xl text-[10px] font-bold cursor-pointer ${
+                  soundEnabled ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'
+                }`}
+              >
+                {soundEnabled ? 'مفعّل' : 'مكتوم'}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-[#0b0e20] border border-[#19213d]">
           {[
+            { id: 'orders', label: `📦 الطلبات (${orders.length})` },
             { id: 'pricing', label: '🏷️ السعر والباقة' },
             { id: 'demo', label: '📱 النموذج الحي والباسورد' },
             { id: 'pixels', label: '📊 بكسل الفيسبوك وتتبع الإعلانات' },
@@ -321,7 +610,6 @@ export default function AdminDashboard({ onExitAdmin }) {
             { id: 'steps', label: `⚡ خطوات العمل (${data.stepsSection?.items?.length || 0})` },
             { id: 'reviews', label: `⭐ آراء العملاء (${data.reviewsSection?.items?.length || 0})` },
             { id: 'faqs', label: `💡 الأسئلة (${data.faqsSection?.items?.length || 0})` },
-            { id: 'orders', label: `📦 الطلبات (${orders.length})` },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -1251,18 +1539,35 @@ export default function AdminDashboard({ onExitAdmin }) {
         {/* 8. Tab: Orders Manager */}
         {activeTab === 'orders' && (
           <div className="p-6 rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <ShoppingBag className="text-[#ff3b68]" size={20} />
-                <span>إدارة الطلبات الواردة من الفورم 📦 ({orders.length})</span>
-              </h2>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <ShoppingBag className="text-[#ff3b68]" size={20} />
+                  <span>إدارة الطلبات الواردة من الفورم 📦 ({orders.length})</span>
+                </h2>
+                <span className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>مزامنة سحابية فورية نشطة — يتم فحص الطلبات كل 10 ثوانٍ تلقائياً</span>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleTestNotification}
+                  className="px-3.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
+                >
+                  <BellRing size={14} className="text-purple-300" />
+                  <span>🔔 تجربة إشعار ورنة طلب</span>
+                </button>
+              </div>
             </div>
 
             {orders.length === 0 ? (
               <div className="p-10 text-center rounded-2xl bg-[#070913] border border-[#19213d] space-y-2">
                 <ShoppingBag size={40} className="text-slate-600 mx-auto" />
                 <p className="text-slate-400 text-sm font-bold">لا يوجد طلبات واردة حتى الآن.</p>
-                <p className="text-slate-500 text-xs">أي عميل يملأ النموذج في صفحة الهبوط ستظهر بياناته هنا فوراً.</p>
+                <p className="text-slate-500 text-xs">أي عميل يملأ النموذج في صفحة الهبوط ستظهر بياناته هنا فوراً مع صوت تنبيه وإشعار فوري.</p>
               </div>
             ) : (
               <div className="space-y-3">

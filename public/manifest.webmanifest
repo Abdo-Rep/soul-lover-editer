@@ -31,5 +31,14 @@
       "type": "image/svg+xml",
       "purpose": "any"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "لوحة تحكم صفحة الهبوط والطلبات",
+      "short_name": "لوحة الطلبات",
+      "description": "إدارة الطلبات والأسعار والبكسل",
+      "url": "/landing/admin",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
