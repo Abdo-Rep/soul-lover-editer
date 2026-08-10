@@ -370,15 +370,23 @@ export default function AdminDashboard({ onExitAdmin }) {
   }
 
   // --- Orders Handlers ---
-  const handleStatusChange = (id, newStatus) => {
-    const updated = updateOrderStatus(id, newStatus)
-    if (updated) setOrders(updated)
+  const handleStatusChange = async (id, newStatus) => {
+    setOrders((prev) => (Array.isArray(prev) ? prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o)) : []))
+    try {
+      await updateOrderStatus(id, newStatus)
+    } catch (err) {
+      console.error('Failed to update order status:', err)
+    }
   }
 
-  const handleDeleteOrder = (id) => {
+  const handleDeleteOrder = async (id) => {
     if (window.confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
-      const updated = deleteOrder(id)
-      if (updated) setOrders(updated)
+      setOrders((prev) => (Array.isArray(prev) ? prev.filter((o) => o.id !== id) : []))
+      try {
+        await deleteOrder(id)
+      } catch (err) {
+        console.error('Failed to delete order:', err)
+      }
     }
   }
 
@@ -1605,41 +1613,43 @@ export default function AdminDashboard({ onExitAdmin }) {
         )}
 
         {/* 8. Tab: Orders Manager */}
-        {activeTab === 'orders' && (
-          <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-4 sm:space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
-              <div>
-                <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                  <ShoppingBag className="text-[#ff3b68]" size={18} />
-                  <span>إدارة الطلبات الواردة 📦 ({orders.length})</span>
-                </h2>
-                <span className="text-[11px] sm:text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>مزامنة سحابية فورية كل 10 ثوانٍ مع صوت ورنة للطلب</span>
-                </span>
+        {activeTab === 'orders' && (() => {
+          const ordersList = Array.isArray(orders) ? orders : []
+          return (
+            <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-4 sm:space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                    <ShoppingBag className="text-[#ff3b68]" size={18} />
+                    <span>إدارة الطلبات الواردة 📦 ({ordersList.length})</span>
+                  </h2>
+                  <span className="text-[11px] sm:text-xs text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>مزامنة سحابية فورية كل 10 ثوانٍ مع صوت ورنة للطلب</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTestNotification}
+                    className="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                  >
+                    <BellRing size={13} className="text-purple-300" />
+                    <span>🔔 تجربة رنة الطلب</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleTestNotification}
-                  className="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                >
-                  <BellRing size={13} className="text-purple-300" />
-                  <span>🔔 تجربة رنة الطلب</span>
-                </button>
-              </div>
-            </div>
-
-            {orders.length === 0 ? (
-              <div className="p-8 sm:p-12 text-center rounded-2xl bg-[#070913] border border-[#19213d] space-y-2">
-                <ShoppingBag size={36} className="text-slate-600 mx-auto" />
-                <p className="text-slate-300 text-sm font-bold">لا يوجد طلبات جديدة حتى الآن.</p>
-                <p className="text-slate-500 text-xs">بمجرد تسجيل أي عميل لطلب جديد في صفحة الهبوط ستظهر بياناته هنا فوراً مع صوت تنبيه وإشعار فوري.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
+              {ordersList.length === 0 ? (
+                <div className="p-8 sm:p-12 text-center rounded-2xl bg-[#070913] border border-[#19213d] space-y-2">
+                  <ShoppingBag size={36} className="text-slate-600 mx-auto" />
+                  <p className="text-slate-300 text-sm font-bold">لا يوجد طلبات جديدة حتى الآن.</p>
+                  <p className="text-slate-500 text-xs">بمجرد تسجيل أي عميل لطلب جديد في صفحة الهبوط ستظهر بياناته هنا فوراً مع صوت تنبيه وإشعار فوري.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {ordersList.map((order) => (
                   <div
                     key={order.id}
                     className="p-4 sm:p-5 rounded-2xl bg-[#0c1026] border border-[#1d254a] hover:border-[#ff3b68]/40 space-y-3 transition-all"
@@ -1729,7 +1739,8 @@ export default function AdminDashboard({ onExitAdmin }) {
               </div>
             )}
           </div>
-        )}
+        )
+      })()}
 
       </div>
     </div>
