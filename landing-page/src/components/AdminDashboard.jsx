@@ -999,15 +999,17 @@ export default function AdminDashboard({ onExitAdmin }) {
         {/* 7. Tab: FAQs Section Manager */}
         {activeTab === 'faqs' && (
           <div className="p-6 rounded-3xl bg-[#0b0e20] border border-[#19213d] space-y-6">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2 border-b border-white/10 pb-3">
-              <HelpCircle className="text-[#ff3b68]" size={20} />
-              <span>إدارة الأسئلة الشائعة 💡</span>
-            </h2>
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <HelpCircle className="text-[#ff3b68]" size={20} />
+                <span>إدارة وتعديل الأسئلة الشائعة 💡 ({data.faqsSection?.items?.length || 0})</span>
+              </h2>
+            </div>
 
             {/* Section Header Controls */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-[#070913] border border-[#19213d]">
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1">شارة القسم:</label>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">شارة القسم (Badge):</label>
                 <input
                   type="text"
                   value={data.faqsSection?.badge || ''}
@@ -1017,11 +1019,11 @@ export default function AdminDashboard({ onExitAdmin }) {
                       faqsSection: { ...data.faqsSection, badge: e.target.value },
                     })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-[#070913] border border-[#232d56] text-white text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0c1024] border border-[#232d56] text-white text-xs font-bold focus:outline-none focus:border-[#ff3b68]"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-400 mb-1">عنوان القسم:</label>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">عنوان قسم الأسئلة الرئيسي:</label>
                 <input
                   type="text"
                   value={data.faqsSection?.title || ''}
@@ -1031,73 +1033,103 @@ export default function AdminDashboard({ onExitAdmin }) {
                       faqsSection: { ...data.faqsSection, title: e.target.value },
                     })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-[#070913] border border-[#232d56] text-white text-xs font-bold"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0c1024] border border-[#232d56] text-white text-xs font-bold focus:outline-none focus:border-[#ff3b68]"
                 />
               </div>
             </div>
 
-            {/* Existing FAQs */}
-            <div className="space-y-3">
+            {/* Existing FAQs List */}
+            <div className="space-y-4">
+              <span className="text-xs font-bold text-slate-300 block">الأسئلة الحالية القابلة للتعديل:</span>
               {data.faqsSection?.items?.map((faq, idx) => (
                 <div
                   key={idx}
-                  className="p-4 rounded-2xl bg-[#070913] border border-[#19213d] space-y-2 relative"
+                  className="p-5 rounded-2xl bg-[#070913] border border-[#19213d] space-y-3 relative hover:border-[#ff3b68]/40 transition-colors"
                 >
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFaq(idx)}
-                    className="absolute top-3 left-3 text-slate-500 hover:text-rose-400 cursor-pointer"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                  <input
-                    type="text"
-                    value={faq.q}
-                    onChange={(e) => {
-                      const updated = [...(data.faqsSection?.items || [])]
-                      updated[idx] = { ...updated[idx], q: e.target.value }
-                      setData({ ...data, faqsSection: { ...data.faqsSection, items: updated } })
-                    }}
-                    className="w-11/12 bg-transparent text-white text-xs font-bold focus:outline-none"
-                  />
-                  <textarea
-                    rows={2}
-                    value={faq.a}
-                    onChange={(e) => {
-                      const updated = [...(data.faqsSection?.items || [])]
-                      updated[idx] = { ...updated[idx], a: e.target.value }
-                      setData({ ...data, faqsSection: { ...data.faqsSection, items: updated } })
-                    }}
-                    className="w-full bg-transparent text-slate-300 text-xs focus:outline-none"
-                  />
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="px-3 py-0.5 rounded-full bg-[#ff3b68]/20 text-[#ff8fa3] text-xs font-black">
+                      سؤال #{idx + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFaq(idx)}
+                      className="text-xs text-slate-400 hover:text-rose-400 flex items-center gap-1 cursor-pointer transition-colors"
+                      title="حذف هذا السؤال"
+                    >
+                      <Trash2 size={14} />
+                      <span>حذف</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">السؤال:</label>
+                      <input
+                        type="text"
+                        value={faq.q}
+                        onChange={(e) => {
+                          const updated = [...(data.faqsSection?.items || [])]
+                          updated[idx] = { ...updated[idx], q: e.target.value }
+                          setData({ ...data, faqsSection: { ...data.faqsSection, items: updated } })
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0c1024] border border-[#232d56] text-white text-xs font-bold focus:outline-none focus:border-[#ff3b68]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 mb-1">الإجابة والتوضيح:</label>
+                      <textarea
+                        rows={3}
+                        value={faq.a}
+                        onChange={(e) => {
+                          const updated = [...(data.faqsSection?.items || [])]
+                          updated[idx] = { ...updated[idx], a: e.target.value }
+                          setData({ ...data, faqsSection: { ...data.faqsSection, items: updated } })
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0c1024] border border-[#232d56] text-slate-200 text-xs focus:outline-none focus:border-[#ff3b68] leading-relaxed"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Add New FAQ */}
-            <div className="p-4 rounded-2xl bg-[#121736] border border-[#ff3b68]/30 space-y-3">
-              <span className="text-xs font-bold text-white block">إضافة سؤال وإجابة جديدة:</span>
-              <input
-                type="text"
-                placeholder="السؤال..."
-                value={newFaq.q}
-                onChange={(e) => setNewFaq({ ...newFaq, q: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-[#070913] border border-[#232d56] text-white text-xs"
-              />
-              <textarea
-                rows={2}
-                placeholder="الإجابة والتوضيح..."
-                value={newFaq.a}
-                onChange={(e) => setNewFaq({ ...newFaq, a: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-[#070913] border border-[#232d56] text-white text-xs"
-              />
+            {/* Add New FAQ Box */}
+            <div className="p-5 rounded-2xl bg-[#121736] border border-[#ff3b68]/40 space-y-3.5 shadow-lg">
+              <span className="text-xs font-extrabold text-white block flex items-center gap-1.5">
+                <Plus size={16} className="text-[#ff3b68]" />
+                <span>إضافة سؤال وجواب جديد:</span>
+              </span>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">نص السؤال الجديد:</label>
+                <input
+                  type="text"
+                  placeholder="مثال: هل يمكن تشغيل الأغاني تلقائياً عند فتح الرابط؟"
+                  value={newFaq.q}
+                  onChange={(e) => setNewFaq({ ...newFaq, q: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#070913] border border-[#232d56] text-white text-xs focus:outline-none focus:border-[#ff3b68]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">نص الإجابة:</label>
+                <textarea
+                  rows={2}
+                  placeholder="اكتب الإجابة المفصلة هنا..."
+                  value={newFaq.a}
+                  onChange={(e) => setNewFaq({ ...newFaq, a: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#070913] border border-[#232d56] text-white text-xs focus:outline-none focus:border-[#ff3b68]"
+                />
+              </div>
+
               <button
                 type="button"
                 onClick={handleAddFaq}
-                className="px-4 py-2 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#ff3b68]/30 transition-all hover:scale-105"
               >
-                <Plus size={15} />
-                <span>إضافة السؤال</span>
+                <Plus size={16} />
+                <span>إضافة السؤال الآن ➕</span>
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ExternalLink, KeyRound, Heart, Copy, Check } from 'lucide-react'
+import { KeyRound, Heart, Copy, Check } from 'lucide-react'
 
 export default function PhonePreview({ demo = {}, onOpenOrder }) {
   const {
@@ -110,15 +110,7 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
           <div className="p-2.5 bg-[#0b0e20] border-t border-white/10 flex flex-col items-center gap-1.5 shrink-0 z-20">
             <div className="w-full flex items-center justify-between px-3 text-xs">
               <span className="text-[10px] text-slate-300 font-bold">موقع حقيقي متجاوب 6.7" ✨</span>
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#ff8fa3] hover:text-white flex items-center gap-1 text-[10px] font-bold"
-              >
-                <span>ملء الشاشة</span>
-                <ExternalLink size={11} />
-              </a>
+              <span className="text-[10px] text-emerald-400 font-bold">تجربة تفاعلية مباشرة</span>
             </div>
             {/* Phone Home Bar */}
             <div className="w-32 h-1 rounded-full bg-white/20" />
@@ -127,11 +119,12 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-2.5">
+      {/* Main Single CTA Button */}
+      <div className="mt-6">
         <button
           type="button"
           onClick={onOpenOrder}
-          className="w-full py-4 rounded-2xl text-white font-black text-sm cursor-pointer transition-all active:scale-95"
+          className="w-full py-4 rounded-2xl text-white font-black text-sm cursor-pointer transition-all active:scale-95 shadow-xl"
           style={{
             background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
             color: '#ffffff',
@@ -141,20 +134,6 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
         >
           أريد إنشاء موقع مثل هذا بالضبط الآن! 🚀
         </button>
-
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3 rounded-2xl text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
-          style={{
-            background: '#141933',
-            border: '1px solid #252f5a',
-          }}
-        >
-          <ExternalLink size={13} className="text-[#ff3b68]" />
-          <span>فتح الرابط التجريبي في صفحة كاملة 🌐</span>
-        </a>
       </div>
     </section>
   )
