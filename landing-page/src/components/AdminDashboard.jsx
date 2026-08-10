@@ -232,6 +232,24 @@ export default function AdminDashboard({ onExitAdmin }) {
     }
   }
 
+  const handleTestNotification = () => {
+    playOrderChime()
+    setNewOrderToast({
+      title: '🎉 تجربة تنبيه طلب جديد!',
+      body: 'كريم & سارة (باقة الحب VIP)',
+      phone: '01012345678',
+    })
+    setTimeout(() => setNewOrderToast(null), 6000)
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification('🔔 تجربة تنبيه Soulove!', {
+          body: 'هذا إشعار تجريبي لاختبار وصول التنبيهات الفورية عند تسجيل أي طلب جديد.',
+          icon: '/apple-touch-icon.png',
+        })
+      } catch (e) {}
+    }
+  }
+
   const handleTestWebhook = async () => {
     const url = data.webhook?.url?.trim()
     if (!url) {
