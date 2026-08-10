@@ -19,9 +19,16 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
   }
 
   return (
-    <section id="demo-section" className="py-8 sm:py-14 px-4 max-w-lg mx-auto text-center">
+    <section
+      id="demo-section"
+      className="py-8 sm:py-14 px-4 max-w-lg mx-auto text-center"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       <div className="space-y-3 mb-6">
-        <span className="inline-block px-3 py-1 rounded-full bg-[#161b33] border border-[#ff3b68]/30 text-[#ff8fa3] text-[11px] font-bold">
+        <span
+          className="inline-block px-3 py-1 rounded-full text-[11px] font-bold text-[#ff8fa3]"
+          style={{ background: '#161b33', border: '1px solid rgba(255, 59, 104, 0.3)' }}
+        >
           معاينة حية ومباشرة 📱
         </span>
         <h2 className="text-xl sm:text-3xl font-black text-white">
@@ -33,7 +40,13 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
 
         {/* 🔑 Glowing Demo Password Banner */}
         <div className="pt-1">
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500/15 via-[#ff3b68]/15 to-purple-500/15 border border-amber-400/40 text-amber-200 text-xs font-bold shadow-md shadow-amber-500/10 backdrop-blur-md">
+          <div
+            className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-2xl text-amber-200 text-xs font-bold shadow-md shadow-amber-500/10 backdrop-blur-md"
+            style={{
+              background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(255, 59, 104, 0.15), rgba(168, 85, 247, 0.15))',
+              border: '1px solid rgba(251, 191, 36, 0.4)',
+            }}
+          >
             <KeyRound size={15} className="text-amber-400 animate-bounce" />
             <span className="text-[11px]">{hintText}</span>
             <span className="px-2.5 py-0.5 rounded-lg bg-amber-400 text-slate-950 font-black font-mono tracking-wider text-xs">
@@ -57,7 +70,15 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
         {/* Glow */}
         <div className="absolute inset-0 bg-[#ff3b68]/20 blur-2xl rounded-3xl pointer-events-none" />
 
-        <div className="phone-mockup-mobile relative z-10 w-full h-[520px] sm:h-[580px] flex flex-col justify-between bg-slate-950 shadow-2xl overflow-hidden">
+        <div
+          className="relative z-10 w-full h-[520px] sm:h-[580px] flex flex-col justify-between shadow-2xl overflow-hidden"
+          style={{
+            background: '#0b0e20',
+            borderRadius: '28px',
+            border: '3px solid #232d56',
+            boxShadow: '0 15px 35px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 59, 104, 0.15)',
+          }}
+        >
           
           {/* Top Notch Bar */}
           <div className="h-8 w-full bg-[#0b0e20] flex items-center justify-between px-4 text-[10px] text-slate-400 font-mono border-b border-white/5 shrink-0 z-20">
@@ -100,7 +121,13 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
         <button
           type="button"
           onClick={onOpenOrder}
-          className="w-full py-3.5 rounded-2xl btn-romantic-primary text-white font-black text-sm shadow-lg shadow-[#ff3b68]/30 cursor-pointer"
+          className="w-full py-4 rounded-2xl text-white font-black text-sm cursor-pointer transition-all active:scale-95"
+          style={{
+            background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+            color: '#ffffff',
+            boxShadow: '0 10px 25px -4px rgba(255, 59, 104, 0.5)',
+            border: 'none',
+          }}
         >
           أريد إنشاء موقع مثل هذا بالضبط الآن! 🚀
         </button>
@@ -109,7 +136,11 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-2.5 rounded-xl bg-[#141933] border border-[#252f5a] text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+          className="w-full py-3 rounded-2xl text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+          style={{
+            background: '#141933',
+            border: '1px solid #252f5a',
+          }}
         >
           <ExternalLink size={13} className="text-[#ff3b68]" />
           <span>فتح الرابط التجريبي في صفحة كاملة 🌐</span>

@@ -14,9 +14,16 @@ export default function Pricing({ pricing = {}, onOpenOrder }) {
   } = pricing
 
   return (
-    <section id="pricing-section" className="py-8 sm:py-14 px-4 max-w-lg mx-auto">
+    <section
+      id="pricing-section"
+      className="py-8 sm:py-14 px-4 max-w-lg mx-auto"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       <div className="text-center mb-8 space-y-2.5">
-        <span className="inline-block px-3 py-1 rounded-full bg-[#161b33] border border-[#ff3b68]/30 text-[#ff8fa3] text-[11px] font-bold">
+        <span
+          className="inline-block px-3 py-1 rounded-full text-[11px] font-bold text-[#ff8fa3]"
+          style={{ background: '#161b33', border: '1px solid rgba(255, 59, 104, 0.3)' }}
+        >
           باقة شاملة ومتكاملة 🏷️
         </span>
         <h2 className="text-xl sm:text-3xl font-black text-white">
@@ -28,10 +35,23 @@ export default function Pricing({ pricing = {}, onOpenOrder }) {
       </div>
 
       {/* Single Mobile-Optimized VIP Card */}
-      <div className="relative rounded-3xl p-5 sm:p-8 bg-gradient-to-b from-[#141938] to-[#0c0f24] border-2 border-[#ff3b68] shadow-2xl shadow-[#ff3b68]/20 text-right space-y-4">
+      <div
+        className="relative rounded-3xl p-5 sm:p-8 text-right space-y-4 shadow-2xl"
+        style={{
+          background: 'linear-gradient(180deg, #141938 0%, #0c0f24 100%)',
+          border: '2px solid #ff3b68',
+          boxShadow: '0 20px 40px -10px rgba(255, 59, 104, 0.25)',
+        }}
+      >
         
         {badge && (
-          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#ff3b68] via-pink-500 to-[#ff758c] text-white text-[11px] sm:text-xs font-extrabold shadow-md shadow-[#ff3b68]/50 flex items-center gap-1 whitespace-nowrap">
+          <div
+            className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-white text-[11px] sm:text-xs font-extrabold shadow-md flex items-center gap-1 whitespace-nowrap"
+            style={{
+              background: 'linear-gradient(90deg, #ff3b68 0%, #ec4899 50%, #ff758c 100%)',
+              boxShadow: '0 4px 15px rgba(255, 59, 104, 0.5)',
+            }}
+          >
             <Sparkles size={12} className="text-white animate-spin" style={{ animationDuration: '4s' }} />
             <span>{badge}</span>
           </div>
@@ -51,7 +71,10 @@ export default function Pricing({ pricing = {}, onOpenOrder }) {
             )}
           </div>
           {discountText && (
-            <span className="text-[10px] sm:text-xs font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-500/40 px-2.5 py-1 rounded-full">
+            <span
+              className="text-[10px] sm:text-xs font-bold text-emerald-400 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(6, 78, 59, 0.7)', border: '1px solid rgba(16, 185, 129, 0.4)' }}
+            >
               {discountText}
             </span>
           )}
@@ -62,7 +85,11 @@ export default function Pricing({ pricing = {}, onOpenOrder }) {
           <span className="text-xs font-bold text-slate-400 block mb-1">المميزات المضمنة في الباقة:</span>
           <div className="space-y-2 text-xs text-slate-200">
             {features.map((feat, i) => (
-              <div key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5">
+              <div
+                key={i}
+                className="flex items-center gap-2 p-2 rounded-xl"
+                style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
+              >
                 <Check size={14} className="text-[#ff3b68] shrink-0" />
                 <span className="font-semibold leading-normal">{feat}</span>
               </div>
@@ -74,7 +101,13 @@ export default function Pricing({ pricing = {}, onOpenOrder }) {
         <button
           type="button"
           onClick={() => onOpenOrder(packageName)}
-          className="w-full py-4 rounded-2xl btn-romantic-primary text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#ff3b68]/40 active:scale-95 transition-transform mt-2"
+          className="w-full py-4 rounded-2xl text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 mt-2"
+          style={{
+            background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+            color: '#ffffff',
+            boxShadow: '0 10px 25px -4px rgba(255, 59, 104, 0.5)',
+            border: 'none',
+          }}
         >
           <Gift size={18} />
           <span>{buttonText}</span>

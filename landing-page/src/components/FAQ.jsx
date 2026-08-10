@@ -12,10 +12,16 @@ export default function FAQ({ faqsSection = {} }) {
   const [openIdx, setOpenIdx] = useState(0)
 
   return (
-    <section className="py-8 sm:py-14 px-4 max-w-lg mx-auto">
+    <section
+      className="py-8 sm:py-14 px-4 max-w-lg mx-auto"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       <div className="text-center mb-8 space-y-2.5">
         {badge && (
-          <span className="inline-block px-3 py-1 rounded-full bg-[#161b33] border border-[#ff3b68]/30 text-[#ff8fa3] text-[11px] font-bold">
+          <span
+            className="inline-block px-3 py-1 rounded-full text-[11px] font-bold text-[#ff8fa3]"
+            style={{ background: '#161b33', border: '1px solid rgba(255, 59, 104, 0.3)' }}
+          >
             {badge}
           </span>
         )}
@@ -33,7 +39,11 @@ export default function FAQ({ faqsSection = {} }) {
           return (
             <div
               key={idx}
-              className="glow-card rounded-2xl overflow-hidden transition-all duration-300 border border-white/10"
+              className="rounded-2xl overflow-hidden transition-all duration-300"
+              style={{
+                background: 'rgba(14, 18, 38, 0.85)',
+                border: '1px solid rgba(255, 59, 104, 0.2)',
+              }}
             >
               <button
                 type="button"

@@ -10,10 +10,16 @@ export default function Reviews({ reviewsSection = {} }) {
   } = reviewsSection
 
   return (
-    <section className="py-8 sm:py-14 px-4 max-w-lg mx-auto">
+    <section
+      className="py-8 sm:py-14 px-4 max-w-lg mx-auto"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       <div className="text-center mb-8 space-y-2.5">
         {badge && (
-          <span className="inline-block px-3 py-1 rounded-full bg-[#161b33] border border-[#ff3b68]/30 text-[#ff8fa3] text-[11px] font-bold">
+          <span
+            className="inline-block px-3 py-1 rounded-full text-[11px] font-bold text-[#ff8fa3]"
+            style={{ background: '#161b33', border: '1px solid rgba(255, 59, 104, 0.3)' }}
+          >
             {badge}
           </span>
         )}
@@ -29,7 +35,12 @@ export default function Reviews({ reviewsSection = {} }) {
         {items.map((rev, i) => (
           <div
             key={i}
-            className="glow-card rounded-2xl p-4 sm:p-5 text-right space-y-3 flex flex-col justify-between"
+            className="rounded-2xl p-4 sm:p-5 text-right space-y-3 flex flex-col justify-between"
+            style={{
+              background: 'rgba(14, 18, 38, 0.85)',
+              border: '1px solid rgba(255, 59, 104, 0.22)',
+              boxShadow: '0 8px 25px -8px rgba(0, 0, 0, 0.6), 0 0 15px 0 rgba(255, 59, 104, 0.08)',
+            }}
           >
             <div className="space-y-2">
               {/* Stars */}
@@ -49,7 +60,10 @@ export default function Reviews({ reviewsSection = {} }) {
                 <span className="text-xs font-bold text-white block">{rev.name}</span>
                 <span className="text-[10px] text-slate-400">{rev.date}</span>
               </div>
-              <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold bg-emerald-950/50 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+              <div
+                className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(6, 78, 59, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+              >
                 <CheckCircle2 size={11} />
                 <span>مشتري موثق</span>
               </div>

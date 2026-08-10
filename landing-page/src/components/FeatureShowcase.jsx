@@ -23,10 +23,16 @@ export default function FeatureShowcase({ featuresSection = {} }) {
   } = featuresSection
 
   return (
-    <section className="py-8 sm:py-14 px-4 max-w-lg mx-auto">
+    <section
+      className="py-8 sm:py-14 px-4 max-w-lg mx-auto"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       <div className="text-center mb-8 space-y-2.5">
         {badge && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#161b33] border border-[#ff3b68]/30 text-[#ff8fa3] text-[11px] font-bold">
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[#ff8fa3] text-[11px] font-bold"
+            style={{ background: '#161b33', border: '1px solid rgba(255, 59, 104, 0.3)' }}
+          >
             <Flame size={13} className="text-[#ff3b68]" />
             <span>{badge}</span>
           </div>
@@ -45,9 +51,20 @@ export default function FeatureShowcase({ featuresSection = {} }) {
           return (
             <div
               key={idx}
-              className="glow-card rounded-2xl p-4 sm:p-5 transition-all duration-300 text-right space-y-2.5 group"
+              className="rounded-2xl p-4 sm:p-5 transition-all duration-300 text-right space-y-2.5 group"
+              style={{
+                background: 'rgba(14, 18, 38, 0.85)',
+                border: '1px solid rgba(255, 59, 104, 0.22)',
+                boxShadow: '0 8px 25px -8px rgba(0, 0, 0, 0.6), 0 0 15px 0 rgba(255, 59, 104, 0.08)',
+              }}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#ff3b68] to-[#ff758c] flex items-center justify-center text-white shadow-md shadow-[#ff3b68]/20 group-hover:scale-105 transition-transform">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, #ff3b68 0%, #ff758c 100%)',
+                  boxShadow: '0 4px 15px rgba(255, 59, 104, 0.3)',
+                }}
+              >
                 <Icon size={20} />
               </div>
 

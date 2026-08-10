@@ -12,10 +12,16 @@ export default function Steps({ stepsSection = {} }) {
   } = stepsSection
 
   return (
-    <section className="py-8 sm:py-14 px-4 max-w-lg mx-auto">
+    <section
+      className="py-8 sm:py-14 px-4 max-w-lg mx-auto"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       <div className="text-center mb-8 space-y-2.5">
         {badge && (
-          <span className="inline-block px-3 py-1 rounded-full bg-[#161b33] border border-[#ff3b68]/30 text-[#ff8fa3] text-[11px] font-bold">
+          <span
+            className="inline-block px-3 py-1 rounded-full text-[11px] font-bold text-[#ff8fa3]"
+            style={{ background: '#161b33', border: '1px solid rgba(255, 59, 104, 0.3)' }}
+          >
             {badge}
           </span>
         )}
@@ -33,13 +39,24 @@ export default function Steps({ stepsSection = {} }) {
           return (
             <div
               key={idx}
-              className="glow-card rounded-2xl p-4 sm:p-5 text-right space-y-2 relative group"
+              className="rounded-2xl p-4 sm:p-5 text-right space-y-2 relative group"
+              style={{
+                background: 'rgba(14, 18, 38, 0.85)',
+                border: '1px solid rgba(255, 59, 104, 0.22)',
+                boxShadow: '0 8px 25px -8px rgba(0, 0, 0, 0.6), 0 0 15px 0 rgba(255, 59, 104, 0.08)',
+              }}
             >
               <div className="flex justify-between items-center">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#ff3b68] to-[#ff758c] flex items-center justify-center text-white shadow-md shadow-[#ff3b68]/25">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #ff3b68 0%, #ff758c 100%)',
+                    boxShadow: '0 4px 15px rgba(255, 59, 104, 0.3)',
+                  }}
+                >
                   <Icon size={18} />
                 </div>
-                <span className="text-2xl font-black text-slate-700/70 font-mono">
+                <span className="text-2xl font-black text-slate-600 font-mono">
                   {step.num || `0${idx + 1}`}
                 </span>
               </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Heart, Gift, ShieldCheck, MessageCircle, Sparkles } from 'lucide-react'
+import { Heart, Gift, ShieldCheck, MessageCircle } from 'lucide-react'
 import Hero from './components/Hero'
 import FeatureShowcase from './components/FeatureShowcase'
 import PhonePreview from './components/PhonePreview'
@@ -19,7 +19,13 @@ export default function App({ initialRoute }) {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash || ''
       const path = window.location.pathname || ''
-      if (hash.startsWith('#order-success') || hash.startsWith('#thank-you') || path === '/order-success' || path === '/thank-you' || path === '/landing/success') {
+      if (
+        hash.startsWith('#order-success') ||
+        hash.startsWith('#thank-you') ||
+        path === '/order-success' ||
+        path === '/thank-you' ||
+        path === '/landing/success'
+      ) {
         return 'success'
       }
       if (hash === '#admin' || path === '/admin' || path === '/landing/admin' || path === '/landing-admin') {
@@ -67,7 +73,13 @@ export default function App({ initialRoute }) {
       const hash = window.location.hash || ''
       const path = window.location.pathname || ''
 
-      if (hash.startsWith('#order-success') || hash.startsWith('#thank-you') || path === '/order-success' || path === '/thank-you' || path === '/landing/success') {
+      if (
+        hash.startsWith('#order-success') ||
+        hash.startsWith('#thank-you') ||
+        path === '/order-success' ||
+        path === '/thank-you' ||
+        path === '/landing/success'
+      ) {
         const match = hash.match(/id=([^&]+)/)
         if (match) setCurrentOrderId(match[1])
         setCurrentRoute('success')
@@ -111,22 +123,17 @@ export default function App({ initialRoute }) {
   }
 
   const openAdmin = () => {
-    window.location.hash = '#admin'
-    setCurrentRoute('admin')
+    window.location.pathname = '/landing/admin'
   }
 
   const exitAdmin = () => {
-    window.location.hash = ''
+    window.location.pathname = '/landing'
     setCurrentRoute('home')
-    const freshData = getLandingData()
-    setLandingData(freshData)
-    if (freshData.pixels?.metaPixelId) {
-      initMetaPixel(freshData.pixels.metaPixelId)
-    }
   }
 
   const backHomeFromSuccess = () => {
     window.location.hash = ''
+    window.location.pathname = '/landing'
     setCurrentRoute('home')
   }
 
@@ -135,7 +142,7 @@ export default function App({ initialRoute }) {
     return <AdminDashboard onExitAdmin={exitAdmin} />
   }
 
-  // 2. Dedicated Purchase / Order Success Page for Meta Pixel Purchase Tracking!
+  // 2. Dedicated Standalone Purchase / Order Success Page for Meta Pixel Purchase Tracking!
   if (currentRoute === 'success') {
     return (
       <OrderSuccessPage
@@ -148,13 +155,23 @@ export default function App({ initialRoute }) {
 
   // 3. Main Landing Page View (Mobile-First Architecture)
   return (
-    <div className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-between selection:bg-[#ff3b68] selection:text-white pb-20 sm:pb-0" dir="rtl">
+    <div
+      className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-between selection:bg-[#ff3b68] selection:text-white pb-20 sm:pb-0"
+      dir="rtl"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       {/* 🧭 Top Navigation Bar */}
       <nav className="fixed top-0 inset-x-0 z-40 bg-[#070913]/90 backdrop-blur-xl border-b border-white/10 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#ff3b68] to-[#ff758c] flex items-center justify-center text-white shadow-md shadow-[#ff3b68]/40">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-md"
+              style={{
+                background: 'linear-gradient(135deg, #ff3b68 0%, #ff758c 100%)',
+                boxShadow: '0 4px 12px rgba(255, 59, 104, 0.4)',
+              }}
+            >
               <Heart size={16} fill="currentColor" />
             </div>
             <span className="text-lg font-black text-white tracking-wide">
@@ -177,7 +194,13 @@ export default function App({ initialRoute }) {
             <button
               type="button"
               onClick={() => handleOpenOrder()}
-              className="px-3.5 py-1.5 rounded-xl btn-romantic-primary text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-md shadow-[#ff3b68]/30"
+              className="px-3.5 py-1.5 rounded-xl text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-md active:scale-95 transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+                color: '#ffffff',
+                boxShadow: '0 4px 12px rgba(255, 59, 104, 0.4)',
+                border: 'none',
+              }}
             >
               <Gift size={13} />
               <span>اطلب الآن 🚀</span>
@@ -234,7 +257,13 @@ export default function App({ initialRoute }) {
           <button
             type="button"
             onClick={() => handleOpenOrder()}
-            className="flex-1 py-3 rounded-2xl btn-romantic-primary text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#ff3b68]/40"
+            className="flex-1 py-3 rounded-2xl text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 transition-all"
+            style={{
+              background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+              color: '#ffffff',
+              boxShadow: '0 8px 20px -4px rgba(255, 59, 104, 0.5)',
+              border: 'none',
+            }}
           >
             <Gift size={16} />
             <span>اصنع موقعك الخاص الآن 🚀 ({landingData.pricing?.price || 399} ج.م)</span>
