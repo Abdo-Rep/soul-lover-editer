@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CheckCircle2, Heart, Sparkles, MessageCircle, ArrowRight, ShieldCheck, Gift, Clock, Zap } from 'lucide-react'
+import { CheckCircle2, Heart, Sparkles, ArrowRight, Clock } from 'lucide-react'
 import {
   trackPixelPurchase,
   sendMetaConversionsApiEvent,
@@ -37,7 +37,11 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
   }, [currentOrder, pricing.price, pixels.metaPixelId, pixels.metaCapiToken])
 
   return (
-    <div className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-between p-4 sm:p-8" dir="rtl">
+    <div
+      className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-between p-4 sm:p-8 selection:bg-[#ff3b68] selection:text-white"
+      dir="rtl"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
       {/* Background Ambient Glow */}
       <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
@@ -48,16 +52,19 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
           onClick={onBackHome}
           className="flex items-center gap-2 group cursor-pointer"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#ff3b68] to-[#ff758c] flex items-center justify-center text-white font-bold shadow-md shadow-[#ff3b68]/30">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-md"
+            style={{ background: 'linear-gradient(135deg, #ff3b68 0%, #ff758c 100%)', boxShadow: '0 4px 12px rgba(255, 59, 104, 0.4)' }}
+          >
             <Heart size={16} fill="currentColor" />
           </div>
-          <span className="text-lg font-black text-white">Soulove 💖</span>
+          <span className="text-lg font-black text-white">Soulove <span className="text-[#ff3b68]">💖</span></span>
         </button>
 
         <button
           type="button"
           onClick={onBackHome}
-          className="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+          className="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1 cursor-pointer"
         >
           <span>الرئيسية</span>
           <ArrowRight size={14} />
@@ -65,11 +72,17 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
       </header>
 
       {/* Main Thank You Card */}
-      <main className="max-w-xl mx-auto w-full my-auto py-10">
-        <div className="rounded-3xl bg-[#0f142d] border-2 border-emerald-500/40 p-6 sm:p-10 text-center shadow-2xl shadow-emerald-500/10 space-y-6 relative overflow-hidden">
+      <main className="max-w-md mx-auto w-full my-auto py-8">
+        <div
+          className="rounded-3xl bg-[#0f142d] border border-emerald-500/40 p-6 sm:p-8 text-center shadow-2xl space-y-6 relative overflow-hidden"
+          style={{ boxShadow: '0 20px 40px -10px rgba(16, 185, 129, 0.15)' }}
+        >
           
           {/* Animated Celebration Icon */}
-          <div className="relative mx-auto w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border-2 border-emerald-500/50 shadow-xl shadow-emerald-500/20 animate-bounce" style={{ animationDuration: '3s' }}>
+          <div
+            className="relative mx-auto w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border-2 border-emerald-500/50 shadow-xl shadow-emerald-500/20 animate-bounce"
+            style={{ animationDuration: '3s' }}
+          >
             <CheckCircle2 size={44} strokeWidth={2.5} />
             <Sparkles size={18} className="absolute -top-1 -right-1 text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
           </div>
@@ -77,7 +90,7 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
           {/* Success Title */}
           <div className="space-y-2">
             <span className="inline-block px-4 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-xs font-black">
-              🎉 تم تأكيد طلبك بنجاح!
+              🎉 تم استلام وتأكيد طلبك بنجاح!
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-white">
               مبروك مقدماً على هديتك المميزة 💖
@@ -95,13 +108,13 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-slate-400">مقدم الطلب:</span>
+              <span className="text-slate-400">اسم الشاب (الولد):</span>
               <span className="text-white font-bold">{currentOrder?.yourName || 'عميلنا العزيز'}</span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-slate-400">اسم الشريك / المحبوب:</span>
-              <span className="text-[#ff758c] font-bold">{currentOrder?.partnerName || 'الشريك'} 💖</span>
+              <span className="text-slate-400">اسم الشريكة (البنت):</span>
+              <span className="text-[#ff758c] font-bold">{currentOrder?.partnerName || 'الشريكة'} 💖</span>
             </div>
 
             <div className="flex justify-between items-center">
@@ -116,7 +129,7 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
 
             <div className="flex justify-between items-center pt-2 border-t border-white/5">
               <span className="text-slate-400 font-bold">المبلغ المطلوب:</span>
-              <span className="text-emerald-400 font-black text-base">{pricing?.price || '399'} ج.م</span>
+              <span className="text-emerald-400 font-black text-base">{pricing?.price || '260'} ج.م</span>
             </div>
           </div>
 
@@ -131,26 +144,20 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
             </p>
           </div>
 
-          {/* WhatsApp Direct Contact Button */}
-          <div className="space-y-2.5 pt-2">
-            <a
-              href={`https://wa.me/201020304050?text=${encodeURIComponent(
-                `مرحباً! لقد قمت بطلب موقع Soulove برقم #${currentOrder?.id ? currentOrder.id.slice(-6) : '789214'} باسم (${currentOrder?.yourName || ''} & ${currentOrder?.partnerName || ''}) وأرغب في استلام الموقع 🚀`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-emerald-600/30 transition-all hover:scale-[1.02]"
-            >
-              <MessageCircle size={18} />
-              <span>متابعة الطلب فوراً عبر الواتساب 💬</span>
-            </a>
-
+          {/* Back Home CTA Button */}
+          <div className="pt-2">
             <button
               type="button"
               onClick={onBackHome}
-              className="w-full py-3 rounded-xl bg-[#181f44] hover:bg-[#20295a] text-slate-300 hover:text-white font-bold text-xs cursor-pointer transition-colors"
+              className="w-full py-3.5 rounded-2xl text-white font-black text-sm cursor-pointer shadow-lg active:scale-95 transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+                color: '#ffffff',
+                boxShadow: '0 8px 20px -4px rgba(255, 59, 104, 0.5)',
+                border: 'none',
+              }}
             >
-              العودة لصفحة الهبوط الرئيسية
+              العودة للرئيسية 💖
             </button>
           </div>
 

@@ -13,7 +13,6 @@ export default function OrderModal({
     partnerName: '',
     phone: '',
     package: selectedPackage,
-    notes: '',
   })
 
   if (!isOpen) return null
@@ -23,11 +22,10 @@ export default function OrderModal({
 
     // 1. Save order directly into database / local store
     saveOrder({
-      yourName: formData.yourName,
-      partnerName: formData.partnerName,
-      phone: formData.phone,
+      yourName: formData.yourName.trim(),
+      partnerName: formData.partnerName.trim(),
+      phone: formData.phone.trim(),
       package: formData.package || selectedPackage,
-      notes: formData.notes,
     }).then((newOrder) => {
       // 2. Redirect to dedicated Order Success / Thank You page for Meta Pixel Purchase tracking!
       if (onOrderSuccess) {
@@ -49,7 +47,7 @@ export default function OrderModal({
       }}
     >
       <div
-        className="w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-right relative animate-in fade-in zoom-in-95 duration-200"
+        className="w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-right relative animate-in fade-in zoom-in-95 duration-200"
         style={{
           background: '#0f142d',
           border: '1px solid rgba(255, 59, 104, 0.4)',
@@ -73,73 +71,59 @@ export default function OrderModal({
             style={{ background: 'rgba(255, 59, 104, 0.15)', border: '1px solid rgba(255, 59, 104, 0.3)' }}
           >
             <Gift size={14} />
-            <span>نموذج طلب إنشاء الموقع 🚀</span>
+            <span>طلب إنشاء الموقع 🚀</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-white">
             املأ بياناتك وسنجهز موقعك فوراً 💖
           </h3>
           <p className="text-xs text-slate-300">
-            ادخل بياناتك وسيقوم فريقنا ببرمجة موقعكم الخاص والتواصل معكم لتسليم الرابط وكرت الـ QR.
+            ادخل الأسماء ورقم الواتساب وسيتواصل معك فريقنا لتسليم الموقع وكرت الـ QR.
           </p>
         </div>
 
         {/* Order Form Inputs */}
-        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+        <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-1">
-              اسمك الكامل:
+              اسمك الأول (الولد):
             </label>
             <input
               type="text"
               required
-              placeholder="مثال: كريم أحمد"
+              placeholder="مثال: كريم"
               value={formData.yourName}
               onChange={(e) => setFormData({ ...formData, yourName: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none"
+              className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff3b68]"
               style={{ background: '#080b1a', border: '1px solid #232d56' }}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-1">
-              اسم شريكك / حبيبتك:
+              اسم حبيبتك الأول (البنت):
             </label>
             <input
               type="text"
               required
-              placeholder="مثال: هلا"
+              placeholder="مثال: سارة"
               value={formData.partnerName}
               onChange={(e) => setFormData({ ...formData, partnerName: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none"
+              className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff3b68]"
               style={{ background: '#080b1a', border: '1px solid #232d56' }}
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-1">
-              رقم هاتفك / الواتساب (للتواصل واستلام الرابط):
+              رقم الواتساب (للتواصل واستلام الرابط):
             </label>
             <input
               type="tel"
               required
-              placeholder="مثال: 010xxxxxxxx"
+              placeholder="مثال: 01012345678"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none font-mono"
-              style={{ background: '#080b1a', border: '1px solid #232d56' }}
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1">
-              تاريخ مميز بينكما أو ملاحظات خاصة (اختياري):
-            </label>
-            <textarea
-              rows={2}
-              placeholder="مثال: تاريخ أول لقاء 14 فبراير، أو اسم الأغنية التي تحبونها..."
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl text-white text-sm focus:outline-none"
+              className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff3b68] font-mono"
               style={{ background: '#080b1a', border: '1px solid #232d56' }}
             />
           </div>
