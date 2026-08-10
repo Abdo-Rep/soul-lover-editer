@@ -25,7 +25,19 @@ import {
   deleteOrder,
 } from '../data/landingStore'
 
+const ADMIN_PASSWORD = 'Mohammedosha1#'
+const AUTH_STORAGE_KEY = 'soulove_landing_admin_auth_v1'
+
 export default function AdminDashboard({ onExitAdmin }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof sessionStorage !== 'undefined') {
+      return sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true'
+    }
+    return false
+  })
+  const [passwordInput, setPasswordInput] = useState('')
+  const [authError, setAuthError] = useState(false)
+
   const [activeTab, setActiveTab] = useState('pricing')
   const [data, setData] = useState(getLandingData())
   const [orders, setOrders] = useState(getStoredOrders())
@@ -41,6 +53,26 @@ export default function AdminDashboard({ onExitAdmin }) {
   useEffect(() => {
     setOrders(getStoredOrders())
   }, [])
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true)
+      setAuthError(false)
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, 'true')
+      }
+    } else {
+      setAuthError(true)
+    }
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY)
+    }
+  }
 
   const handleSaveAll = () => {
     saveLandingData(data)
@@ -160,14 +192,80 @@ export default function AdminDashboard({ onExitAdmin }) {
     }
   }
 
+  // 🔒 Password Protection Screen
+  if (!isAuthenticated) {
+    return (
+      <div
+        className="min-h-screen bg-[#070913] text-slate-100 flex items-center justify-center p-4 selection:bg-[#ff3b68] selection:text-white"
+        dir="rtl"
+        style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+      >
+        <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl bg-[#0f142d] border border-[#ff3b68]/30 shadow-2xl space-y-6 text-center">
+          <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-white shadow-xl shadow-[#ff3b68]/30" style={{ background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)' }}>
+            <KeyRound size={28} />
+          </div>
+
+          <div className="space-y-1.5">
+            <h1 className="text-xl sm:text-2xl font-black text-white">دخول لوحة تحكم صفحة الهبوط 🔒</h1>
+            <p className="text-xs text-slate-300">أدخل كلمة المرور السرية للمتابعة وإدارة الأسعار والإعدادات والطلبات</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4 pt-2">
+            <div className="text-right">
+              <label className="block text-xs font-bold text-slate-300 mb-1.5">كلمة المرور:</label>
+              <input
+                type="password"
+                required
+                autoFocus
+                placeholder="••••••••••••"
+                value={passwordInput}
+                onChange={(e) => {
+                  setPasswordInput(e.target.value)
+                  if (authError) setAuthError(false)
+                }}
+                className="w-full px-4 py-3 rounded-xl bg-[#070913] border border-[#232d56] text-white text-sm focus:outline-none focus:border-[#ff3b68] font-mono text-center tracking-widest"
+              />
+              {authError && (
+                <p className="text-xs text-rose-400 font-bold mt-1.5 text-center">
+                  ❌ كلمة المرور غير صحيحة، يرجى المحاولة مرة أخرى!
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+                color: '#ffffff',
+                boxShadow: '0 8px 20px -4px rgba(255, 59, 104, 0.5)',
+                border: 'none',
+              }}
+            >
+              <span>تسجيل الدخول للوحة التحكم 🚀</span>
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={onExitAdmin}
+            className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer block mx-auto pt-2"
+          >
+            ← العودة لصفحة الهبوط الرئيسية
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-[#070913] text-slate-100 p-4 sm:p-8" dir="rtl">
+    <div className="min-h-screen bg-[#070913] text-slate-100 p-4 sm:p-8" dir="rtl" style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}>
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Header */}
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[#0f142d] border border-[#ff3b68]/30 shadow-xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ff3b68] to-[#ff758c] flex items-center justify-center text-white font-bold shadow-md shadow-[#ff3b68]/30">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md shadow-[#ff3b68]/30" style={{ background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)' }}>
               <ShieldCheck size={22} />
             </div>
             <div>
@@ -180,7 +278,12 @@ export default function AdminDashboard({ onExitAdmin }) {
             <button
               type="button"
               onClick={handleSaveAll}
-              className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl btn-romantic-primary text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-transform"
+              className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-transform"
+              style={{
+                background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+                color: '#ffffff',
+                border: 'none',
+              }}
             >
               <Save size={16} />
               <span>{saveSuccess ? '✅ تم الحفظ بنجاح!' : 'حفظ التعديلات 💾'}</span>
@@ -193,6 +296,16 @@ export default function AdminDashboard({ onExitAdmin }) {
             >
               <span>معاينة الموقع</span>
               <ExternalLink size={14} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-3.5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:text-rose-200 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+              title="تسجيل الخروج وقفل اللوحة"
+            >
+              <KeyRound size={14} />
+              <span>خروج</span>
             </button>
           </div>
         </header>

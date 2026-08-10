@@ -183,18 +183,8 @@ export default function App({ initialRoute }) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={openAdmin}
-              className="p-2 rounded-xl bg-[#131836] border border-white/10 text-slate-400 hover:text-white transition-colors text-xs font-bold flex items-center gap-1 cursor-pointer"
-              title="لوحة التحكم"
-            >
-              <ShieldCheck size={15} />
-              <span className="text-[11px]">لوحة التحكم</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => handleOpenOrder()}
-              className="px-3.5 py-1.5 rounded-xl text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-md active:scale-95 transition-all"
+              className="px-4 py-2 rounded-xl text-white font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition-all"
               style={{
                 background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
                 color: '#ffffff',
@@ -202,7 +192,7 @@ export default function App({ initialRoute }) {
                 border: 'none',
               }}
             >
-              <Gift size={13} />
+              <Gift size={14} />
               <span>اطلب الآن 🚀</span>
             </button>
           </div>
