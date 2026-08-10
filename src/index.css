@@ -57,9 +57,17 @@ html {
   font-size: 112.5%; /* كبر الفونت درجتين صغيرين */
   overflow-x: hidden;
   scroll-behavior: smooth;
-  scrollbar-gutter: stable;
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 body {
@@ -71,6 +79,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 button, a, input, select, textarea {
@@ -179,32 +189,26 @@ button, [role="button"], label, a, select {
   }
 
   * {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(var(--theme-rgb) / 0.45) transparent;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 }
 
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 .romantic-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(var(--theme-rgb) / 0.45) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .romantic-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 4px;
-}
-
-.romantic-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.romantic-scrollbar::-webkit-scrollbar-thumb {
-  background: rgb(var(--theme-rgb) / 0.45);
-  border-radius: 999px;
-}
-
-.romantic-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--theme-rgb) / 0.55);
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .theme-shadow-button {

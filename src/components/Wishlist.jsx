@@ -122,35 +122,14 @@ export default function Wishlist({ onNext }) {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => handleToggle(item.id)}
-                  className={`group relative overflow-hidden rounded-[24px] border p-4 cursor-pointer transition-all duration-300 flex items-center justify-between gap-3 text-right backdrop-blur-md ${
+                  className={`group relative overflow-hidden rounded-[24px] border p-4 sm:p-5 cursor-pointer transition-all duration-300 backdrop-blur-md space-y-2.5 ${
                     isDone
                       ? 'border-rose-300/80 dark:border-rose-700/60 bg-rose-50/90 dark:bg-rose-955/40 shadow-sm'
                       : 'border-rose-100 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-md shadow-rose-900/5 dark:shadow-rose-950/30 hover:border-rose-300 dark:hover:border-rose-600 hover:shadow-xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 hover:-translate-y-0.5'
                   }`}
                 >
-                  {/* Left Side: Dynamic Status Badge */}
-                  {isDone ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-1 text-xs font-black text-white shadow-sm shadow-rose-200 dark:shadow-rose-900">
-                      <CheckCircle2 size={13} className="text-white" />
-                      <span>{isEs ? 'Logrado 💖' : isEn ? 'Done 💖' : 'تم بحب 💖'}</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-700/60 bg-rose-50/90 dark:bg-rose-950/80 px-3.5 py-1 text-xs font-black text-rose-800 dark:text-rose-200 shadow-xs group-hover:border-rose-300">
-                      <Sparkles size={12} className="text-rose-500 dark:text-rose-400" />
-                      <span>{isEs ? 'Sueño por cumplir ✨' : isEn ? 'A dream we wait for ✨' : 'حُلم ننتظره ✨'}</span>
-                    </span>
-                  )}
-
-                  {/* Right Side: Text & Interactive Romantic Heart Button */}
-                  <div className="flex items-center gap-3.5 flex-1 min-w-0 justify-end dir-rtl">
-                    <span
-                      className={`text-sm sm:text-base font-extrabold leading-relaxed break-words text-right flex-1 ${
-                        isDone ? 'text-rose-900/50 dark:text-rose-300/60 line-through' : 'text-rose-950 dark:text-white font-display'
-                      }`}
-                    >
-                      {item.text}
-                    </span>
-
+                  {/* Top Row: Full-width Text + 3D Heart Checkbox */}
+                  <div className="flex items-center justify-between gap-3.5 dir-rtl text-right">
                     {/* Round 3D Interactive Heart Checkbox */}
                     <button
                       type="button"
@@ -171,6 +150,30 @@ export default function Wishlist({ onNext }) {
                         <Heart size={19} className="fill-current" />
                       )}
                     </button>
+
+                    {/* Text in full width */}
+                    <span
+                      className={`flex-1 text-sm sm:text-base font-extrabold leading-normal text-right ${
+                        isDone ? 'text-rose-900/50 dark:text-rose-300/60 line-through' : 'text-rose-950 dark:text-white font-display'
+                      }`}
+                    >
+                      {item.text}
+                    </span>
+                  </div>
+
+                  {/* Bottom Row: Status Badge */}
+                  <div className="flex items-center justify-start pt-0.5 dir-rtl">
+                    {isDone ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-0.5 text-[11px] font-black text-white shadow-xs">
+                        <CheckCircle2 size={12} className="text-white" />
+                        <span>{isEs ? 'Logrado 💖' : isEn ? 'Done 💖' : 'تم بحب 💖'}</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-700/60 bg-rose-50/90 dark:bg-rose-950/80 px-3 py-0.5 text-[11px] font-black text-rose-800 dark:text-rose-200 shadow-xs">
+                        <Sparkles size={11} className="text-rose-500 dark:text-rose-400" />
+                        <span>{isEs ? 'Sueño por cumplir ✨' : isEn ? 'A dream we wait for ✨' : 'حُلم ننتظره ✨'}</span>
+                      </span>
+                    )}
                   </div>
                 </motion.div>
               )
