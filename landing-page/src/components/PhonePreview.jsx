@@ -124,7 +124,7 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
         <button
           type="button"
           onClick={onOpenOrder}
-          className="w-full py-4 rounded-2xl text-white font-black text-sm cursor-pointer transition-all active:scale-95 shadow-xl"
+          className="w-full py-3.5 px-4 rounded-2xl text-white font-black text-sm flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow-xl"
           style={{
             background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
             color: '#ffffff',
@@ -132,7 +132,10 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
             border: 'none',
           }}
         >
-          أريد إنشاء موقع مثل هذا بالضبط الآن! 🚀
+          <span>أريد إنشاء موقع مثل هذا بالضبط الآن! 🚀</span>
+          <span className="text-[11px] font-bold text-amber-200">
+            💳 الدفع بعد استلام وتجربة الموقع 100%
+          </span>
         </button>
       </div>
     </section>

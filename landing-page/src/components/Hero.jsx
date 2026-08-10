@@ -50,7 +50,7 @@ export default function Hero({ hero = {}, onOpenOrder, onScrollToDemo }) {
           <button
             type="button"
             onClick={onOpenOrder}
-            className="w-full py-4 rounded-2xl text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+            className="w-full py-3.5 sm:py-4 px-4 rounded-2xl text-white font-black text-sm sm:text-base flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
               color: '#ffffff',
@@ -58,8 +58,13 @@ export default function Hero({ hero = {}, onOpenOrder, onScrollToDemo }) {
               border: 'none',
             }}
           >
-            <Gift size={18} />
-            <span>اصنع موقعك الآن بضغطة زر 🚀</span>
+            <div className="flex items-center gap-2">
+              <Gift size={18} />
+              <span>اصنع موقعك الآن بضغطة زر 🚀</span>
+            </div>
+            <span className="text-[11px] sm:text-xs font-bold text-amber-200 flex items-center gap-1">
+              <span>💳 الدفع بعد استلام الموقع والمعاينة 100%</span>
+            </span>
           </button>
 
           <button

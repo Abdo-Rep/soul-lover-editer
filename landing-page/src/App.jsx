@@ -184,7 +184,7 @@ export default function App({ initialRoute }) {
             <button
               type="button"
               onClick={() => handleOpenOrder()}
-              className="px-4 py-2 rounded-xl text-white font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition-all"
+              className="px-3.5 py-1.5 rounded-xl text-white font-black text-xs flex flex-col items-center justify-center cursor-pointer shadow-md active:scale-95 transition-all"
               style={{
                 background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
                 color: '#ffffff',
@@ -192,8 +192,11 @@ export default function App({ initialRoute }) {
                 border: 'none',
               }}
             >
-              <Gift size={14} />
-              <span>اطلب الآن 🚀</span>
+              <div className="flex items-center gap-1">
+                <Gift size={13} />
+                <span>اطلب الآن ({landingData.pricing?.price || 260} ج.م) 🚀</span>
+              </div>
+              <span className="text-[9.5px] font-bold text-amber-200 leading-none pt-0.5">الدفع بعد الاستلام 💳</span>
             </button>
           </div>
         </div>
