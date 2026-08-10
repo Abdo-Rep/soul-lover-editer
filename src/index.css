@@ -1001,3 +1001,75 @@ html.dark .pwa-banner-close:hover {
   background-color: color-mix(in srgb, var(--theme-900) 40%, transparent);
 }
 
+/* =========================================================================
+   🚀 SOULOVE LANDING PAGE ISOLATED SCOPE & STYLING
+   ========================================================================= */
+.soulove-landing-wrapper,
+.soulove-landing-wrapper * {
+  font-family: 'Cairo', 'Almarai', system-ui, -apple-system, sans-serif !important;
+  box-sizing: border-box;
+}
+
+.soulove-landing-wrapper {
+  background-color: #070913 !important;
+  color: #f1f5f9 !important;
+  min-height: 100vh;
+}
+
+.soulove-landing-wrapper .btn-romantic-primary {
+  background: linear-gradient(135deg, #ff3b68 0%, #ff527b 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 8px 20px -4px rgba(255, 59, 104, 0.45) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.soulove-landing-wrapper .btn-romantic-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 25px -4px rgba(255, 59, 104, 0.6) !important;
+  color: #ffffff !important;
+}
+
+.soulove-landing-wrapper .btn-romantic-primary:active {
+  transform: scale(0.98) !important;
+}
+
+.soulove-landing-wrapper .romantic-gradient-text {
+  background: linear-gradient(135deg, #ff3b68 0%, #ff758c 50%, #ff8fa3 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #ff3b68;
+}
+
+.soulove-landing-wrapper .gold-gradient-text {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.soulove-landing-wrapper .glow-card {
+  position: relative;
+  background: rgba(14, 18, 38, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 59, 104, 0.22) !important;
+  box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.6), 0 0 15px 0 rgba(255, 59, 104, 0.08) !important;
+}
+
+.soulove-landing-wrapper .glow-card-active {
+  background: rgba(18, 23, 50, 0.95) !important;
+  border: 1.5px solid rgba(255, 59, 104, 0.6) !important;
+  box-shadow: 0 10px 30px -10px rgba(255, 59, 104, 0.35), 0 0 25px 0 rgba(255, 59, 104, 0.15) !important;
+}
+
+.soulove-landing-wrapper .phone-mockup-mobile {
+  position: relative;
+  background: #0b0e20 !important;
+  border-radius: 28px !important;
+  border: 3px solid #232d56 !important;
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 59, 104, 0.15) !important;
+  overflow: hidden !important;
+}
