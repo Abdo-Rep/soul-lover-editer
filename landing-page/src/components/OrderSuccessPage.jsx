@@ -165,8 +165,19 @@ export default function OrderSuccessPage({ orderId, onBackHome, pricing = {} }) 
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-[11px] text-slate-500 py-4">
-        <span>Soulove Platform © {new Date().getFullYear()} - جميع الحقوق محفوظة</span>
+      <footer className="text-center text-[11px] text-slate-500 py-4 space-y-1" dir="ltr">
+        <div>© {new Date().getFullYear()} Soulove Platform. All rights reserved.</div>
+        <div className="text-slate-400">
+          Developed by{' '}
+          <a
+            href="https://apex-scale.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-cyan-400 hover:text-cyan-300 underline decoration-cyan-500/40 underline-offset-4 inline-flex items-center gap-1"
+          >
+            <span>APEX</span>
+          </a>
+        </div>
       </footer>
     </div>
   )

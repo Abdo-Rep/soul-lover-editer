@@ -1,13 +1,22 @@
 import React from 'react'
-import { Heart, Sparkles, ShieldCheck } from 'lucide-react'
+import { Heart, Sparkles, ShieldCheck, ExternalLink } from 'lucide-react'
 
 export default function Footer({ onOpenOrder }) {
   return (
-    <footer className="border-t border-white/10 bg-[#050711] py-14 px-4 text-center">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <footer
+      className="border-t border-white/10 bg-[#050711] py-12 px-4 text-center"
+      style={{ fontFamily: "'Cairo', 'Almarai', system-ui, sans-serif" }}
+    >
+      <div className="max-w-md mx-auto space-y-6">
         {/* Logo / Brand */}
         <div className="flex items-center justify-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-[#ff3b68] flex items-center justify-center text-white shadow-md shadow-[#ff3b68]/40">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white shadow-md"
+            style={{
+              background: 'linear-gradient(135deg, #ff3b68 0%, #ff758c 100%)',
+              boxShadow: '0 4px 12px rgba(255, 59, 104, 0.4)',
+            }}
+          >
             <Heart size={18} fill="currentColor" />
           </div>
           <span className="text-xl font-black text-white tracking-wide">
@@ -15,26 +24,44 @@ export default function Footer({ onOpenOrder }) {
           </span>
         </div>
 
-        <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs text-slate-400 leading-relaxed font-medium">
           المنصة الرائدة في تحويل أجمل لحظات الحب والذكريات إلى تجارب رقمية فاخرة ومحمية تدوم للأبد.
         </p>
 
         {/* CTA Bar */}
-        <div className="pt-2">
+        <div className="pt-1">
           <button
             type="button"
             onClick={onOpenOrder}
-            className="px-6 py-3 rounded-xl btn-romantic-primary text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#ff3b68]/30 cursor-pointer"
+            className="w-full py-3.5 px-6 rounded-2xl text-white font-black text-xs sm:text-sm cursor-pointer shadow-lg active:scale-95 transition-all"
+            style={{
+              background: 'linear-gradient(135deg, #ff3b68 0%, #ff527b 100%)',
+              color: '#ffffff',
+              boxShadow: '0 8px 20px -4px rgba(255, 59, 104, 0.5)',
+              border: 'none',
+            }}
           >
             اصنع موقعكم الخاص الآن 🚀
           </button>
         </div>
 
-        <div className="pt-6 border-t border-white/5 text-[11px] text-slate-500 font-medium flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>جميع الحقوق محفوظة © {new Date().getFullYear()} Soulove Platform.</span>
-          <div className="flex items-center gap-4">
-            <span className="hover:text-slate-300 cursor-pointer">سياسة الخصوصية والأمان</span>
-            <span className="hover:text-slate-300 cursor-pointer">الشروط والأحكام</span>
+        {/* ⚡ Developed by APEX Badge (English Link) */}
+        <div className="pt-4 border-t border-white/5 space-y-2 text-center" dir="ltr">
+          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium">
+            <span>Developed by</span>
+            <a
+              href="https://apex-scale.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-black text-cyan-400 hover:text-cyan-300 transition-all hover:scale-105 underline decoration-cyan-500/40 underline-offset-4 tracking-wide"
+            >
+              <span>APEX</span>
+              <ExternalLink size={12} />
+            </a>
+          </div>
+
+          <div className="text-[11px] text-slate-500">
+            <span>© {new Date().getFullYear()} Soulove Platform. All rights reserved.</span>
           </div>
         </div>
       </div>
