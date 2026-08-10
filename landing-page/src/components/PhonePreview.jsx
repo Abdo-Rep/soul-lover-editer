@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ExternalLink, KeyRound, Heart, Copy, Check, Sparkles } from 'lucide-react'
+import { ExternalLink, KeyRound, Heart, Copy, Check } from 'lucide-react'
 
 export default function PhonePreview({ demo = {}, onOpenOrder }) {
   const {
@@ -65,26 +65,32 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
         </div>
       </div>
 
-      {/* Mobile Live Interactive Frame */}
-      <div className="relative mx-auto w-full">
-        {/* Glow */}
-        <div className="absolute inset-0 bg-[#ff3b68]/20 blur-2xl rounded-3xl pointer-events-none" />
+      {/* 📱 6.7" Xiaomi / Flagship Phone Frame (Full 20:9 Aspect Ratio) */}
+      <div className="relative mx-auto w-full max-w-[380px] sm:max-w-[400px]">
+        {/* Ambient Glow */}
+        <div className="absolute inset-0 bg-[#ff3b68]/20 blur-3xl rounded-[42px] pointer-events-none" />
 
         <div
-          className="relative z-10 w-full h-[520px] sm:h-[580px] flex flex-col justify-between shadow-2xl overflow-hidden"
+          className="relative z-10 w-full h-[740px] sm:h-[790px] flex flex-col justify-between shadow-2xl overflow-hidden"
           style={{
-            background: '#0b0e20',
-            borderRadius: '28px',
-            border: '3px solid #232d56',
-            boxShadow: '0 15px 35px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 59, 104, 0.15)',
+            background: '#070913',
+            borderRadius: '40px',
+            border: '4px solid #232d56',
+            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 59, 104, 0.2)',
           }}
         >
           
-          {/* Top Notch Bar */}
-          <div className="h-8 w-full bg-[#0b0e20] flex items-center justify-between px-4 text-[10px] text-slate-400 font-mono border-b border-white/5 shrink-0 z-20">
-            <span>Soulove Live Demo 🔒</span>
+          {/* Top Status Bar with Xiaomi-Style Dot Camera */}
+          <div className="h-9 w-full bg-[#0b0e20] flex items-center justify-between px-5 text-[10px] text-slate-400 font-mono border-b border-white/5 shrink-0 z-20 relative">
+            <span className="text-[11px] font-bold text-slate-300">9:41</span>
+            
+            {/* Center Dot Camera Punch-Hole */}
+            <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border border-white/10 flex items-center justify-center shadow-inner">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#182042]" />
+            </div>
+
             <span className="text-[#ff3b68] flex items-center gap-1 font-bold">
-              <span>9:41</span>
+              <span>Soulove</span>
               <Heart size={10} fill="currentColor" />
             </span>
           </div>
@@ -100,24 +106,28 @@ export default function PhonePreview({ demo = {}, onOpenOrder }) {
             />
           </div>
 
-          {/* Bottom Bar Info */}
-          <div className="p-2 bg-[#0b0e20] border-t border-white/10 flex items-center justify-between px-3.5 text-xs shrink-0 z-20">
-            <span className="text-[10px] text-slate-300 font-bold">موقع حقيقي متجاوب ✨</span>
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#ff8fa3] hover:text-white flex items-center gap-1 text-[10px] font-bold"
-            >
-              <span>ملء الشاشة</span>
-              <ExternalLink size={11} />
-            </a>
+          {/* Bottom Bar Info & Home Indicator */}
+          <div className="p-2.5 bg-[#0b0e20] border-t border-white/10 flex flex-col items-center gap-1.5 shrink-0 z-20">
+            <div className="w-full flex items-center justify-between px-3 text-xs">
+              <span className="text-[10px] text-slate-300 font-bold">موقع حقيقي متجاوب 6.7" ✨</span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#ff8fa3] hover:text-white flex items-center gap-1 text-[10px] font-bold"
+              >
+                <span>ملء الشاشة</span>
+                <ExternalLink size={11} />
+              </a>
+            </div>
+            {/* Phone Home Bar */}
+            <div className="w-32 h-1 rounded-full bg-white/20" />
           </div>
 
         </div>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2.5">
+      <div className="mt-6 flex flex-col gap-2.5">
         <button
           type="button"
           onClick={onOpenOrder}
