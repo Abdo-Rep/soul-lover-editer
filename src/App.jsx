@@ -13,12 +13,18 @@ export default function App() {
         {/* Secret Super Admin Control Panel */}
         <Route path="/soulove-admin" element={<SuperAdmin />} />
 
+        {/* Dedicated Landing Page Routes */}
+        <Route path="/" element={<RootLanding />} />
+        <Route path="/landing" element={<RootLanding />} />
+        <Route path="/landing-page" element={<RootLanding />} />
+        <Route path="/order-success" element={<RootLanding />} />
+        <Route path="/thank-you" element={<RootLanding />} />
+
         {/* Client Dashboard / Login */}
         <Route path="/:clientSlug/login" element={<Dashboard />} />
         <Route path="/:clientSlug/dashboard" element={<Dashboard />} />
 
-        {/* Root Visitor Page & Dynamic Client Site at /:clientSlug */}
-        <Route path="/" element={<RootLanding />} />
+        {/* Dynamic Client Site at /:clientSlug */}
         <Route path="/:clientSlug" element={<Home />} />
 
         {/* 404 Fallback Error Page for Invalid Paths */}
