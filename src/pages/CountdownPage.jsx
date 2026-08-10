@@ -79,30 +79,27 @@ function LiveCountdownCard({ timer, tick }) {
   if (!timeLeft) return null
 
   return (
-    <article className="group relative overflow-hidden rounded-3xl border border-rose-200/80 bg-white/90 p-6 shadow-xl shadow-rose-900/10 backdrop-blur-md transition-all duration-300 hover:shadow-2xl hover:shadow-rose-300/30 text-center">
-      {/* Background Ambient Glow */}
-      <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-gradient-to-br from-rose-300/30 to-pink-200/20 blur-2xl transition-all duration-500 group-hover:scale-150" />
-
+    <article className="group relative overflow-hidden rounded-3xl border border-rose-200/80 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 p-6 shadow-md dark:shadow-rose-950/20 backdrop-blur-md transition-all duration-300 hover:shadow-lg text-center">
       {/* Timer Header */}
-      <div className="mb-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 px-4 py-1.5 text-sm font-bold text-white shadow-md shadow-rose-200">
+      <div className="mb-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--theme-500)] via-[var(--theme-600)] to-[var(--theme-500)] px-4.5 py-1.5 text-sm font-bold text-white shadow-xs">
         <Clock size={15} className="text-white" />
         <span className="font-display">{timer.title || (isEs ? 'Evento próximo' : isEn ? 'Upcoming Event' : 'مناسبة قادمة')}</span>
         <Heart size={13} className="fill-white text-white" />
       </div>
 
       {timer.description && (
-        <p className="mb-5 text-xs sm:text-sm font-semibold text-rose-800/90 leading-relaxed max-w-sm mx-auto">
+        <p className="mb-5 text-xs sm:text-sm font-semibold text-rose-800/90 dark:text-rose-200 leading-relaxed max-w-sm mx-auto">
           {timer.description}
         </p>
       )}
 
       {/* Live Digit Cards Grid */}
       {timeLeft.isFinished ? (
-        <div className={`my-2 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-center transition-all duration-700 ${celebrated ? 'scale-105' : ''}`}>
-          <span className="text-2xl font-bold text-rose-600 block mb-1">
+        <div className={`my-2 rounded-2xl bg-rose-50 dark:bg-slate-800/80 border border-rose-200 dark:border-rose-700/60 p-4 text-center transition-all duration-700 ${celebrated ? 'scale-105' : ''}`}>
+          <span className="text-2xl font-bold text-[var(--theme-600)] dark:text-[var(--theme-300)] block mb-1">
             {isEs ? '🎉 ¡Llegó el gran momento! 🎉' : isEn ? '🎉 The happy moment is here! 🎉' : '🎉 حان الموعد السعيد! 🎉'}
           </span>
-          <span className="text-xs text-rose-500 font-semibold">
+          <span className="text-xs text-[var(--theme-500)] dark:text-[var(--theme-400)] font-semibold">
             {isEs ? 'El evento ha comenzado con los mejores deseos 💖' : isEn ? 'The event has started with our best wishes 💖' : 'المناسبة بدأت الآن مع أجمل الأماني 💖'}
           </span>
           {/* Mini heart burst on finish */}
@@ -115,41 +112,41 @@ function LiveCountdownCard({ timer, tick }) {
       ) : (
         <div className="grid grid-cols-4 gap-2 sm:gap-3 my-2">
           {/* Days */}
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-100 bg-gradient-to-b from-rose-50/90 to-pink-50/50 p-2.5 shadow-sm">
-            <span className="font-display text-xl sm:text-2xl font-black text-rose-900 leading-none tabular-nums">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-100 dark:border-rose-800/60 bg-gradient-to-b from-rose-50/90 to-pink-50/50 dark:from-slate-800/90 dark:to-slate-800/50 p-2.5 shadow-xs">
+            <span className="font-display text-xl sm:text-2xl font-black text-rose-900 dark:text-white leading-none tabular-nums">
               {String(timeLeft.days).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-400 mt-1">
+            <span className="text-[10px] font-bold text-[var(--theme-400)] mt-1">
               {isEs ? 'Días' : isEn ? 'Days' : 'أيام'}
             </span>
           </div>
 
           {/* Hours */}
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-100 bg-gradient-to-b from-rose-50/90 to-pink-50/50 p-2.5 shadow-sm">
-            <span className="font-display text-xl sm:text-2xl font-black text-rose-900 leading-none tabular-nums">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-100 dark:border-rose-800/60 bg-gradient-to-b from-rose-50/90 to-pink-50/50 dark:from-slate-800/90 dark:to-slate-800/50 p-2.5 shadow-xs">
+            <span className="font-display text-xl sm:text-2xl font-black text-rose-900 dark:text-white leading-none tabular-nums">
               {String(timeLeft.hours).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-400 mt-1">
+            <span className="text-[10px] font-bold text-[var(--theme-400)] mt-1">
               {isEs ? 'Horas' : isEn ? 'Hours' : 'ساعات'}
             </span>
           </div>
 
           {/* Minutes */}
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-100 bg-gradient-to-b from-rose-50/90 to-pink-50/50 p-2.5 shadow-sm">
-            <span className="font-display text-xl sm:text-2xl font-black text-rose-900 leading-none tabular-nums">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-100 dark:border-rose-800/60 bg-gradient-to-b from-rose-50/90 to-pink-50/50 dark:from-slate-800/90 dark:to-slate-800/50 p-2.5 shadow-xs">
+            <span className="font-display text-xl sm:text-2xl font-black text-rose-900 dark:text-white leading-none tabular-nums">
               {String(timeLeft.minutes).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-400 mt-1">
+            <span className="text-[10px] font-bold text-[var(--theme-400)] mt-1">
               {isEs ? 'Minutos' : isEn ? 'Mins' : 'دقائق'}
             </span>
           </div>
 
           {/* Seconds */}
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200/90 bg-gradient-to-b from-rose-500 to-pink-500 p-2.5 shadow-md shadow-rose-200 text-white">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--theme-400)]/40 bg-gradient-to-b from-[var(--theme-500)] to-[var(--theme-600)] p-2.5 shadow-xs text-white">
             <span className="font-display text-xl sm:text-2xl font-black leading-none tabular-nums">
               {String(timeLeft.seconds).padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-bold text-rose-100 mt-1">
+            <span className="text-[10px] font-bold text-white/90 mt-1">
               {isEs ? 'Segundos' : isEn ? 'Secs' : 'ثواني'}
             </span>
           </div>

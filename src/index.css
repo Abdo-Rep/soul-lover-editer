@@ -288,7 +288,7 @@ button, [role="button"], label, a, select {
 .theme-neumorph-btn-active {
   background: linear-gradient(135deg, var(--theme-500), var(--theme-600)) !important;
   color: #ffffff !important;
-  box-shadow: 0 6px 18px rgb(var(--theme-rgb) / 0.45) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .theme-neumorph-disc-ring {

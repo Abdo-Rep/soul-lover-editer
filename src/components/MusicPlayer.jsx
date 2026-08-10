@@ -104,7 +104,7 @@ export default function MusicPlayer() {
   return (
     <>
       {/* 1. COMPACT FLOATING MINI PLAYER BAR (AT BOTTOM OF SCREEN) */}
-      <div className="mx-auto w-full max-w-sm rounded-full border border-rose-100/90 dark:border-rose-800/50 bg-white/95 dark:bg-slate-900/95 p-1.5 shadow-xl shadow-rose-900/10 dark:shadow-rose-950/30 backdrop-blur-md transition-all duration-300 hover:shadow-2xl">
+      <div className="mx-auto w-full max-w-sm rounded-full border border-[var(--theme-200)]/80 dark:border-[var(--theme-700)]/50 bg-white/95 dark:bg-slate-900/95 p-1.5 shadow-md backdrop-blur-md transition-all duration-300">
         <div className="flex items-center gap-2.5 px-1">
           {/* Play / Pause Neumorphic Round Button */}
           <button
@@ -113,7 +113,7 @@ export default function MusicPlayer() {
               e.stopPropagation()
               togglePlayback()
             }}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-rose-500 to-pink-400 text-white shadow-md shadow-rose-200 dark:shadow-rose-900 transition hover:scale-105 active:scale-95"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[var(--theme-500)] to-[var(--theme-600)] text-white shadow-xs transition hover:scale-105 active:scale-95"
             aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
           >
             {isPlaying ? (
@@ -134,16 +134,16 @@ export default function MusicPlayer() {
                 {musicTitle || 'أغنيتنا'}
               </span>
               {isVoice && (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-100 dark:bg-rose-900/60 px-2 py-0.5 text-[9px] font-extrabold text-rose-700 dark:text-rose-300">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--theme-100)] dark:bg-[var(--theme-900)]/60 px-2 py-0.5 text-[9px] font-extrabold text-[var(--theme-700)] dark:text-[var(--theme-300)]">
                   🎙️ بصوتي
                 </span>
               )}
             </div>
 
-            {/* Glowing Mini Progress Line */}
-            <div className="relative mt-1 h-1 w-full overflow-hidden rounded-full bg-rose-100 dark:bg-rose-900/40">
+            {/* Mini Progress Line */}
+            <div className="relative mt-1 h-1 w-full overflow-hidden rounded-full bg-[var(--theme-100)] dark:bg-[var(--theme-900)]/40">
               <div
-                className="h-full bg-gradient-to-r from-rose-400 to-pink-500 transition-all duration-200"
+                className="h-full bg-gradient-to-r from-[var(--theme-400)] to-[var(--theme-500)] transition-all duration-200"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
@@ -280,10 +280,6 @@ export default function MusicPlayer() {
               <>
                 {/* 3D Circular Neumorphic Album Artwork Container with Audio Equalizer Visualizer */}
                 <div className="relative my-6 flex items-center justify-center">
-                  {/* Glowing outer pulse aura when playing — smaller size for GPU perf */}
-                  {isPlaying && (
-                    <div className="absolute h-40 w-40 rounded-full bg-rose-400/15 animate-ping pointer-events-none" style={{ animationDuration: '2.5s' }} />
-                  )}
                   <div className="relative h-52 w-52 rounded-full theme-neumorph-disc-ring p-3 flex items-center justify-center">
                     <div
                       className={`relative h-full w-full rounded-full theme-neumorph-disc flex flex-col items-center justify-center text-white shadow-inner overflow-hidden ${

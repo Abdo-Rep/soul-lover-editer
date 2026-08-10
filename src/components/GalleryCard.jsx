@@ -55,9 +55,9 @@ export default function GalleryCard({ item, index = 0, onOpen }) {
         {(hasDate || hasText) && (
           <div className="p-3 sm:p-3.5 flex-1 flex flex-col items-center justify-center">
             {hasDate && (
-              <div className="mx-auto my-1 w-fit rounded-full border border-rose-100/90 dark:border-rose-700/60 bg-rose-50/80 dark:bg-rose-950/50 px-3 py-0.5 text-center shadow-xs flex items-center justify-center gap-1.5">
-                <Calendar size={12} className="text-rose-500 dark:text-rose-400 shrink-0" />
-                <span className="text-xs font-bold text-rose-800 dark:text-rose-200 tracking-wide">{formattedDate}</span>
+              <div className="mx-auto my-1 w-fit rounded-full border border-[var(--theme-300)]/70 dark:border-[var(--theme-400)]/40 bg-[var(--theme-100)]/80 dark:bg-[var(--theme-900)]/40 px-3 py-0.5 text-center flex items-center justify-center gap-1.5">
+                <Calendar size={12} className="text-[var(--theme-500)] dark:text-[var(--theme-400)] shrink-0" />
+                <span className="text-xs font-bold text-[var(--theme-800)] dark:text-[var(--theme-200)] tracking-wide">{formattedDate}</span>
               </div>
             )}
             {hasText && (

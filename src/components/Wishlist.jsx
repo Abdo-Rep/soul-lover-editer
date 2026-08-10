@@ -26,13 +26,13 @@ export default function Wishlist({ onNext }) {
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 rounded-full border border-rose-200/80 dark:border-rose-700/60 bg-gradient-to-r from-rose-100/90 via-white/95 to-pink-100/90 dark:from-slate-800/90 dark:via-slate-900 dark:to-slate-800/90 px-4 py-1.5 text-xs font-extrabold text-rose-800 dark:text-rose-200 shadow-md shadow-rose-900/5 dark:shadow-rose-955/30 mb-3.5 backdrop-blur-md"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--theme-300)]/70 dark:border-[var(--theme-400)]/40 bg-[var(--theme-100)]/80 dark:bg-[var(--theme-900)]/40 px-4 py-1.5 text-xs font-extrabold text-[var(--theme-800)] dark:text-[var(--theme-200)] mb-3.5 backdrop-blur-md"
         >
-          <Sparkles size={14} className="text-rose-500 animate-spin" style={{ animationDuration: '6s' }} />
+          <Sparkles size={14} className="text-[var(--theme-500)] dark:text-[var(--theme-400)] animate-spin" style={{ animationDuration: '6s' }} />
           <span className="font-display tracking-wide">
             {isEs ? 'Nuestra lista de deseos 💖' : isEn ? 'Our Bucket List 💖' : 'أمنياتنا السعيدة 💖'}
           </span>
-          <Heart size={13} className="text-rose-500 fill-rose-500 animate-pulse" />
+          <Heart size={13} className="text-[var(--theme-500)] fill-[var(--theme-500)] dark:text-[var(--theme-400)] dark:fill-[var(--theme-400)]" />
         </motion.div>
 
         <motion.h1
@@ -58,14 +58,11 @@ export default function Wishlist({ onNext }) {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="group relative overflow-hidden rounded-[30px] border border-rose-200/90 dark:border-rose-800/60 bg-gradient-to-br from-white/95 via-rose-50/60 to-pink-50/90 dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/90 p-5 mb-6 shadow-xl shadow-rose-900/10 dark:shadow-rose-955/40 backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:shadow-rose-300/25 dark:hover:shadow-rose-900/40"
+        className="group relative overflow-hidden rounded-[30px] border border-rose-200/90 dark:border-rose-800/60 bg-gradient-to-br from-white/95 via-rose-50/60 to-pink-50/90 dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-800/90 p-5 mb-6 shadow-md dark:shadow-rose-955/20 backdrop-blur-xl transition-all duration-300 hover:shadow-lg"
       >
-        {/* Ambient Glow */}
-        <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br from-rose-300/30 to-pink-200/20 dark:from-rose-600/20 dark:to-pink-900/15 blur-2xl transition-all duration-500 group-hover:scale-150" />
-
         <div className="flex justify-between items-center mb-3.5">
-          {/* Percentage badge with Rose Gradient & Glow */}
-          <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-4 py-1 text-xs font-black text-white shadow-md shadow-rose-300/80 dark:shadow-rose-900">
+          {/* Percentage badge with Theme Gradient */}
+          <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[var(--theme-500)] via-[var(--theme-600)] to-[var(--theme-500)] px-4 py-1 text-xs font-black text-white shadow-xs">
             <Star size={12} className="fill-white text-white" />
             <span>{progressPercent}%</span>
           </span>
@@ -77,19 +74,19 @@ export default function Wishlist({ onNext }) {
                 ? (isEs ? '🎉 ¡Cumplimos todos nuestros sueños juntos!' : isEn ? '🎉 We achieved all our dreams together!' : '🎉 أنجزنا كل أحلامنا سوا!')
                 : (isEs ? `${completedCount} de ${wishlist.length} deseos cumplidos` : isEn ? `${completedCount} of ${wishlist.length} wishes completed` : `${completedCount} من أصل ${wishlist.length} أحلام تم تحقيقها`)}
             </span>
-            <Trophy size={16} className={isAllCompleted ? 'text-amber-500 animate-bounce' : 'text-rose-400'} />
+            <Trophy size={16} className={isAllCompleted ? 'text-amber-500 animate-bounce' : 'text-[var(--theme-400)]'} />
           </div>
         </div>
 
         {/* Progress Track */}
-        <div className="relative w-full h-3.5 bg-rose-100/80 dark:bg-slate-800/80 rounded-full overflow-hidden p-0.5 shadow-inner border border-rose-200/60 dark:border-rose-700/50">
+        <div className="relative w-full h-3 bg-rose-100/80 dark:bg-slate-800/80 rounded-full overflow-hidden p-0.5 border border-rose-200/60 dark:border-rose-700/50">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 1, ease: 'easeOut' }}
-            className="h-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 rounded-full shadow-md shadow-rose-300 relative overflow-hidden"
+            className="h-full bg-gradient-to-r from-[var(--theme-500)] via-[var(--theme-600)] to-[var(--theme-400)] rounded-full relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-white/25 animate-pulse" />
+            <div className="absolute inset-0 bg-white/20 animate-pulse" />
           </motion.div>
         </div>
       </motion.div>
@@ -100,9 +97,9 @@ export default function Wishlist({ onNext }) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-[30px] border border-rose-200/80 dark:border-rose-800/60 bg-white/90 dark:bg-slate-900/90 p-8 text-center backdrop-blur-md shadow-lg shadow-rose-900/5"
+            className="rounded-[30px] border border-rose-200/80 dark:border-rose-800/60 bg-white/90 dark:bg-slate-900/90 p-8 text-center backdrop-blur-md shadow-md"
           >
-            <Heart className="mx-auto mb-3 text-rose-400 fill-rose-100 animate-bounce" size={44} />
+            <Heart className="mx-auto mb-3 text-[var(--theme-400)] fill-[var(--theme-100)] animate-bounce" size={44} />
             <h4 className="text-base font-extrabold text-rose-950 dark:text-white font-display">
               {isEs ? '¡La lista está vacía! 💖' : isEn ? 'The list is empty! 💖' : 'القائمة فارغة الآن 💖'}
             </h4>
@@ -124,8 +121,8 @@ export default function Wishlist({ onNext }) {
                   onClick={() => handleToggle(item.id)}
                   className={`group relative overflow-hidden rounded-[24px] border p-4 sm:p-5 cursor-pointer transition-all duration-300 backdrop-blur-md space-y-2.5 ${
                     isDone
-                      ? 'border-rose-300/80 dark:border-rose-700/60 bg-rose-50/90 dark:bg-rose-955/40 shadow-sm'
-                      : 'border-rose-100 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-md shadow-rose-900/5 dark:shadow-rose-950/30 hover:border-rose-300 dark:hover:border-rose-600 hover:shadow-xl hover:shadow-rose-300/20 dark:hover:shadow-rose-900/30 hover:-translate-y-0.5'
+                      ? 'border-rose-300/80 dark:border-rose-700/60 bg-rose-50/90 dark:bg-rose-955/40 shadow-xs'
+                      : 'border-rose-100 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-sm hover:border-[var(--theme-300)] dark:hover:border-[var(--theme-600)] hover:shadow-md hover:-translate-y-0.5'
                   }`}
                 >
                   {/* Top Row: Full-width Text + 3D Heart Checkbox */}
@@ -140,8 +137,8 @@ export default function Wishlist({ onNext }) {
                       aria-label={isDone ? 'إلغاء التحديد' : 'تحديد كمنجز'}
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
                         isDone
-                          ? 'bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900 scale-105'
-                          : 'border border-rose-200 dark:border-rose-700/60 bg-rose-50/90 dark:bg-slate-800/90 text-rose-500 dark:text-rose-400 shadow-xs group-hover:scale-110 group-hover:border-rose-400 group-hover:bg-rose-500 group-hover:text-white'
+                          ? 'bg-gradient-to-tr from-[var(--theme-500)] to-[var(--theme-600)] text-white shadow-xs scale-105'
+                          : 'border border-[var(--theme-200)] dark:border-[var(--theme-700)]/60 bg-rose-50/90 dark:bg-slate-800/90 text-[var(--theme-500)] dark:text-[var(--theme-400)] shadow-xs group-hover:scale-105 group-hover:border-[var(--theme-400)] group-hover:bg-[var(--theme-500)] group-hover:text-white'
                       }`}
                     >
                       {isDone ? (
@@ -164,13 +161,13 @@ export default function Wishlist({ onNext }) {
                   {/* Bottom Row: Status Badge */}
                   <div className="flex items-center justify-start pt-0.5 dir-rtl">
                     {isDone ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-0.5 text-[11px] font-black text-white shadow-xs">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[var(--theme-500)] to-[var(--theme-600)] px-3 py-0.5 text-[11px] font-black text-white shadow-xs">
                         <CheckCircle2 size={12} className="text-white" />
                         <span>{isEs ? 'Logrado 💖' : isEn ? 'Done 💖' : 'تم بحب 💖'}</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/90 dark:border-rose-700/60 bg-rose-50/90 dark:bg-rose-950/80 px-3 py-0.5 text-[11px] font-black text-rose-800 dark:text-rose-200 shadow-xs">
-                        <Sparkles size={11} className="text-rose-500 dark:text-rose-400" />
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--theme-300)]/70 dark:border-[var(--theme-700)]/60 bg-[var(--theme-50)]/90 dark:bg-[var(--theme-900)]/50 px-3 py-0.5 text-[11px] font-black text-[var(--theme-800)] dark:text-[var(--theme-200)] shadow-xs">
+                        <Sparkles size={11} className="text-[var(--theme-500)] dark:text-[var(--theme-400)]" />
                         <span>{isEs ? 'Sueño por cumplir ✨' : isEn ? 'A dream we wait for ✨' : 'حُلم ننتظره ✨'}</span>
                       </span>
                     )}
