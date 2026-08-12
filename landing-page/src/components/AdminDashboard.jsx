@@ -657,6 +657,14 @@ export default function AdminDashboard({ onExitAdmin }) {
                     </button>
                   </div>
                 </div>
+                {/* Switch to US Admin */}
+                <a
+                  href="/landing/us/admin"
+                  className="w-full p-2.5 rounded-xl bg-[#18214f] border border-cyan-500/30 text-cyan-200 hover:text-white text-xs font-bold flex items-center justify-between"
+                >
+                  <span>🇺🇸 لوحة تحكم النسخة الأمريكية</span>
+                  <ExternalLink size={13} />
+                </a>
               </div>
             </div>
 

@@ -9,7 +9,7 @@ import RootLanding from './pages/RootLanding'
 export default function App() {
   return (
     <Routes>
-      {/* 🚀 1. Dedicated Standalone Landing Page & Admin Routes (100% Isolated Fonts & Styles) */}
+      {/* 🚀 1. Dedicated Standalone Landing Page & Admin Routes (EG / Arabic) */}
       <Route path="/" element={<RootLanding />} />
       <Route path="/landing" element={<RootLanding />} />
       <Route path="/landing/admin" element={<RootLanding defaultRoute="admin" />} />
@@ -17,6 +17,18 @@ export default function App() {
       <Route path="/landing-page" element={<RootLanding />} />
       <Route path="/order-success" element={<RootLanding />} />
       <Route path="/thank-you" element={<RootLanding />} />
+
+      {/* 🇺🇸 2. Dedicated Standalone US English Landing Page & Admin Routes */}
+      <Route path="/landing/us" element={<RootLanding market="us" />} />
+      <Route path="/landing/us/admin" element={<RootLanding market="us" defaultRoute="admin" />} />
+      <Route path="/landing/us/order-success" element={<RootLanding market="us" defaultRoute="success" />} />
+      <Route path="/landing/us/thank-you" element={<RootLanding market="us" defaultRoute="success" />} />
+      <Route path="/us" element={<RootLanding market="us" />} />
+      <Route path="/us/admin" element={<RootLanding market="us" defaultRoute="admin" />} />
+      <Route path="/us-admin" element={<RootLanding market="us" defaultRoute="admin" />} />
+      <Route path="/us/order-success" element={<RootLanding market="us" defaultRoute="success" />} />
+      <Route path="/us/thank-you" element={<RootLanding market="us" defaultRoute="success" />} />
+      <Route path="/en" element={<RootLanding market="us" />} />
 
       {/* 🔒 2. Secret Super Admin Control Panel */}
       <Route
