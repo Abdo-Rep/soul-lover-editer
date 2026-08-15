@@ -522,8 +522,9 @@ export function drawQRCodeToCanvas(canvas, text, options = {}) {
   qr.make()
 
   const moduleCount = qr.getModuleCount()
-  const width = canvas.width || 340
-  const height = canvas.height || (customText ? 370 : 340)
+  // Force a clean high-resolution canvas size to prevent squishing and clipping
+  const width = 340
+  const height = customText ? 370 : 340
 
   canvas.width = width
   canvas.height = height

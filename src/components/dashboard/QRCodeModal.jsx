@@ -108,7 +108,12 @@ export default function QRCodeModal({ isOpen, onClose, slug }) {
 
         {/* Canvas QR Code Display */}
         <div className="relative mx-auto mb-3 flex w-fit items-center justify-center rounded-2xl border-2 border-rose-100 bg-white p-2.5 shadow-inner">
-          <canvas ref={canvasRef} className="h-64 w-60 rounded-xl" />
+          <canvas
+            ref={canvasRef}
+            className={`w-60 rounded-xl transition-all duration-300 ${
+              customText && customText.trim() ? 'h-[261px]' : 'h-60'
+            }`}
+          />
         </div>
 
         {/* Action Buttons */}
