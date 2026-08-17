@@ -605,31 +605,59 @@ export default function Dashboard() {
                         ) : (
                           <>
                             {/* Prominent Direct File Upload Box for Songs */}
-                            <div className="rounded-2xl border-2 border-dashed border-rose-200 bg-white p-5 text-center transition hover:border-rose-300 hover:bg-rose-50/50">
-                              <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-inner">
-                                  <Music2 size={22} />
+                            <div className={`rounded-2xl border-2 border-dashed p-5 text-center transition ${
+                              musicUploadingIndex === idx
+                                ? 'border-rose-400 bg-rose-50/70'
+                                : 'border-rose-200 bg-white hover:border-rose-300 hover:bg-rose-50/50'
+                            }`}>
+                              {musicUploadingIndex === idx ? (
+                                <div className="flex flex-col items-center justify-center gap-3 py-3">
+                                  {/* Animated double pulse spinner */}
+                                  <div className="relative flex items-center justify-center">
+                                    <div className="absolute h-10 w-10 rounded-full bg-rose-400/20 animate-ping" />
+                                    <div className="h-10 w-10 rounded-full border-4 border-rose-100 border-t-rose-500 animate-spin" />
+                                  </div>
+                                  <span className="text-xs font-bold text-rose-800 animate-pulse">
+                                    {content.language === 'es'
+                                      ? 'Subiendo archivo de audio... Por favor espere ⏳'
+                                      : content.language === 'en' || content.language === 'en-GB'
+                                        ? 'Uploading audio file... Please wait ⏳'
+                                        : 'جاري رفع وتحميل ملف الموسيقى الآن... يرجى الانتظار ⏳'}
+                                  </span>
+                                  <span className="text-[10px] text-rose-400 font-semibold animate-pulse">
+                                    {content.language === 'es'
+                                      ? 'Por favor, no cierres esta pestaña hasta finalizar.'
+                                      : content.language === 'en' || content.language === 'en-GB'
+                                        ? 'Please do not close this tab until finished.'
+                                        : 'من فضلك لا تغلق الصفحة حتى يكتمل التحميل.'}
+                                  </span>
                                 </div>
-                                <span className="text-xs font-bold text-rose-900">
-                                  {content.language === 'es' ? 'Elige un archivo de canción desde tu dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Choose an audio file from your device 📁' : 'اختر ملف أغنية جاهز من جهازك 📁'}
-                                </span>
-                                <span className="text-[11px] text-rose-400 font-medium">
-                                  {content.language === 'es' ? 'Soporta formatos MP3, M4A, WAV, AAC y otros' : content.language === 'en' || content.language === 'en-GB' ? 'Supports MP3, M4A, WAV, AAC and others' : 'يدعم صيغ MP3, M4A, WAV, AAC وغيرهم'}
-                                </span>
-                                <input
-                                  type="file"
-                                  accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
-                                  className="hidden"
-                                  disabled={musicUploadingIndex !== null}
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0]
-                                    if (file) {
-                                      uploadMusic(file, idx).catch(() => {})
-                                    }
-                                    e.target.value = ''
-                                  }}
-                                />
-                              </label>
+                              ) : (
+                                <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
+                                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-inner">
+                                    <Music2 size={22} />
+                                  </div>
+                                  <span className="text-xs font-bold text-rose-900">
+                                    {content.language === 'es' ? 'Elige un archivo de canción desde tu dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Choose an audio file from your device 📁' : 'اختر ملف أغنية جاهز من جهازك 📁'}
+                                  </span>
+                                  <span className="text-[11px] text-rose-400 font-medium">
+                                    {content.language === 'es' ? 'Soporta formatos MP3, M4A, WAV, AAC y otros' : content.language === 'en' || content.language === 'en-GB' ? 'Supports MP3, M4A, WAV, AAC and others' : 'يدعم صيغ MP3, M4A, WAV, AAC وغيرهم'}
+                                  </span>
+                                  <input
+                                    type="file"
+                                    accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
+                                    className="hidden"
+                                    disabled={musicUploadingIndex !== null}
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0]
+                                      if (file) {
+                                        uploadMusic(file, idx).catch(() => {})
+                                      }
+                                      e.target.value = ''
+                                    }}
+                                  />
+                                </label>
+                              )}
                             </div>
 
                             <div className="pt-1 text-center">
