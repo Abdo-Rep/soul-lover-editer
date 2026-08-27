@@ -309,6 +309,13 @@ export default function Dashboard() {
                 }}
               />
             </Field>
+            <div className="rounded-2xl border border-amber-200/90 bg-amber-50/90 p-3.5 text-right my-1">
+              <p className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                <span>⚠️</span>
+                <span>(لا يسمح بأستخدام الحروف العربية أو المسافات، تأكد من نسخ كلمة المرور قبل الخروج).</span>
+              </p>
+            </div>
+
             <Field
               label={t.visitorPasswordLabel}
               hint={content.language === 'en' || content.language === 'en-GB' ? 'The password used by your partner to open the gift' : content.language === 'es' ? 'La contraseña que usa tu pareja para abrir el regalo' : 'الكلمة التي يستخدمها شريكك لفتح الهدية'}
