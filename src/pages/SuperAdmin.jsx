@@ -448,14 +448,24 @@ export default function SuperAdmin() {
               <h1 className="text-base sm:text-xl font-bold text-white tracking-wide">
                 السوبر أدمن (SaaS)
               </h1>
-              <p className="text-[11px] sm:text-xs text-[#7786a5] mt-0.5">
-                إدارة شبكة مواقع الهدايا والرومانسية
-              </p>
             </div>
           </div>
 
           {/* Left Side (RTL): Actions */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Clickable Master Site Card */}
+            <button
+              type="button"
+              onClick={() => setShowSouloveModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#281125] border border-[#ff3b68]/40 hover:border-[#ff3b68] text-xs font-bold text-white transition-all hover:bg-[#341430] cursor-pointer"
+              title="عرض تفاصيل الموقع الرئيسي"
+            >
+              <span>الموقع الرئيسي</span>
+              <span className="p-1 rounded-lg bg-[#ff3b68] text-white text-[10px] shadow-sm shadow-[#ff3b68]/30 flex items-center justify-center shrink-0">
+                👑
+              </span>
+            </button>
+
             <PWAInstallButton />
 
             <button
@@ -468,34 +478,6 @@ export default function SuperAdmin() {
               <LogoutSvg className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
-        </div>
-
-        {/* Pinned Master Template Banner for soulove */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#281125] via-[#121c38] to-[#0b0e20] border border-[#ff3b68]/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#ff3b68]/15 border border-[#ff3b68]/30 flex items-center justify-center text-[#ff3b68] text-xl font-bold shrink-0">
-              👑
-            </div>
-            <div className="text-right">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-bold text-white">الموقع المرجع الرئيسي (Master):</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b68] text-white text-xs font-mono font-bold shadow-md shadow-[#ff3b68]/30">/soulove</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">نشط 🟢</span>
-              </div>
-              <p className="text-xs text-[#7786a5] mt-1">
-                الموقع المثبت والأصل الذي يؤخذ منه القالب والبيانات الافتراضية لجميع المواقع الجديدة
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowSouloveModal(true)}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold shadow-lg shadow-[#ff3b68]/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer shrink-0"
-          >
-            <span>عرض تفاصيل وإدارة soulove</span>
-            <span className="text-sm">👑</span>
-          </button>
         </div>
 
 
@@ -845,13 +827,13 @@ export default function SuperAdmin() {
             if (e.target === e.currentTarget) setShowSouloveModal(false)
           }}
         >
-          <div className="w-full max-w-lg rounded-3xl bg-[#0b0e20] border border-[#ff3b68]/40 p-6 shadow-2xl space-y-5 text-right cursor-default">
+          <div className="w-full max-w-md rounded-3xl bg-[#0b0e20] border border-[#ff3b68]/40 p-6 shadow-2xl space-y-5 text-right cursor-default">
             <div className="flex items-center justify-between pb-3 border-b border-[#19213d]">
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">👑</span>
                 <div>
-                  <h3 className="text-base font-bold text-white">الموقع المرجع الرئيسي (soulove)</h3>
-                  <p className="text-[11px] text-[#7786a5]">روابط الوصول السريع وتفاصيل الماستر</p>
+                  <h3 className="text-base font-bold text-white">الموقع الرئيسي: soulove</h3>
+                  <p className="text-[11px] text-[#7786a5]">تفاصيل الحساب وروابط الوصول</p>
                 </div>
               </div>
               <button
@@ -863,8 +845,8 @@ export default function SuperAdmin() {
               </button>
             </div>
 
-            {/* Direct Action Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Direct Action Grid (2 buttons: Visitor & Dashboard Login) */}
+            <div className="grid grid-cols-2 gap-3">
               <a
                 href={`${baseUrl}/soulove`}
                 target="_blank"
@@ -872,7 +854,7 @@ export default function SuperAdmin() {
                 className="p-3.5 rounded-2xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] hover:border-[#ff3b68] transition-all text-center space-y-1.5 group"
               >
                 <GlobeSvg className="w-5 h-5 mx-auto text-[#ff3b68] group-hover:scale-110 transition-transform" />
-                <div className="text-xs font-bold">رابط الزائر</div>
+                <div className="text-xs font-bold">الزائر</div>
                 <div className="text-[10px] opacity-70 font-mono">/soulove</div>
               </a>
 
@@ -886,31 +868,12 @@ export default function SuperAdmin() {
                 <div className="text-xs font-bold">login الداشبورد</div>
                 <div className="text-[10px] opacity-70 font-mono">/soulove/login</div>
               </a>
-
-              <a
-                href={`${baseUrl}/dashboard`}
-                target="_blank"
-                rel="noreferrer"
-                className="p-3.5 rounded-2xl bg-[#0f152d] border border-[#1e294d] text-emerald-400 hover:border-emerald-500 transition-all text-center space-y-1.5 group"
-              >
-                <RefreshSvg className="w-5 h-5 mx-auto text-emerald-400 group-hover:scale-110 transition-transform" />
-                <div className="text-xs font-bold">تعديل المحتوى</div>
-                <div className="text-[10px] opacity-70 font-mono">Dashboard</div>
-              </a>
             </div>
 
-            {/* Detailed Table Card */}
+            {/* Detailed Password Cards */}
             <div className="rounded-2xl border border-[#19213d] bg-[#060814] p-4 space-y-3">
-              <h4 className="text-xs font-bold text-white/80 border-b border-[#19213d] pb-2">📋 تفاصيل جدول البيانات المسجلة لـ soulove:</h4>
+              <h4 className="text-xs font-bold text-white/80 border-b border-[#19213d] pb-2">📋 كلمات المرور المسجلة:</h4>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d]">
-                  <span className="text-[#7786a5] block text-[10px]">الرابط (Slug):</span>
-                  <span className="font-mono font-bold text-[#ff3b68]">/soulove</span>
-                </div>
-                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d]">
-                  <span className="text-[#7786a5] block text-[10px]">الحالة:</span>
-                  <span className="text-emerald-400 font-bold">نشط 🟢</span>
-                </div>
                 <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] flex items-center justify-between">
                   <div>
                     <span className="text-[#7786a5] block text-[10px]">كلمة مرور الزائر:</span>
