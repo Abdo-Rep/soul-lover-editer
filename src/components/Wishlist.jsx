@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Heart, Check, Sparkles, Trophy, Star, CheckCircle2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useContent } from '../context/ContentContext'

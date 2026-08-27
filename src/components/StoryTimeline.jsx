@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Calendar, Heart, Sparkles, X, ZoomIn } from 'lucide-react'
+import { Calendar, Heart, Sparkles } from 'lucide-react'
 import { formatDateLong } from '../utils/formatDate'
 import { RevealItem } from './Reveal'
 

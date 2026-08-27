@@ -19,7 +19,6 @@ import {
   Clock,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import ContentLoadingHearts from '../components/ContentLoadingHearts'
 import FeedbackModal from '../components/FeedbackModal'
 import QRCodeModal from '../components/dashboard/QRCodeModal'
 import VoiceRecorder from '../components/dashboard/VoiceRecorder'
@@ -146,7 +145,6 @@ export default function Dashboard() {
   } = useAdminAuth()
   const {
     content,
-    musicSrc,
     isLoading,
     isDirty,
     syncStatus,
@@ -164,7 +162,6 @@ export default function Dashboard() {
     updateWishlistItem,
     addWishlistItem,
     removeWishlistItem,
-    toggleWishlistItem,
     addCountdown,
     updateCountdown,
     removeCountdown,
@@ -178,7 +175,6 @@ export default function Dashboard() {
     musicUploadError,
     saveChanges,
     loadFromDatabase,
-    verifyPassword,
     undo,
     redo,
     canUndo,
@@ -312,7 +308,7 @@ export default function Dashboard() {
             <div className="rounded-2xl border border-amber-200/90 bg-amber-50/90 p-3.5 text-right my-1">
               <p className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
                 <span>⚠️</span>
-                <span>(لا يسمح بأستخدام الحروف العربية أو المسافات، تأكد من نسخ كلمة المرور قبل الخروج).</span>
+                <span>تنبيه: لا يسمح بأستخدام الحروف العربية أو المسافات في كلمات السر، تأكد من نسخ كلمة السر قبل الخروج.</span>
               </p>
             </div>
 

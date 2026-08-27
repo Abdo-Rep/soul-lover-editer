@@ -1,8 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { encrypt, decrypt } from './cryptoHelper.js'
 
-import { query } from './db.js'
-
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
@@ -400,7 +398,7 @@ export default async function handler(req, res) {
       if (isActive !== undefined) updateData.is_active = Boolean(isActive)
       if (language !== undefined) updateData.language = String(language)
 
-      const updateRes = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
+      await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
         method: 'PATCH',
         headers: restHeaders,
         body: JSON.stringify(updateData),

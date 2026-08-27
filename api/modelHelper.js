@@ -1,5 +1,4 @@
 import { encrypt, decrypt } from './cryptoHelper.js'
-import { query } from './db.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''

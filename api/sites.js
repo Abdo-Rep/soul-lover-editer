@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
 import { encrypt, decrypt } from './cryptoHelper.js'
-import { query } from './db.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'

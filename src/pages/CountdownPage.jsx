@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Clock, Heart, Sparkles } from 'lucide-react'
 import FlowPage from '../components/FlowPage'
 import NextButton from '../components/NextButton'

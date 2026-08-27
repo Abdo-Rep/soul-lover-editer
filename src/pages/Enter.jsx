@@ -12,7 +12,7 @@ export default function Enter({ onLogin }) {
   const [shake, setShake] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const { content, verifyPassword } = useContent()
-  const { primeAudio, pauseMusic } = useMusic()
+  const { primeAudio } = useMusic()
 
   const isEn = content.language === 'en' || content.language === 'en-GB'
   const isEs = content.language === 'es'

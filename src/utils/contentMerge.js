@@ -1,10 +1,6 @@
 import { defaultContent } from '../data/defaultContent'
 import { normalizeAppearance } from './theme'
 
-function withoutTrailingHeart(text) {
-  if (typeof text !== 'string') return text
-  return text.replace(/\s*(?:❤️|❤|♥|💕|💖|💗|💓|💝)\s*$/u, '').trimEnd()
-}
 
 function mergeSection(base, patch) {
   if (!patch) return base

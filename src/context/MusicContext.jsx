@@ -319,13 +319,6 @@ export function MusicProvider({ children }) {
     [duration],
   )
 
-  const skipBackward = useCallback(() => {
-    seekTo(currentTime - SEEK_STEP)
-  }, [currentTime, seekTo])
-
-  const skipForward = useCallback(() => {
-    seekTo(currentTime + SEEK_STEP)
-  }, [currentTime, seekTo])
 
   const requestMusicStart = useCallback(() => {
     sessionStorage.setItem(PENDING_KEY, 'true')

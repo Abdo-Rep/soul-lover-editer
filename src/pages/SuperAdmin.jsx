@@ -666,10 +666,6 @@ export default function SuperAdmin() {
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#281125] border border-[#4a1835] text-amber-300 text-[11px] font-semibold text-right">
-                ⚠️ (لا يسمح بأستخدام الحروف العربية أو المسافات، تأكد من نسخ كلمة المرور قبل الخروج).
-              </div>
-
               <div>
                 <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
                   كلمة مرور زائر الصفحة (Site Password)
