@@ -165,9 +165,10 @@ export default function SuperAdmin() {
   // Modal State
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [showSouloveModal, setShowSouloveModal] = useState(false)
   const [newSlug, setNewSlug] = useState('')
-  const [newSitePass, setNewSitePass] = useState('soulove')
-  const [newAdminPass, setNewAdminPass] = useState('soulove')
+  const [newSitePass, setNewSitePass] = useState('love')
+  const [newAdminPass, setNewAdminPass] = useState('love')
   const [newLanguage, setNewLanguage] = useState('ar')
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
@@ -286,8 +287,8 @@ export default function SuperAdmin() {
 
       setShowCreateModal(false)
       setNewSlug('')
-      setNewSitePass('soulove')
-      setNewAdminPass('soulove')
+      setNewSitePass('love')
+      setNewAdminPass('love')
       setNewLanguage('ar')
       fetchSites(token, email)
     } catch (err) {
@@ -432,6 +433,7 @@ export default function SuperAdmin() {
   }
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const souloveSite = sites.find((s) => s.slug === 'soulove')
 
   return (
     <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans" dir="rtl">
@@ -466,6 +468,34 @@ export default function SuperAdmin() {
               <LogoutSvg className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
+        </div>
+
+        {/* Pinned Master Template Banner for soulove */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#281125] via-[#121c38] to-[#0b0e20] border border-[#ff3b68]/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#ff3b68]/15 border border-[#ff3b68]/30 flex items-center justify-center text-[#ff3b68] text-xl font-bold shrink-0">
+              👑
+            </div>
+            <div className="text-right">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-bold text-white">الموقع المرجع الرئيسي (Master):</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#ff3b68] text-white text-xs font-mono font-bold shadow-md shadow-[#ff3b68]/30">/soulove</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">نشط 🟢</span>
+              </div>
+              <p className="text-xs text-[#7786a5] mt-1">
+                الموقع المثبت والأصل الذي يؤخذ منه القالب والبيانات الافتراضية لجميع المواقع الجديدة
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowSouloveModal(true)}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold shadow-lg shadow-[#ff3b68]/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer shrink-0"
+          >
+            <span>عرض تفاصيل وإدارة soulove</span>
+            <span className="text-sm">👑</span>
+          </button>
         </div>
 
 
@@ -526,7 +556,7 @@ export default function SuperAdmin() {
                         <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono font-bold text-[#ff3b68] text-right">/{site.slug}</td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.site_password}</td>
-                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'soulove'}</td>
+                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'love'}</td>
                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
                             <select
                               value={site.language || 'ar'}
@@ -800,6 +830,123 @@ export default function SuperAdmin() {
                 className="flex-1 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold transition-colors flex items-center justify-center gap-2"
               >
                 تسجيل الخروج
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Soulove Master Site Modal Popup */}
+      {showSouloveModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+          dir="rtl"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowSouloveModal(false)
+          }}
+        >
+          <div className="w-full max-w-lg rounded-3xl bg-[#0b0e20] border border-[#ff3b68]/40 p-6 shadow-2xl space-y-5 text-right cursor-default">
+            <div className="flex items-center justify-between pb-3 border-b border-[#19213d]">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">👑</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">الموقع المرجع الرئيسي (soulove)</h3>
+                  <p className="text-[11px] text-[#7786a5]">روابط الوصول السريع وتفاصيل الماستر</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSouloveModal(false)}
+                className="text-[#7786a5] hover:text-white text-lg font-bold p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Direct Action Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <a
+                href={`${baseUrl}/soulove`}
+                target="_blank"
+                rel="noreferrer"
+                className="p-3.5 rounded-2xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] hover:border-[#ff3b68] transition-all text-center space-y-1.5 group"
+              >
+                <GlobeSvg className="w-5 h-5 mx-auto text-[#ff3b68] group-hover:scale-110 transition-transform" />
+                <div className="text-xs font-bold">رابط الزائر</div>
+                <div className="text-[10px] opacity-70 font-mono">/soulove</div>
+              </a>
+
+              <a
+                href={`${baseUrl}/soulove/login`}
+                target="_blank"
+                rel="noreferrer"
+                className="p-3.5 rounded-2xl bg-[#121c38] border border-[#203058] text-white hover:border-[#ff3b68] transition-all text-center space-y-1.5 group"
+              >
+                <KeySvg className="w-5 h-5 mx-auto text-[#ff3b68] group-hover:scale-110 transition-transform" />
+                <div className="text-xs font-bold">login الداشبورد</div>
+                <div className="text-[10px] opacity-70 font-mono">/soulove/login</div>
+              </a>
+
+              <a
+                href={`${baseUrl}/dashboard`}
+                target="_blank"
+                rel="noreferrer"
+                className="p-3.5 rounded-2xl bg-[#0f152d] border border-[#1e294d] text-emerald-400 hover:border-emerald-500 transition-all text-center space-y-1.5 group"
+              >
+                <RefreshSvg className="w-5 h-5 mx-auto text-emerald-400 group-hover:scale-110 transition-transform" />
+                <div className="text-xs font-bold">تعديل المحتوى</div>
+                <div className="text-[10px] opacity-70 font-mono">Dashboard</div>
+              </a>
+            </div>
+
+            {/* Detailed Table Card */}
+            <div className="rounded-2xl border border-[#19213d] bg-[#060814] p-4 space-y-3">
+              <h4 className="text-xs font-bold text-white/80 border-b border-[#19213d] pb-2">📋 تفاصيل جدول البيانات المسجلة لـ soulove:</h4>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d]">
+                  <span className="text-[#7786a5] block text-[10px]">الرابط (Slug):</span>
+                  <span className="font-mono font-bold text-[#ff3b68]">/soulove</span>
+                </div>
+                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d]">
+                  <span className="text-[#7786a5] block text-[10px]">الحالة:</span>
+                  <span className="text-emerald-400 font-bold">نشط 🟢</span>
+                </div>
+                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] flex items-center justify-between">
+                  <div>
+                    <span className="text-[#7786a5] block text-[10px]">كلمة مرور الزائر:</span>
+                    <span className="font-mono text-white font-bold">{souloveSite?.site_password || '1234'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(souloveSite?.site_password || '1234', 'soulove-vis-pass')}
+                    className="p-1 rounded bg-[#0f152d] text-white/70 hover:text-white"
+                  >
+                    {copiedKey === 'soulove-vis-pass' ? <CheckSvg className="w-3 h-3 text-emerald-400" /> : <CopySvg className="w-3 h-3" />}
+                  </button>
+                </div>
+                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] flex items-center justify-between">
+                  <div>
+                    <span className="text-[#7786a5] block text-[10px]">كلمة مرور الداشبورد:</span>
+                    <span className="font-mono text-white font-bold">{souloveSite?.admin_password || 'love'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(souloveSite?.admin_password || 'love', 'soulove-adm-pass')}
+                    className="p-1 rounded bg-[#0f152d] text-white/70 hover:text-white"
+                  >
+                    {copiedKey === 'soulove-adm-pass' ? <CheckSvg className="w-3 h-3 text-emerald-400" /> : <CopySvg className="w-3 h-3" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={() => setShowSouloveModal(false)}
+                className="px-5 py-2 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/80 text-xs font-bold hover:text-white transition-colors"
+              >
+                إغلاق
               </button>
             </div>
           </div>

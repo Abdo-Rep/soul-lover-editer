@@ -104,34 +104,74 @@ function getDefaultFields(language) {
     }
   }
 
-  // Default is Arabic (ar)
+  // Default is Arabic (ar) - Using soulove template as master
   return {
-    login_eyebrow: 'هدية من قلبي',
-    login_title: 'أهلاً يا حبيبتي',
-    login_subtitle: 'خلف هذا الباب عالم صغير صنعته لكِ وحدك — ذكرياتنا، قصتنا، وكل نبضة حب في قلبي.',
-    login_placeholder: 'كلمة المرور السرية',
-    login_password_label: 'كلمة المرور',
-    login_button: 'افتحي قلبي',
-    login_error: 'كلمة المرور غير صحيحة، حاولي مرة أخرى يا جميلتي.',
-    login_footer: 'صُنع بحب، لكِ وحدك',
-    
-    welcome_eyebrow: 'وصلتِ إليه أخيراً',
-    welcome_title: 'مرحباً يا أجمل حب في حياتي',
-    welcome_subtitle: 'كل ما ينتظركِ هنا كُتب وأُعدّ بكِ في بالي — رحلة ناعمة عبر قصتنا، وقتنا، والحب الذي نعيشه معاً.',
-    
-    story_eyebrow: 'A Love Story',
+    primary_color: '#ef4444',
+    background_heart_color: '#be123c',
+    heart_opacity: 0.8,
+    background_heart_char: '♥',
+    push_heart_char: '♥',
+    date_first_meeting: '2025-01-08',
+    date_love_confession: '2025-03-02',
+    music_file_name: 'تامر_عاشور_-_خليني_في_حضنك___بدون_موسيقى__(128k).m4a',
+    music_title: 'اغنيتنا ♥',
+    music_src: JSON.stringify({
+      mainSrc: '/api/media?path=soulove%2Fmusic%2Fmusic-1787616306798.m4a',
+      tracks: [
+        {
+          id: 'track-1',
+          title: 'اغنيتنا ♥',
+          fileName: 'تامر_عاشور_-_خليني_في_حضنك___بدون_موسيقى__(128k).m4a',
+          src: '/api/media?path=soulove%2Fmusic%2Fmusic-1787616306798.m4a',
+          localUrl: '',
+          sizeBytes: 1963391,
+        },
+      ],
+      countdowns: [
+        {
+          id: 3,
+          title: 'فرحنا',
+          date: '2027-01-28',
+          time: '08:00',
+          description: 'كل ثانية بتمر بتقربنا أكتر للمناسبة الحلوة دي 💖',
+        },
+      ],
+      appearanceMode: 'light',
+      extraButtons: {
+        welcomeNextButton: '',
+        storyMemoriesButton: '',
+        galleryFinalButton: '',
+        countdownsNextButton: '',
+      },
+    }),
+    music_volume: 0.35,
+
+    login_eyebrow: '♥',
+    login_title: 'روح قلبي 😍',
+    login_subtitle: 'هديه صغنتوته وعسوله زيك كدا يروحي 🥰♥',
+    login_placeholder: 'تاريخ ميلادك يروحي',
+    login_password_label: 'Password',
+    login_button: 'unlock',
+    login_error: 'كلمة المرور غلط، حاولي تاني.',
+    login_footer: '♥',
+
+    welcome_eyebrow: '♥',
+    welcome_title: 'بنوتي والحته اللى ف قلبي',
+    welcome_subtitle: 'بحبك يروح قلبي من اول لحظه عيني شافتك فيها وانا دماغي مش بتفكر غير فيكي، مهما الدنيا شغلتني بتفضلي ف قلبي وعقلبي ومش بنساكي، \nالويب سايت دا هديه بسيطه نحتفظ فيه بصورنا واغانينا ولحظتنا الحلوه اتمني يعجبك 🥹♥',
+
+    story_eyebrow: '♥',
     story_title: 'Our Story',
-    story_first_meeting_label: 'أول يوم التقينا فيه',
-    story_first_meeting_description: 'لم أكن أعلم بعد، لكن قلبي كان قد بدأ بالفعل يجد طريقه إليكِ.',
-    story_love_confession_label: 'اليوم الذي قلت فيه "أحبك"',
-    story_love_confession_message: 'ثلاث كلمات صغيرة — وفجأة أصبح العالم أدفأ، وأنعم، وأجمل بلا حدود.',
-    
-    gallery_eyebrow: 'Our Album',
+    story_first_meeting_label: 'أول يوم اتقابلنا فيه',
+    story_first_meeting_description: 'اليوم دا عرفت اني مش هكمل المشوار لوحدي، عشان انتي رفيقه حياتي 🥹♥',
+    story_love_confession_label: 'اليوم الى قولتلك فيه بحبك♥️',
+    story_love_confession_message: 'لما شوفت الأبتسامه علي وشك قلبي كان بيتنطط جوا صدري 😂♥',
+
+    gallery_eyebrow: '♥',
     gallery_title: 'Memories',
-    
-    final_eyebrow: 'رسالة أخيرة',
-    final_title: 'للأبد ودائماً',
-    final_text: 'أينما ذهب بنا الحياة، سيجد قلبي دائماً طريقه العائد إليكِ. أنتِ حلمي الذي أريد أن أعيشه كل يوم، ونبضتي التي أشتاق إليها في كل لحظة. شكراً لأنكِ أنتِ.'
+
+    final_eyebrow: '♥',
+    final_title: 'For you',
+    final_text: 'أينما ذهب بنا الحياة، سيجد قلبي دائماً طريقه العائد إليكِ. أنتِ حلمي الذي أريد أن أعيشه كل يوم، ونبضتي التي أشتاق إليها في كل لحظة. شكراً لأنكِ أنتِ.',
   }
 }
 
@@ -228,7 +268,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { slug, sitePassword = 'soulove', adminPassword = 'soulove', language = 'ar' } = req.body || {}
+      const { slug, sitePassword = 'love', adminPassword = 'love', language = 'ar' } = req.body || {}
 
       if (!slug || !slug.trim()) {
         return res.status(400).json({ error: 'slug_required' })
@@ -300,6 +340,42 @@ export default async function handler(req, res) {
 
       const inserted = await insertRes.json()
       const newRow = Array.isArray(inserted) ? inserted[0] : inserted
+
+      // Seed memories, gallery_items, and wishlist_items from soulove master template
+      const siteId = newRow?.id
+      if (siteId) {
+        await Promise.allSettled([
+          fetch(`${SUPABASE_URL}/rest/v1/memories`, {
+            method: 'POST',
+            headers: restHeaders,
+            body: JSON.stringify([
+              { site_id: siteId, tenant_slug: cleanSlug, image: '/api/media?path=soulove%2Fmemories%2Fmemories-1787269070700.webp', date: '2026-08-11', text: '' },
+              { site_id: siteId, tenant_slug: cleanSlug, image: '/api/media?path=soulove%2Fmemories%2Fmemories-1787324274952.webp', date: '2025-03-19', text: 'اكتر صورة بنحبها♥️♥️' },
+              { site_id: siteId, tenant_slug: cleanSlug, image: '/api/media?path=soulove%2Fmemories%2Fmemories-1787324274932.webp', date: '2025-06-10', text: 'خطوبتنا😍♥️' }
+            ])
+          }),
+          fetch(`${SUPABASE_URL}/rest/v1/gallery_items`, {
+            method: 'POST',
+            headers: restHeaders,
+            body: JSON.stringify([
+              { site_id: siteId, tenant_slug: cleanSlug, url: '/api/media?path=soulove%2Fgallery%2Fgallery-1787324224909.webp', description: 'اول مره نسافر مع بعض♥️' },
+              { site_id: siteId, tenant_slug: cleanSlug, url: '/api/media?path=soulove%2Fgallery%2Fgallery-1787324224874.webp', description: 'خطوبتنا♥️♥️' },
+              { site_id: siteId, tenant_slug: cleanSlug, url: '/api/media?path=soulove%2Fgallery%2Fgallery-1787324224855.webp', description: 'صورتنا المفضله♥️♥️' },
+              { site_id: siteId, tenant_slug: cleanSlug, url: '/api/media?path=soulove%2Fgallery%2Fgallery-1787324224869.webp', description: '' },
+              { site_id: siteId, tenant_slug: cleanSlug, url: '/api/media?path=soulove%2Fgallery%2Fgallery-1787324224859.webp', description: '' }
+            ])
+          }),
+          fetch(`${SUPABASE_URL}/rest/v1/wishlist_items`, {
+            method: 'POST',
+            headers: restHeaders,
+            body: JSON.stringify([
+              { site_id: siteId, tenant_slug: cleanSlug, text: 'نروح البحر ونتمشي علي الرمله بليل 🌊', completed: false },
+              { site_id: siteId, tenant_slug: cleanSlug, text: 'اشرب قهوه من ايديكي الحلوين 😍', completed: false },
+              { site_id: siteId, tenant_slug: cleanSlug, text: 'نقعد في مكان هادي ونتكلم براحتنا ♥', completed: false }
+            ])
+          })
+        ])
+      }
 
       return res.status(201).json({
         success: true,
