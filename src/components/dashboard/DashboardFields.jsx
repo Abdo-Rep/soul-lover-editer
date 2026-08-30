@@ -45,7 +45,10 @@ export function PasswordInput({ value, onChange, placeholder, showCopy = false, 
       <input
         type={showPassword ? 'text' : 'password'}
         value={value ?? ''}
-        onChange={(e) => onChange?.(e.target.value)}
+        onChange={(e) => {
+          const sanitized = e.target.value.replace(/[\u0600-\u06FF\s]/g, '')
+          onChange?.(sanitized)
+        }}
         placeholder={placeholder}
         className={`${inputClass} ${showCopy ? 'pl-20' : 'pl-10'}`}
         {...props}

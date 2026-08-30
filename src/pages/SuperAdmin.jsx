@@ -673,7 +673,7 @@ export default function SuperAdmin() {
                 <input
                   type="text"
                   value={newSitePass}
-                  onChange={(e) => setNewSitePass(e.target.value)}
+                  onChange={(e) => setNewSitePass(e.target.value.replace(/[\u0600-\u06FF\s]/g, ''))}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
@@ -686,7 +686,7 @@ export default function SuperAdmin() {
                 <input
                   type="text"
                   value={newAdminPass}
-                  onChange={(e) => setNewAdminPass(e.target.value)}
+                  onChange={(e) => setNewAdminPass(e.target.value.replace(/[\u0600-\u06FF\s]/g, ''))}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />

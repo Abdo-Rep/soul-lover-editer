@@ -76,11 +76,13 @@ export default function Enter({ onLogin }) {
                     type={showPassword ? 'text' : 'password'}
                     defaultValue=""
                     onChange={(event) => {
-                      passwordRef.current = event.target.value
+                      const sanitized = event.target.value.replace(/[\u0600-\u06FF\s]/g, '')
+                      event.target.value = sanitized
+                      passwordRef.current = sanitized
                       if (error) setError('')
                     }}
                     placeholder={content.login?.placeholder}
-                    className="w-full rounded-2xl border border-rose-100 bg-white px-4 py-3.5 pl-10 text-center text-rose-800 shadow-inner outline-none transition placeholder:text-rose-300 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
+                    className="w-full rounded-2xl border border-rose-100 bg-white px-10 py-3.5 text-center text-rose-800 shadow-inner outline-none transition placeholder:text-rose-300 focus:border-rose-300 focus:ring-4 focus:ring-rose-100"
                     autoComplete="current-password"
                     disabled={submitting}
                   />
