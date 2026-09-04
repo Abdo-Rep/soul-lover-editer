@@ -111,7 +111,7 @@ export default function Enter({ onLogin }) {
                 disabled={submitting}
                 className="group relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 px-8 py-3.5 text-sm sm:text-base font-extrabold text-white shadow-lg shadow-rose-500/25 ring-2 ring-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-rose-500/40 active:scale-95 disabled:opacity-70 cursor-pointer"
               >
-                <span className="font-display tracking-wide">{submitting ? (isEs ? 'Verificando...' : isEn ? 'Verifying...' : 'جاري التحقق...') : (content.login?.button || 'ادخل 💖')}</span>
+                <span className="font-display tracking-wide">{submitting ? (isEs ? 'Verificando...' : isEn ? 'Verifying...' : 'جاري التحقق...') : (content.login?.button ?? 'ادخل 💖')}</span>
               </button>
             </form>
           </div>

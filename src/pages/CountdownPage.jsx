@@ -83,7 +83,7 @@ function LiveCountdownCard({ timer, tick }) {
       {/* Timer Header */}
       <div className="mb-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--theme-500)] via-[var(--theme-600)] to-[var(--theme-500)] px-4.5 py-1.5 text-sm font-bold text-white shadow-xs">
         <Clock size={15} className="text-white" />
-        <span className="font-display">{timer.title || (isEs ? 'Evento próximo' : isEn ? 'Upcoming Event' : 'مناسبة قادمة')}</span>
+        <span className="font-display">{timer.title ?? ''}</span>
         <Heart size={13} className="fill-white text-white" />
       </div>
 
