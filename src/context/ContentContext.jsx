@@ -290,6 +290,16 @@ export function ContentProvider({ children }) {
       throw new Error(message)
     }
 
+    if (JSON.stringify(contentRef.current?.memories) !== JSON.stringify(persistedContentRef.current?.memories)) {
+      dirtySectionsRef.current.add('memories')
+    }
+    if (JSON.stringify(contentRef.current?.galleryItems) !== JSON.stringify(persistedContentRef.current?.galleryItems)) {
+      dirtySectionsRef.current.add('galleryItems')
+    }
+    if (JSON.stringify(contentRef.current?.wishlist) !== JSON.stringify(persistedContentRef.current?.wishlist)) {
+      dirtySectionsRef.current.add('wishlist')
+    }
+
     const snapshot = {
       ...contentRef.current,
       _dirtySections: Array.from(dirtySectionsRef.current),
@@ -578,6 +588,7 @@ export function ContentProvider({ children }) {
 
   const uploadMemoryImage = useCallback(
     async (id, file) => {
+      dirtySectionsRef.current.add('memories')
       const slug = getClientSlug()
       const compressedFile = await compressImageToUnder90KB(file)
       let localPreview = ''
@@ -610,6 +621,7 @@ export function ContentProvider({ children }) {
 
   const uploadGalleryImage = useCallback(
     async (id, file) => {
+      dirtySectionsRef.current.add('galleryItems')
       const slug = getClientSlug()
       const compressedFile = await compressImageToUnder90KB(file)
       let localPreview = ''

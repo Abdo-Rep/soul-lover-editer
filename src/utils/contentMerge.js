@@ -9,7 +9,7 @@ function mergeSection(base, patch) {
 }
 
 function resolveGalleryItems(stored) {
-  if (Array.isArray(stored.galleryItems) && stored.galleryItems.length > 0) {
+  if (Array.isArray(stored.galleryItems)) {
     return stored.galleryItems.filter(Boolean)
   }
 
@@ -191,7 +191,7 @@ export function mergeContent(stored) {
     ...baseDefault,
     ...stored,
     language: lang,
-    siteName: stored.siteName || baseDefault.siteName,
+    siteName: stored.siteName ?? baseDefault.siteName,
     password: stored.password ?? '',
     adminPassword: stored.adminPassword ?? '',
     dates: mergeSection(baseDefault.dates, stored.dates),
