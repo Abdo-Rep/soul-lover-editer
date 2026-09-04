@@ -9,21 +9,9 @@ function mergeSection(base, patch) {
 }
 
 function resolveGalleryItems(stored) {
-  if (Array.isArray(stored.galleryItems)) {
+  if (Array.isArray(stored?.galleryItems)) {
     return stored.galleryItems.filter(Boolean)
   }
-
-  const fromMemories = (stored.memories ?? [])
-    .filter(Boolean)
-    .filter((item) => typeof item.image === 'string' && item.image.startsWith('http'))
-
-  if (fromMemories.length > 0) {
-    return fromMemories.map((item, index) => ({
-      ...item,
-      id: item.id ?? index + 1,
-    }))
-  }
-
   return []
 }
 

@@ -4,13 +4,10 @@ import RomanticBackdrop from './components/RomanticBackdrop'
 import Dashboard from './pages/Dashboard'
 import SuperAdmin from './pages/SuperAdmin'
 import NotFound from './pages/NotFound'
-import PwaNotification from './components/PwaNotification'
 
 export default function App() {
   return (
-    <>
-      <PwaNotification />
-      <Routes>
+    <Routes>
       {/* 🚫 1. Root path / renders NotFound page */}
       <Route
         path="/"
@@ -69,6 +66,5 @@ export default function App() {
         }
       />
     </Routes>
-    </>
   )
 }
