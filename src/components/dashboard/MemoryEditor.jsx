@@ -98,8 +98,8 @@ export default function MemoryEditor({
           </Field>
           <Field label={textLabel}>
             <TextArea
-              value={memory.text ?? ''}
-              onChange={(value) => onChange(memory.id, { text: value })}
+              value={memory.text ?? memory.description ?? ''}
+              onChange={(value) => onChange(memory.id, { text: value, description: value })}
               rows={3}
               placeholder={textPlaceholder}
             />

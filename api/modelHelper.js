@@ -168,9 +168,9 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
       id: g.id,
       url: g.url || g.image || '',
       image: g.image || g.url || '',
-      date: g.date,
-      text: g.description || '',
-      description: g.description || '',
+      date: g.date ?? '',
+      text: g.description ?? '',
+      description: g.description ?? '',
     })),
     wishlist: wishlistItems.map((w) => ({
       id: w.id,
@@ -361,7 +361,7 @@ export async function saveRelationalContent(pool, slug, content) {
       tenant_slug: slug,
       url: item.url || item.image || '',
       date: item.date || '',
-      description: item.text || item.description || ''
+      description: item.text ?? item.description ?? ''
     }))
     step2.push(fetch(`${SUPABASE_URL}/rest/v1/gallery_items`, { method: 'POST', headers: restHeaders, body: JSON.stringify(itemsToInsert) }))
   }
