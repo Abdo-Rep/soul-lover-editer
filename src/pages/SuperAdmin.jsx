@@ -159,6 +159,7 @@ export default function SuperAdmin() {
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   const [sites, setSites] = useState([])
+  const [activeFilterTab, setActiveFilterTab] = useState('all') // 'all' | 'disabled'
   const [isLoading, setIsLoading] = useState(false)
   const [fetchError, setFetchError] = useState('')
 
@@ -434,6 +435,8 @@ export default function SuperAdmin() {
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
   const souloveSite = sites.find((s) => s.slug === 'soulove')
+  const disabledSites = sites.filter((s) => s.is_active === false)
+  const filteredSites = activeFilterTab === 'disabled' ? disabledSites : sites
 
   return (
     <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans" dir="rtl">
@@ -484,10 +487,40 @@ export default function SuperAdmin() {
         {/* Main Sites Container */}
         <div className="rounded-2xl sm:rounded-3xl bg-[#080b1a] border border-[#19213d] p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-[#19213d]/60">
-            <span className="text-sm font-bold text-white/90">
-              ({sites.length})
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#19213d]/60">
+            {/* Tabs for All (الكل) and Disabled (معطل) */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveFilterTab('all')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeFilterTab === 'all'
+                    ? 'bg-[#ff3b68] text-white shadow-lg shadow-[#ff3b68]/25'
+                    : 'bg-[#0f142d] border border-[#1e294d] text-[#7786a5] hover:text-white'
+                }`}
+              >
+                <span>الكل</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">
+                  {sites.length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveFilterTab('disabled')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeFilterTab === 'disabled'
+                    ? 'bg-[#ff3b68] text-white shadow-lg shadow-[#ff3b68]/25'
+                    : 'bg-[#0f142d] border border-[#1e294d] text-[#7786a5] hover:text-white'
+                }`}
+              >
+                <span>معطل</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">
+                  {disabledSites.length}
+                </span>
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => fetchSites(token, email)}
@@ -504,17 +537,21 @@ export default function SuperAdmin() {
             </div>
           )}
 
-          {sites.length === 0 && !isLoading ? (
+          {filteredSites.length === 0 && !isLoading ? (
             <div className="p-8 sm:p-10 text-center rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
               <GlobeSvg className="w-10 h-10 text-[#7786a5]/30 mx-auto" />
-              <p className="text-[#7786a5] text-xs">لا يوجد مواقع عملاء أنشئت بعد.</p>
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(true)}
-                className="px-5 py-2 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-bold transition-colors"
-              >
-                إضافة أول عميل بضغطة زر 🚀
-              </button>
+              <p className="text-[#7786a5] text-xs">
+                {activeFilterTab === 'disabled' ? 'لا يوجد مواقع معطلة حالياً.' : 'لا يوجد مواقع عملاء أنشئت بعد.'}
+              </p>
+              {activeFilterTab === 'all' && (
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(true)}
+                  className="px-5 py-2 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs font-bold transition-colors"
+                >
+                  إضافة أول عميل بضغطة زر 🚀
+                </button>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-[#19213d] bg-[#0b0e20]">
@@ -530,7 +567,7 @@ export default function SuperAdmin() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#19213d]/60 text-xs">
-                    {sites.map((site) => {
+                    {filteredSites.map((site) => {
                       const visitorUrl = `${baseUrl}/${site.slug}`
                       const dashboardUrl = `${baseUrl}/${site.slug}/login`
 
