@@ -888,10 +888,10 @@ export default function Dashboard() {
                     }
                   }}
                   onImageRemove={(id) => {
-                    updateMemory(id, { image: '' })
+                    updateMemory(id, { image: '', url: '' })
                   }}
                   onRemove={removeMemory}
-                  canRemove={content.memories.length > 1}
+                  canRemove={(content.memories ?? []).length > 0}
                 />
               ))}
             </div>
@@ -959,7 +959,7 @@ export default function Dashboard() {
                         }
                       }}
                       onImageRemove={(id) => {
-                        updateGalleryItem(id, { image: '' })
+                        updateGalleryItem(id, { image: '', url: '' })
                       }}
                       onRemove={removeGalleryItem}
                       canRemove={(content.galleryItems ?? []).length > 0}

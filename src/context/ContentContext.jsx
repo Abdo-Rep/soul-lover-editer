@@ -455,7 +455,7 @@ export function ContentProvider({ children }) {
       patchContent((prev) => ({
         ...prev,
         memories: (prev.memories ?? []).map((memory) =>
-          Number(memory.id) === Number(id) ? { ...memory, ...patch } : memory,
+          String(memory.id) === String(id) ? { ...memory, ...patch } : memory,
         ),
       }))
     },
@@ -477,13 +477,13 @@ export function ContentProvider({ children }) {
   const removeMemory = useCallback(
     (id) => {
       dirtySectionsRef.current.add('memories')
-      const target = (contentRef.current?.memories ?? []).find((m) => Number(m.id) === Number(id))
+      const target = (contentRef.current?.memories ?? []).find((m) => String(m.id) === String(id))
       if (target?.image) {
         deleteAsset(target.image, getClientSlug()).catch(() => {})
       }
       patchContent((prev) => ({
         ...prev,
-        memories: (prev.memories ?? []).filter((memory) => Number(memory.id) !== Number(id)),
+        memories: (prev.memories ?? []).filter((memory) => String(memory.id) !== String(id)),
       }))
     },
     [patchContent, getClientSlug],
@@ -495,7 +495,7 @@ export function ContentProvider({ children }) {
       patchContent((prev) => ({
         ...prev,
         galleryItems: (prev.galleryItems ?? []).map((item) =>
-          Number(item.id) === Number(id) ? { ...item, ...patch } : item,
+          String(item.id) === String(id) ? { ...item, ...patch } : item,
         ),
       }))
     },
@@ -520,14 +520,14 @@ export function ContentProvider({ children }) {
   const removeGalleryItem = useCallback(
     (id) => {
       dirtySectionsRef.current.add('galleryItems')
-      const target = (contentRef.current?.galleryItems ?? []).find((item) => Number(item.id) === Number(id))
+      const target = (contentRef.current?.galleryItems ?? []).find((item) => String(item.id) === String(id))
       const imageUrl = target?.url || target?.image
       if (imageUrl) {
         deleteAsset(imageUrl, getClientSlug()).catch(() => {})
       }
       patchContent((prev) => ({
         ...prev,
-        galleryItems: (prev.galleryItems ?? []).filter((item) => Number(item.id) !== Number(id)),
+        galleryItems: (prev.galleryItems ?? []).filter((item) => String(item.id) !== String(id)),
       }))
     },
     [patchContent, getClientSlug],
@@ -539,7 +539,7 @@ export function ContentProvider({ children }) {
       patchContent((prev) => ({
         ...prev,
         wishlist: (prev.wishlist ?? []).map((item) =>
-          Number(item.id) === Number(id) ? { ...item, ...patch } : item,
+          String(item.id) === String(id) ? { ...item, ...patch } : item,
         ),
       }))
     },
@@ -566,7 +566,7 @@ export function ContentProvider({ children }) {
       dirtySectionsRef.current.add('wishlist')
       patchContent((prev) => ({
         ...prev,
-        wishlist: (prev.wishlist ?? []).filter((item) => Number(item.id) !== Number(id)),
+        wishlist: (prev.wishlist ?? []).filter((item) => String(item.id) !== String(id)),
       }))
     },
     [patchContent],
