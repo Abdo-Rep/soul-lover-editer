@@ -188,31 +188,23 @@ export function mergeContent(stored) {
   }
 
   return {
-    ...baseDefault,
     ...stored,
     language: lang,
-    siteName: stored.siteName ?? baseDefault.siteName,
+    siteName: stored.siteName ?? '',
     password: stored.password ?? '',
     adminPassword: stored.adminPassword ?? '',
-    dates: mergeSection(baseDefault.dates, stored.dates),
+    dates: stored.dates ? { ...stored.dates } : { relationshipStart: '', firstMeeting: '', loveConfession: '' },
     music: sanitizedMusic,
-    login: mergeSection(baseDefault.login, stored.login),
-    welcome: mergeSection(baseDefault.welcome, stored.welcome),
-    story: {
-      ...baseDefault.story,
+    login: stored.login ? { ...stored.login } : { eyebrow: '', title: '', subtitle: '', placeholder: '', passwordLabel: '', button: '', error: '', footer: '' },
+    welcome: stored.welcome ? { ...stored.welcome } : { eyebrow: '', title: '', subtitle: '', nextButton: '' },
+    story: stored.story ? {
       ...stored.story,
-      memoriesButton: stored.story?.memoriesButton ?? baseDefault.story.memoriesButton,
-      firstMeeting: mergeSection(
-        baseDefault.story.firstMeeting,
-        stored.story?.firstMeeting,
-      ),
-      loveConfession: mergeSection(
-        baseDefault.story.loveConfession,
-        stored.story?.loveConfession,
-      ),
-    },
-    gallery: mergeSection(baseDefault.gallery, stored.gallery),
-    final: mergeSection(baseDefault.final, stored.final),
+      memoriesButton: stored.story.memoriesButton ?? '',
+      firstMeeting: stored.story.firstMeeting ? { ...stored.story.firstMeeting } : { label: '', description: '' },
+      loveConfession: stored.story.loveConfession ? { ...stored.story.loveConfession } : { label: '', message: '' },
+    } : { eyebrow: '', title: '', memoriesButton: '', firstMeeting: { label: '', description: '' }, loveConfession: { label: '', message: '' } },
+    gallery: stored.gallery ? { ...stored.gallery } : { eyebrow: '', title: '', finalButton: '' },
+    final: stored.final ? { ...stored.final } : { eyebrow: '', title: '', text: '' },
     appearance: normalizeAppearance({
       ...baseDefault.appearance,
       ...stored.appearance,
@@ -226,9 +218,9 @@ export function mergeContent(stored) {
       image: sanitizeMediaUrl(item.image),
       url: sanitizeMediaUrl(item.url || item.image),
     })),
-    wishlist: ensureUniqueIds(Array.isArray(stored.wishlist) ? stored.wishlist : baseDefault.wishlist),
+    wishlist: ensureUniqueIds(Array.isArray(stored.wishlist) ? stored.wishlist : []),
     countdowns: ensureUniqueIds(Array.isArray(stored.countdowns) ? stored.countdowns : []),
-    countdownsNextButton: stored.countdownsNextButton ?? baseDefault.countdownsNextButton,
+    countdownsNextButton: stored.countdownsNextButton ?? '',
   }
 }
 

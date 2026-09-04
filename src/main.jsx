@@ -12,14 +12,12 @@ import App from './App.jsx'
 // Apply cached theme immediately before render to prevent FOUC
 applyCachedSiteTheme()
 
-// ⚡ Clean up any blocking Service Workers to guarantee instant zero-delay loading on mobile & desktop
-if ('serviceWorker' in navigator) {
+// Register Service Worker for PWA (Network-First for instant live updates)
+if ('serviceWorker' in navigator && typeof window !== 'undefined') {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const registration of registrations) {
-        registration.unregister().catch(() => {})
-      }
-    }).catch(() => {})
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('[PWA] Service Worker registration failed:', err)
+    })
   })
 }
 
