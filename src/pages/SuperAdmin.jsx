@@ -574,8 +574,24 @@ export default function SuperAdmin() {
                       return (
                         <tr key={site.slug} className="hover:bg-[#0f152e]/50 transition-colors">
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono font-bold text-[#ff3b68] text-right">/{site.slug}</td>
-                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.site_password}</td>
-                          <td className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-white/90 text-right">{site.admin_password || 'love'}</td>
+                          <td 
+                            onClick={() => copyToClipboard(site.site_password, `${site.slug}-vp`)}
+                            title="اضغط لنسخ كلمة مرور الزائر"
+                            className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-right cursor-pointer select-none transition-colors"
+                          >
+                            <span className={copiedKey === `${site.slug}-vp` ? 'text-emerald-400 font-bold' : 'text-white/90 hover:text-white hover:underline'}>
+                              {site.site_password}
+                            </span>
+                          </td>
+                          <td 
+                            onClick={() => copyToClipboard(site.admin_password || 'love', `${site.slug}-ap`)}
+                            title="اضغط لنسخ كلمة مرور الداشبورد"
+                            className="py-2.5 sm:py-3 px-3 sm:px-4 font-mono text-right cursor-pointer select-none transition-colors"
+                          >
+                            <span className={copiedKey === `${site.slug}-ap` ? 'text-emerald-400 font-bold' : 'text-white/90 hover:text-white hover:underline'}>
+                              {site.admin_password || 'love'}
+                            </span>
+                          </td>
                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
                             <select
                               value={site.language || 'ar'}
@@ -911,31 +927,29 @@ export default function SuperAdmin() {
             <div className="rounded-2xl border border-[#19213d] bg-[#060814] p-4 space-y-3">
               <h4 className="text-xs font-bold text-white/80 border-b border-[#19213d] pb-2">📋 كلمات المرور المسجلة:</h4>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] flex items-center justify-between">
+                <div 
+                  onClick={() => copyToClipboard(souloveSite?.site_password || '1234', 'soulove-vis-pass')}
+                  title="اضغط لنسخ كلمة مرور الزائر"
+                  className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] hover:border-[#ff3b68]/50 flex items-center justify-between cursor-pointer select-none transition-colors"
+                >
                   <div>
                     <span className="text-[#7786a5] block text-[10px]">كلمة مرور الزائر:</span>
-                    <span className="font-mono text-white font-bold">{souloveSite?.site_password || '1234'}</span>
+                    <span className={`font-mono font-bold ${copiedKey === 'soulove-vis-pass' ? 'text-emerald-400' : 'text-white'}`}>
+                      {souloveSite?.site_password || '1234'}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(souloveSite?.site_password || '1234', 'soulove-vis-pass')}
-                    className="p-1 rounded bg-[#0f152d] text-white/70 hover:text-white"
-                  >
-                    {copiedKey === 'soulove-vis-pass' ? <CheckSvg className="w-3 h-3 text-emerald-400" /> : <CopySvg className="w-3 h-3" />}
-                  </button>
                 </div>
-                <div className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] flex items-center justify-between">
+                <div 
+                  onClick={() => copyToClipboard(souloveSite?.admin_password || 'love', 'soulove-adm-pass')}
+                  title="اضغط لنسخ كلمة مرور الداشبورد"
+                  className="bg-[#0b0e20] p-2.5 rounded-xl border border-[#19213d] hover:border-[#ff3b68]/50 flex items-center justify-between cursor-pointer select-none transition-colors"
+                >
                   <div>
                     <span className="text-[#7786a5] block text-[10px]">كلمة مرور الداشبورد:</span>
-                    <span className="font-mono text-white font-bold">{souloveSite?.admin_password || 'love'}</span>
+                    <span className={`font-mono font-bold ${copiedKey === 'soulove-adm-pass' ? 'text-emerald-400' : 'text-white'}`}>
+                      {souloveSite?.admin_password || 'love'}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(souloveSite?.admin_password || 'love', 'soulove-adm-pass')}
-                    className="p-1 rounded bg-[#0f152d] text-white/70 hover:text-white"
-                  >
-                    {copiedKey === 'soulove-adm-pass' ? <CheckSvg className="w-3 h-3 text-emerald-400" /> : <CopySvg className="w-3 h-3" />}
-                  </button>
                 </div>
               </div>
             </div>
