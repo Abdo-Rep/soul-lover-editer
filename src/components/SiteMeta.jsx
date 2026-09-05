@@ -40,14 +40,15 @@ export default function SiteMeta() {
     // 4. Dynamic Isolated PWA Manifest generation (3 Separate Standalone Apps!)
     const path = window.location.pathname
     const parts = path.split('/').filter(Boolean)
+    const isDark = content?.appearance?.mode === 'dark'
 
     let manifestId = '/'
     let manifestScope = '/'
     let startUrl = path || '/'
     let appName = title
     let shortName = content?.siteName || 'موقعنا'
-    let themeColor = content?.appearance?.primaryColor || '#fb7185'
-    let bgColor = '#fff1f2'
+    let themeColor = isDark ? '#0b0a12' : (content?.appearance?.primaryColor || '#fb7185')
+    let bgColor = isDark ? '#0b0a12' : '#fff1f2'
 
     if (parts[0] === 'soulove-admin') {
       // App 1: Super Admin App (Isolated PWA)
@@ -56,8 +57,8 @@ export default function SiteMeta() {
       startUrl = '/soulove-admin'
       appName = 'Soulove Control — لوحة تحكم المنصة 👑'
       shortName = 'Super Admin'
-      themeColor = '#4f46e5'
-      bgColor = '#090d16'
+      themeColor = '#060713'
+      bgColor = '#060713'
     } else if (parts.length >= 2 && (parts[1] === 'dashboard' || parts[1] === 'login')) {
       // App 2: Client Dashboard App (Isolated PWA per client)
       const slug = parts[0]
@@ -66,8 +67,8 @@ export default function SiteMeta() {
       startUrl = `/${slug}/dashboard`
       appName = `لوحة التحكم — ${content?.siteName || slug}`
       shortName = `لوحة التحكم`
-      themeColor = '#e11d48'
-      bgColor = '#ffffff'
+      themeColor = '#060814'
+      bgColor = '#060814'
     } else if (parts.length >= 1) {
       // App 3: Client Visitor Website App (Isolated PWA per site)
       const slug = parts[0]
@@ -76,9 +77,11 @@ export default function SiteMeta() {
       startUrl = `/${slug}`
       appName = content?.siteName?.trim() || title
       shortName = content?.siteName?.trim() || 'موقعنا'
-      themeColor = content?.appearance?.primaryColor || '#fb7185'
-      bgColor = '#fff1f2'
+      themeColor = isDark ? '#0b0a12' : (content?.appearance?.primaryColor || '#fb7185')
+      bgColor = isDark ? '#0b0a12' : '#fff1f2'
     }
+
+    setMetaTag('name', 'theme-color', themeColor)
 
     const dynamicManifest = {
       id: manifestId,

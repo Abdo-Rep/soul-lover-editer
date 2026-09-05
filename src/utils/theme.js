@@ -227,5 +227,15 @@ export function applySiteTheme(appearanceInput) {
     root.classList.remove('dark')
   }
 
+  // Synchronize PWA top status bar theme-color dynamically
+  let meta = document.querySelector('meta[name="theme-color"]')
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.setAttribute('name', 'theme-color')
+    document.head.appendChild(meta)
+  }
+  const topBarColor = isDark ? '#0b0a12' : (appearance.primaryColor || '#fff1f2')
+  meta.setAttribute('content', topBarColor)
+
   writeThemeCache(appearance, vars)
 }
