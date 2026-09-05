@@ -884,7 +884,7 @@ export default function Dashboard() {
                       setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
                     } catch (err) {
                       console.error('Upload error:', err)
-                      setSaveMessage(content.language === 'es' ? `✗ Error al subir: ${err.message}` : content.language === 'en' || content.language === 'en-GB' ? `✗ Upload failed: ${err.message}` : `✗ فشل الرفع: ${err.message}`)
+                      setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
                     }
                   }}
                   onImageRemove={(id) => {
@@ -955,7 +955,7 @@ export default function Dashboard() {
                           setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
                         } catch (err) {
                           console.error('Upload error:', err)
-                          setSaveMessage(content.language === 'es' ? `✗ Error al subir: ${err.message}` : content.language === 'en' || content.language === 'en-GB' ? `✗ Upload failed: ${err.message}` : `✗ فشل الرفع: ${err.message}`)
+                          setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
                         }
                       }}
                       onImageRemove={(id) => {

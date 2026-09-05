@@ -263,10 +263,18 @@ export function ContentProvider({ children }) {
   // ⚡ Background Image Preloader — Pre-caches all memory & gallery photos instantly
   useEffect(() => {
     if (!content) return
+    const isMediaUrl = (src) =>
+      typeof src === 'string' &&
+      (src.startsWith('http://') ||
+       src.startsWith('https://') ||
+       src.startsWith('data:') ||
+       src.startsWith('/storage') ||
+       src.startsWith('/api/'))
+
     const imagesToPreload = [
       ...(content.memories || []).map((m) => m.image || m.url),
       ...(content.galleryItems || []).map((g) => g.image || g.url),
-    ].filter((src) => Boolean(src && typeof src === 'string' && src.trim()))
+    ].filter((src) => Boolean(src && isMediaUrl(src)))
 
     imagesToPreload.forEach((src) => {
       const img = new Image()
@@ -602,7 +610,7 @@ export function ContentProvider({ children }) {
         patchContent((prev) => ({
           ...prev,
           memories: prev.memories.map((memory) =>
-            memory.id === id ? { ...memory, image: localPreview } : memory,
+            String(memory.id) === String(id) ? { ...memory, image: localPreview } : memory,
           ),
         }))
       }
@@ -611,7 +619,7 @@ export function ContentProvider({ children }) {
       patchContent((prev) => ({
         ...prev,
         memories: prev.memories.map((memory) =>
-          memory.id === id ? { ...memory, image } : memory,
+          String(memory.id) === String(id) ? { ...memory, image } : memory,
         ),
       }))
       return image
@@ -635,7 +643,7 @@ export function ContentProvider({ children }) {
         patchContent((prev) => ({
           ...prev,
           galleryItems: (prev.galleryItems ?? []).map((item) =>
-            item.id === id ? { ...item, image: localPreview, url: localPreview } : item,
+            String(item.id) === String(id) ? { ...item, image: localPreview, url: localPreview } : item,
           ),
         }))
       }
@@ -644,7 +652,7 @@ export function ContentProvider({ children }) {
       patchContent((prev) => ({
         ...prev,
         galleryItems: (prev.galleryItems ?? []).map((item) =>
-          item.id === id ? { ...item, image, url: image } : item,
+          String(item.id) === String(id) ? { ...item, image, url: image } : item,
         ),
       }))
       return image
