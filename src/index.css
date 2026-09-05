@@ -801,10 +801,7 @@ html.dark body {
 
 /* Background gradient for main site in dark mode */
 html.dark .romantic-bg {
-  background:
-    radial-gradient(circle 600px at 50% 0%, rgb(var(--theme-rgb) / 0.18), transparent 70%),
-    radial-gradient(circle 500px at 80% 30%, rgb(var(--theme-rgb) / 0.12), transparent 70%),
-    linear-gradient(180deg, var(--theme-50, #0a060e) 0%, color-mix(in srgb, var(--theme-100, #150d1d) 80%, black) 50%, color-mix(in srgb, var(--theme-50, #0a060e) 95%, black) 100%);
+  background: linear-gradient(180deg, var(--theme-50, #0a060e) 0%, color-mix(in srgb, var(--theme-100, #150d1d) 80%, black) 50%, color-mix(in srgb, var(--theme-50, #0a060e) 95%, black) 100%);
 }
 
 /* Glass cards & panels in dark mode */
