@@ -109,11 +109,7 @@ export default function RomanticShell({
                       e.stopPropagation()
                       setIsMenuOpen((prev) => !prev)
                     }}
-                    className={`glass-card flex h-10 w-10 items-center justify-center rounded-full shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer ${
-                      isMenuOpen
-                        ? 'bg-rose-500 text-white dark:bg-rose-600'
-                        : 'text-rose-600 dark:text-rose-300'
-                    }`}
+                    className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 dark:text-rose-300 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
                     title={isMenuOpen ? (isEs ? "Cerrar menú" : isEn ? "Close menu" : "إغلاق القائمة") : (isEs ? "Navegación" : isEn ? "Quick Navigation" : "التنقل السريع")}
                     aria-expanded={isMenuOpen}
                   >

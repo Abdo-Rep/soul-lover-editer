@@ -1316,20 +1316,44 @@ export default function Dashboard() {
   return (
     <div className="min-h-dvh">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-        {/* Sticky Action Header and Tabs Navigation */}
-        <div className="sticky top-0 z-30 pt-1 pb-3 mb-6 bg-white/85 dark:bg-[#0a060e]/85 backdrop-blur-md transition-colors">
+        {/* On Mobile: Site title & status message are in normal flow */}
+        <div className="sm:hidden mb-4">
+          <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
+          <h1 className="font-display text-xl font-bold text-rose-900">
+            {t.dashboardTitle}
+          </h1>
+          <p className="text-xs text-rose-500">
+            {saveMessage ||
+              (isDirty
+                ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
+                : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
+            <span className="mt-0.5 block text-[11px]">
+              {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
+              {syncStatus === 'saving' && `💾 ${t.saving}`}
+              {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
+              {syncError ? ` — ${syncError}` : ''}
+            </span>
+          </p>
+        </div>
+
+        {/* Sticky Container:
+            - Desktop: Full header (Title + Actions) + Tabs
+            - Mobile: Actions row + Tabs
+        */}
+        <div className="sticky top-0 z-30 pt-1 pb-3 mb-6 transition-colors backdrop-blur-sm">
           <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div>
+            {/* Desktop Only: Title info */}
+            <div className="hidden sm:block">
               <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
-              <h1 className="font-display text-xl sm:text-2xl font-bold text-rose-900">
+              <h1 className="font-display text-2xl font-bold text-rose-900">
                 {t.dashboardTitle}
               </h1>
-              <p className="text-xs sm:text-sm text-rose-500">
+              <p className="text-sm text-rose-500">
                 {saveMessage ||
                   (isDirty
                     ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
                     : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
-                <span className="mt-0.5 block text-[11px] sm:text-xs">
+                <span className="mt-0.5 block text-xs">
                   {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
                   {syncStatus === 'saving' && `💾 ${t.saving}`}
                   {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
@@ -1337,12 +1361,14 @@ export default function Dashboard() {
                 </span>
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+
+            {/* Action Buttons: Visible on both mobile and desktop in sticky container */}
+            <div className="flex flex-wrap items-center gap-2 ms-auto sm:ms-0">
               <button
                 type="button"
                 onClick={redo}
                 disabled={!canRedo}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 title={content.language === 'es' ? 'Rehacer' : 'Redo'}
               >
                 <Redo size={14} />
@@ -1351,7 +1377,7 @@ export default function Dashboard() {
                 type="button"
                 onClick={undo}
                 disabled={!canUndo}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 title={content.language === 'es' ? 'Deshacer' : 'Undo'}
               >
                 <Undo size={14} />
@@ -1360,7 +1386,7 @@ export default function Dashboard() {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || syncStatus === 'loading' || !isDirty}
-                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 <Save size={14} />
                 {isSaving ? t.saving : (content.language === 'en' || content.language === 'en-GB' ? 'Save' : content.language === 'es' ? 'Guardar' : 'حفظ')}
@@ -1368,7 +1394,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={handlePreview}
-                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50 cursor-pointer"
                 title={content.language === 'es' ? 'Vista previa' : 'Preview site'}
               >
                 <ExternalLink size={14} />
@@ -1378,7 +1404,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setShowQRModal(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95"
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95 cursor-pointer"
                 title={content.language === 'es' ? 'Código QR' : 'QR Code'}
               >
                 <QrCode size={14} className="text-rose-500" />
@@ -1387,7 +1413,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200 cursor-pointer"
                 title={t.logoutBtn}
                 aria-label={t.logoutBtn}
               >
@@ -1404,7 +1430,7 @@ export default function Dashboard() {
                 key={id}
                 type="button"
                 onClick={() => setActiveTab(id)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition ${activeTab === id
+                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition cursor-pointer ${activeTab === id
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md'
                     : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
                   }`}
