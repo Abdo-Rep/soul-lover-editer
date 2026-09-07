@@ -1315,46 +1315,23 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-dvh">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-        {/* On Mobile: Site title & status message are in normal flow */}
-        <div className="sm:hidden mb-4">
-          <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
-          <h1 className="font-display text-xl font-bold text-rose-900">
-            {t.dashboardTitle}
-          </h1>
-          <p className="text-xs text-rose-500">
-            {saveMessage ||
-              (isDirty
-                ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
-                : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
-            <span className="mt-0.5 block text-[11px]">
-              {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
-              {syncStatus === 'saving' && `💾 ${t.saving}`}
-              {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
-              {syncError ? ` — ${syncError}` : ''}
-            </span>
-          </p>
-        </div>
-
-        {/* Sticky Container:
-            - Desktop: Full header (Title + Actions) + Tabs
-            - Mobile: Actions row + Tabs
-        */}
-        <div className="sticky top-0 z-30 pt-1 pb-3 mb-6 transition-colors backdrop-blur-sm">
-          <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
+      {/* 📌 Fixed Top Navigation Bar for Mobile and Desktop */}
+      <div className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-white/90 dark:bg-[#0a060e]/90 border-b border-rose-100/60 dark:border-rose-900/30 transition-colors shadow-xs">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-2 pb-2.5">
+          <header className="mb-2 flex flex-wrap items-center justify-between gap-3">
             {/* Desktop Only: Title info */}
             <div className="hidden sm:block">
               <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
-              <h1 className="font-display text-2xl font-bold text-rose-900">
+              <h1 className="font-display text-xl sm:text-2xl font-bold text-rose-900">
                 {t.dashboardTitle}
               </h1>
-              <p className="text-sm text-rose-500">
+              <p className="text-xs text-rose-500">
                 {saveMessage ||
                   (isDirty
                     ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
                     : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
-                <span className="mt-0.5 block text-xs">
-                  {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
+                <span className="mt-0.5 inline-block ms-1.5 text-[11px]">
+                  {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading...' : content.language === 'es' ? '⏳ Cargando...' : '⏳ جاري التحميل...')}
                   {syncStatus === 'saving' && `💾 ${t.saving}`}
                   {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
                   {syncError ? ` — ${syncError}` : ''}
@@ -1362,7 +1339,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Action Buttons: Visible on both mobile and desktop in sticky container */}
+            {/* Action Buttons: Always visible in fixed navbar */}
             <div className="flex flex-wrap items-center gap-2 ms-auto sm:ms-0">
               <button
                 type="button"
@@ -1424,22 +1401,47 @@ export default function Dashboard() {
 
           <PWAInstallBanner />
 
-          <nav className="romantic-scrollbar flex gap-2 overflow-x-auto pb-1">
+          {/* Tabs row */}
+          <nav className="romantic-scrollbar flex gap-2 overflow-x-auto pb-0.5">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => setActiveTab(id)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition cursor-pointer ${activeTab === id
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md'
+                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
+                  activeTab === id
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-xs'
                     : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
-                  }`}
+                }`}
               >
-                <Icon size={14} />
+                <Icon size={13} />
                 {label}
               </button>
             ))}
           </nav>
+        </div>
+      </div>
+
+      {/* Main Scrollable Content Container */}
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-28 sm:pt-36 pb-12">
+        {/* On Mobile: Site title & status message in normal document flow */}
+        <div className="sm:hidden mb-4">
+          <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
+          <h1 className="font-display text-xl font-bold text-rose-900">
+            {t.dashboardTitle}
+          </h1>
+          <p className="text-xs text-rose-500">
+            {saveMessage ||
+              (isDirty
+                ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
+                : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
+            <span className="mt-0.5 block text-[11px]">
+              {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
+              {syncStatus === 'saving' && `💾 ${t.saving}`}
+              {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
+              {syncError ? ` — ${syncError}` : ''}
+            </span>
+          </p>
         </div>
 
         <motion.div
