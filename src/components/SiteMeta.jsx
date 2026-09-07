@@ -17,9 +17,12 @@ export default function SiteMeta() {
   const { content, getClientSlug } = useContent()
 
   useEffect(() => {
-    const slug = getClientSlug?.() || window.location.pathname.split('/').filter(Boolean)[0] || ''
-    const formattedName = formatSiteDisplayName(content?.siteName, slug)
-    const title = formattedName || 'soulove • عالمنا السرّي الخاص 💖'
+    const path = window.location.pathname
+    const parts = path.split('/').filter(Boolean)
+    const isSuperAdmin = parts[0] === 'soulove-admin'
+    const slug = isSuperAdmin ? '' : (getClientSlug?.() || parts[0] || '')
+    const formattedName = isSuperAdmin ? 'Soulove' : formatSiteDisplayName(content?.siteName, slug)
+    const title = formattedName || 'Soulove'
     const description = content?.welcome?.subtitle || content?.login?.subtitle || 'قصة حبنا، ذكرياتنا، وكل نبضة في قلبي — صُنع بحب لكِ وحدك.'
     const coverImage = content?.memories?.[0]?.image || content?.galleryItems?.[0]?.image || content?.galleryItems?.[0]?.url || 'https://media.soulove.app/uploads/default-cover.jpg'
     const pageUrl = window.location.href
@@ -41,8 +44,6 @@ export default function SiteMeta() {
     setMetaTag('property', 'og:site_name', title)
 
     // 4. Dynamic Isolated PWA Manifest generation (3 Separate Standalone Apps!)
-    const path = window.location.pathname
-    const parts = path.split('/').filter(Boolean)
     const isDark = content?.appearance?.mode === 'dark'
 
     let manifestId = '/'

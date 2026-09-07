@@ -22,16 +22,17 @@ export default function MemoryEditor({
   const isEs = lang === 'es'
 
   const defaultItemLabel = itemLabel || (isEs ? 'Recuerdo' : isEn ? 'Memory' : 'ذكرى')
-  const defaultImageHint = imageHint || (isEs ? 'Subir imagen' : isEn ? 'Upload image' : 'رفع صورة')
+  const defaultImageHint = imageHint || (isEs ? 'Subir' : isEn ? 'Upload' : 'رفع صورة')
 
   const deleteLabel = isEs ? 'Eliminar' : isEn ? 'Delete' : 'حذف'
-  const dateLabel = isEs ? 'Fecha (Opcional)' : isEn ? 'Date (Optional)' : 'التاريخ (اختياري)'
+  const dateLabel = isEs ? 'Fecha (اختياري)' : isEn ? 'Date (Optional)' : 'التاريخ (اختياري)'
   const textLabel = isEs ? 'Texto' : isEn ? 'Text' : 'النص'
   const textPlaceholder = isEs ? 'Escribe los detalles aquí...' : isEn ? 'Write details here...' : 'اكتب تفاصيل أو كلام هذه الذكرى هنا...'
 
   return (
-    <article className="rounded-xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm">
-      <div className="mb-3 flex items-center justify-between">
+    <article className="rounded-2xl border border-rose-100 bg-rose-50/40 p-3.5 shadow-sm space-y-3">
+      {/* 1. Top Bar: Handle & Title + Delete button */}
+      <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
         <div
           {...(dragControls ? { onPointerDown: (e) => dragControls.start(e) } : {})}
           className={`flex items-center gap-2 select-none py-1 px-2 -mx-2 rounded-xl transition ${
@@ -42,7 +43,7 @@ export default function MemoryEditor({
           {showDragHandle && (
             <GripVertical size={16} className="text-rose-400" />
           )}
-          <span className="text-sm font-semibold text-rose-700">
+          <span className="text-xs font-bold text-rose-800">
             {defaultItemLabel} #{index + 1}
           </span>
         </div>
@@ -52,17 +53,18 @@ export default function MemoryEditor({
             onClick={() => onRemove(memory.id)}
             className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-rose-400 transition hover:bg-rose-100 hover:text-rose-600 cursor-pointer"
           >
-            <Trash2 size={14} />
-            {deleteLabel}
+            <Trash2 size={13} />
+            <span>{deleteLabel}</span>
           </button>
         ) : null}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-start">
-        {showImage ? (
-          <div className="w-full sm:w-28 shrink-0 flex flex-col items-center gap-2">
-            {/* Image Preview Box */}
-            <div className="relative w-28 h-28 overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-100 flex items-center justify-center shadow-inner">
+      {/* 2. Middle Row: Image right + Date beside it */}
+      <div className="flex items-center gap-3">
+        {showImage && (
+          <div className="shrink-0 flex items-center gap-2">
+            {/* Image Box */}
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 flex items-center justify-center shadow-xs">
               {(memory.image || memory.url) ? (
                 <>
                   <img
@@ -73,52 +75,69 @@ export default function MemoryEditor({
                   <button
                     type="button"
                     onClick={() => onImageRemove?.(memory.id)}
-                    className="absolute start-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/55 text-white shadow-md transition hover:bg-rose-600 cursor-pointer"
+                    className="absolute start-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white shadow-md transition hover:bg-rose-600 cursor-pointer"
                     aria-label={isEs ? 'Eliminar imagen' : isEn ? 'Remove image' : 'حذف الصورة'}
                   >
-                    <X size={12} />
+                    <X size={10} />
                   </button>
                 </>
               ) : (
-                <div className="text-xl text-rose-200">♥</div>
+                <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer text-rose-400 hover:text-rose-600 hover:bg-rose-100/50 transition">
+                  <ImagePlus size={18} />
+                  <span className="text-[9px] font-bold mt-0.5">{defaultImageHint}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) onImageUpload(memory.id, file)
+                      e.target.value = ''
+                    }}
+                  />
+                </label>
               )}
             </div>
-            {/* Upload Button */}
-            <label className="w-28 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-rose-200 bg-white px-2 py-2 text-[10px] text-rose-500 font-bold text-center leading-normal transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600">
-              <ImagePlus size={12} className="mb-0.5" />
-              <span>{defaultImageHint}</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) onImageUpload(memory.id, file)
-                  e.target.value = ''
-                }}
-              />
-            </label>
-          </div>
-        ) : null}
 
-        {/* Inputs (Date & Text) */}
-        <div className="flex-1 w-full space-y-3">
+            {/* Change button if image exists */}
+            {(memory.image || memory.url) && (
+              <label className="flex cursor-pointer items-center justify-center h-8 w-8 rounded-xl border border-dashed border-rose-200 bg-white text-rose-500 hover:bg-rose-50 hover:border-rose-300 transition" title={defaultImageHint}>
+                <ImagePlus size={14} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) onImageUpload(memory.id, file)
+                    e.target.value = ''
+                  }}
+                />
+              </label>
+            )}
+          </div>
+        )}
+
+        {/* Date Input beside the image */}
+        <div className="flex-1">
           <Field label={dateLabel}>
             <DateInput
               value={memory.date ?? ''}
               onChange={(value) => onChange(memory.id, { date: value })}
             />
           </Field>
-          <Field label={textLabel}>
-            <TextArea
-              value={memory.text ?? memory.description ?? ''}
-              onChange={(value) => onChange(memory.id, { text: value, description: value })}
-              rows={3}
-              placeholder={textPlaceholder}
-            />
-          </Field>
         </div>
       </div>
+
+      {/* 3. Bottom Row: Text Area underneath image and date */}
+      <Field label={textLabel}>
+        <TextArea
+          value={memory.text ?? memory.description ?? ''}
+          onChange={(value) => onChange(memory.id, { text: value, description: value })}
+          rows={2}
+          placeholder={textPlaceholder}
+        />
+      </Field>
     </article>
   )
 }

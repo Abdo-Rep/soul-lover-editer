@@ -221,6 +221,10 @@ export default function SuperAdmin() {
   }, [])
 
   useEffect(() => {
+    document.title = 'Soulove'
+  }, [])
+
+  useEffect(() => {
     if (token) {
       fetchSites(token, email)
     }
