@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { motion, Reorder } from 'framer-motion'
+import { motion, Reorder, useDragControls } from 'framer-motion'
 import {
   Calendar,
   ExternalLink,
@@ -134,6 +134,374 @@ function AdminLoginForm({ onLogin }) {
         </motion.div>
       </main>
     </div>
+  )
+}
+
+function ReorderableMusicTrack({
+  track,
+  idx,
+  trackKey,
+  currentMode,
+  content,
+  t,
+  removeMusic,
+  updateMusicTrackTitle,
+  uploadMusic,
+  musicUploadError,
+  musicUploadingIndex,
+  setTrackModes,
+}) {
+  const dragControls = useDragControls()
+
+  return (
+    <Reorder.Item
+      value={track}
+      dragListener={false}
+      dragControls={dragControls}
+      className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3 shadow-sm"
+    >
+      <div className="flex items-center justify-between">
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="flex items-center gap-2 cursor-grab active:cursor-grabbing select-none py-1 px-2 -mx-2 rounded-xl transition hover:bg-rose-100/60"
+          style={{ touchAction: 'none' }}
+        >
+          <GripVertical size={16} className="text-rose-400" />
+          <span className="text-xs font-semibold text-rose-500">
+            {currentMode === 'voice'
+              ? (content.language === 'en' || content.language === 'en-GB' ? `Voice Message #${idx + 1}` : content.language === 'es' ? `Mensaje de voz #${idx + 1}` : `رسالة صوتية رقم ${idx + 1}`)
+              : (content.language === 'en' || content.language === 'en-GB' ? `Track #${idx + 1}` : content.language === 'es' ? `Canción #${idx + 1}` : `الأغنية رقم ${idx + 1}`)}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => removeMusic(idx)}
+          className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold cursor-pointer"
+          title={t.deleteBtn}
+        >
+          <Trash2 size={12} />
+          {t.deleteBtn || 'حذف'}
+        </button>
+      </div>
+
+      <Field label={content.language === 'es' ? 'Título de la canción / Audio' : content.language === 'en' || content.language === 'en-GB' ? 'Song / Audio Title' : 'عنوان الأغنية / الصوت'}>
+        <TextInput
+          value={track.title ?? ''}
+          onChange={(v) => {
+            updateMusicTrackTitle(idx, v)
+          }}
+          placeholder={content.language === 'en' || content.language === 'en-GB' ? 'Track title or voice message...' : content.language === 'es' ? 'Nombre de canción o mensaje de voz...' : 'اسم الأغنية أو الرسالة الصوتية...'}
+        />
+      </Field>
+
+      {track.src ? (
+        <div className="space-y-2">
+          <p className="text-xs text-rose-400 truncate">
+            {content.language === 'es' ? 'Archivo:' : content.language === 'en' || content.language === 'en-GB' ? 'File:' : 'الملف:'} {track.fileName || (content.language === 'es' ? 'Archivo de audio' : content.language === 'en' || content.language === 'en-GB' ? 'Audio file' : 'ملف صوتي')}
+          </p>
+          {(() => {
+            const audioSrc = track.localUrl || track.src
+            return (
+              <audio
+                controls
+                preload="auto"
+                src={audioSrc}
+                className="w-full h-8"
+                key={audioSrc}
+                onError={(e) => {
+                  const el = e.currentTarget
+                  if (!el.dataset.retried && track.src) {
+                    el.dataset.retried = 'true'
+                    setTimeout(() => {
+                      el.src = track.src + (track.src.includes('?') ? '&' : '?') + 't=' + Date.now()
+                      el.load()
+                    }, 1000)
+                  }
+                }}
+              />
+            )
+          })()}
+          <button
+            type="button"
+            onClick={() => {
+              updateMusicTrackTitle(idx, track.title)
+              uploadMusic(null, idx).catch(() => {})
+            }}
+            className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline cursor-pointer"
+          >
+            {content.language === 'es' ? 'Cambiar o volver a subir audio' : content.language === 'en' || content.language === 'en-GB' ? 'Change or re-upload audio' : 'تغيير أو إعادة رفع الصوت'}
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {musicUploadError?.index === idx && musicUploadError?.message ? (
+            <p className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
+              {musicUploadError.message}
+            </p>
+          ) : null}
+
+          {currentMode === 'voice' ? (
+            <>
+              <VoiceRecorder
+                isUploading={musicUploadingIndex === idx}
+                onRecordingComplete={(recordedFile, recordedDuration) => {
+                  uploadMusic(recordedFile, idx, recordedDuration).catch(() => {})
+                }}
+              />
+
+              <div className="pt-1 text-center">
+                <button
+                  type="button"
+                  onClick={() => setTrackModes((prev) => ({ ...prev, [trackKey]: 'file' }))}
+                  className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <Music2 size={12} />
+                  {content.language === 'es' ? 'Cambiar a subir archivo de audio desde el dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Switch to uploading an audio file from your device 📁' : 'التبديل إلى رفع ملف صوتي جاهز من الجهاز 📁'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={`rounded-2xl border-2 border-dashed p-5 text-center transition ${
+                musicUploadingIndex === idx
+                  ? 'border-rose-400 bg-rose-50/70'
+                  : 'border-rose-200 bg-white hover:border-rose-300 hover:bg-rose-50/50'
+              }`}>
+                {musicUploadingIndex === idx ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-3">
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute h-10 w-10 rounded-full bg-rose-400/20 animate-ping" />
+                      <div className="h-10 w-10 rounded-full border-4 border-rose-100 border-t-rose-500 animate-spin" />
+                    </div>
+                    <span className="text-xs font-bold text-rose-800 animate-pulse">
+                      {content.language === 'es'
+                        ? 'Subiendo archivo de audio... Por favor espere ⏳'
+                        : content.language === 'en' || content.language === 'en-GB'
+                          ? 'Uploading audio file... Please wait ⏳'
+                          : 'جاري رفع وتحميل ملف الموسيقى الآن... يرجى الانتظار ⏳'}
+                    </span>
+                    <span className="text-[10px] text-rose-400 font-semibold animate-pulse">
+                      {content.language === 'es'
+                        ? 'Por favor, no cierres esta pestaña hasta finalizar.'
+                        : content.language === 'en' || content.language === 'en-GB'
+                          ? 'Please do not close this tab until finished.'
+                          : 'من فضلك لا تغلق الصفحة حتى يكتمل التحميل.'}
+                    </span>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-inner">
+                      <Music2 size={22} />
+                    </div>
+                    <span className="text-xs font-bold text-rose-900">
+                      {content.language === 'es' ? 'Elige un archivo de canción desde tu dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Choose an audio file from your device 📁' : 'اختر ملف أغنية جاهز من جهازك 📁'}
+                    </span>
+                    <span className="text-[11px] text-rose-400 font-medium">
+                      {content.language === 'es' ? 'Soporta formatos MP3, M4A, WAV, AAC y otros' : content.language === 'en' || content.language === 'en-GB' ? 'Supports MP3, M4A, WAV, AAC and others' : 'يدعم صيغ MP3, M4A, WAV, AAC وغيرهم'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
+                      className="hidden"
+                      disabled={musicUploadingIndex !== null}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          uploadMusic(file, idx).catch(() => {})
+                        }
+                        e.target.value = ''
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div className="pt-1 text-center">
+                <button
+                  type="button"
+                  onClick={() => setTrackModes((prev) => ({ ...prev, [trackKey]: 'voice' }))}
+                  className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <Mic size={12} />
+                  {content.language === 'es' ? 'Cambiar a grabar tu voz en vivo 🎙️' : content.language === 'en' || content.language === 'en-GB' ? 'Switch to recording your live voice 🎙️' : 'التبديل إلى تسجيل صوتك المباشر 🎙️'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </Reorder.Item>
+  )
+}
+
+function ReorderableMemoryItem({
+  memory,
+  index,
+  itemLabel,
+  imageHint,
+  onChange,
+  onImageUpload,
+  onImageRemove,
+  onRemove,
+  canRemove,
+}) {
+  const dragControls = useDragControls()
+
+  return (
+    <Reorder.Item
+      value={memory}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      <MemoryEditor
+        memory={memory}
+        index={index}
+        showDragHandle={true}
+        dragControls={dragControls}
+        itemLabel={itemLabel}
+        imageHint={imageHint}
+        onChange={onChange}
+        onImageUpload={onImageUpload}
+        onImageRemove={onImageRemove}
+        onRemove={onRemove}
+        canRemove={canRemove}
+      />
+    </Reorder.Item>
+  )
+}
+
+function ReorderableCountdownItem({
+  timer,
+  idx,
+  content,
+  removeCountdown,
+  updateCountdown,
+}) {
+  const dragControls = useDragControls()
+
+  return (
+    <Reorder.Item
+      value={timer}
+      dragListener={false}
+      dragControls={dragControls}
+      className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3"
+    >
+      <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="flex items-center gap-2 cursor-grab active:cursor-grabbing select-none py-1 px-2 -mx-2 rounded-xl transition hover:bg-rose-100/60"
+          style={{ touchAction: 'none' }}
+        >
+          <GripVertical size={16} className="text-rose-400" />
+          <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+            <Clock size={14} className="text-rose-500" />
+            {content.language === 'es' ? 'Contador' : content.language === 'en' || content.language === 'en-GB' ? 'Countdown' : 'عداد'} #{idx + 1}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => removeCountdown(idx)}
+          className="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1 cursor-pointer"
+        >
+          <Trash2 size={13} />
+          {content.language === 'es' ? 'Eliminar contador' : content.language === 'en' || content.language === 'en-GB' ? 'Delete countdown' : 'حذف العداد'}
+        </button>
+      </div>
+
+      <Field label={content.language === 'es' ? 'Título del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Title' : 'عنوان المناسبة'}>
+        <TextInput
+          value={timer.title || ''}
+          onChange={(v) => updateCountdown(idx, 'title', v)}
+          placeholder={content.language === 'es' ? 'Ej: Tu cumpleaños 🎂' : content.language === 'en' || content.language === 'en-GB' ? 'e.g. Your birthday 🎂' : 'مثال: عيد ميلادك 🎂'}
+        />
+      </Field>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Field label={content.language === 'es' ? 'Fecha del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Date' : 'تاريخ المناسبة'}>
+          <DateInput
+            value={timer.date || ''}
+            onChange={(v) => updateCountdown(idx, 'date', v)}
+          />
+        </Field>
+
+        <Field label={content.language === 'es' ? 'Hora del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Time' : 'وقت المناسبة'}>
+          <TimeInput
+            value={timer.time || '00:00'}
+            onChange={(v) => updateCountdown(idx, 'time', v)}
+          />
+        </Field>
+      </div>
+
+      <Field label={content.language === 'es' ? 'Descripción o mensaje del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Description or Message' : 'وصف أو رسالة المناسبة'}>
+        <TextArea
+          value={timer.description || ''}
+          onChange={(v) => updateCountdown(idx, 'description', v)}
+          rows={2}
+          placeholder={content.language === 'es' ? 'Un mensaje que se muestra con el contador' : content.language === 'en' || content.language === 'en-GB' ? 'A message displayed with the countdown' : 'رسالة تظهر مع العداد التنازلي'}
+        />
+      </Field>
+    </Reorder.Item>
+  )
+}
+
+function ReorderableWishlistItem({
+  item,
+  index,
+  content,
+  t,
+  removeWishlistItem,
+  updateWishlistItem,
+}) {
+  const dragControls = useDragControls()
+
+  return (
+    <Reorder.Item
+      value={item}
+      dragListener={false}
+      dragControls={dragControls}
+      className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3 shadow-sm"
+    >
+      <div className="flex items-center justify-between">
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="flex items-center gap-2 cursor-grab active:cursor-grabbing select-none py-1 px-2 -mx-2 rounded-xl transition hover:bg-rose-100/60"
+          style={{ touchAction: 'none' }}
+        >
+          <GripVertical size={16} className="text-rose-400" />
+          <span className="text-xs font-semibold text-rose-400">
+            {(content.language === 'en' || content.language === 'en-GB' ? 'Item' : content.language === 'es' ? 'Elemento' : 'عنصر')} #{index + 1}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => removeWishlistItem(item.id)}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-rose-400 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
+          title={content.language === 'es' ? 'Eliminar' : 'Delete'}
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+      <Field label={content.language === 'en' || content.language === 'en-GB' ? 'Wish text' : content.language === 'es' ? 'Texto del deseo' : 'نص الأمنية'}>
+        <TextInput
+          value={item.text ?? ''}
+          onChange={(v) => {
+            updateWishlistItem(item.id, { text: v })
+          }}
+          placeholder={t.wishlistTextPlaceholder}
+        />
+      </Field>
+      <label className="flex items-center gap-2 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={item.completed}
+          onChange={(e) => {
+            updateWishlistItem(item.id, { completed: e.target.checked })
+          }}
+          className="h-4 w-4 rounded border-rose-200 text-rose-500 focus:ring-rose-200"
+        />
+        <span className="text-xs text-rose-800 font-medium">{t.wishlistCompleted}</span>
+      </label>
+    </Reorder.Item>
   )
 }
 
@@ -524,182 +892,21 @@ export default function Dashboard() {
                 const currentMode = trackModes[trackKey] || (defaultIsVoice ? 'voice' : 'file')
 
                 return (
-                  <Reorder.Item
+                  <ReorderableMusicTrack
                     key={trackKey}
-                    value={track}
-                    className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3 shadow-sm cursor-grab active:cursor-grabbing"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
-                        <span className="text-xs font-semibold text-rose-500">
-                          {currentMode === 'voice' 
-                            ? (content.language === 'en' || content.language === 'en-GB' ? `Voice Message #${idx + 1}` : content.language === 'es' ? `Mensaje de voz #${idx + 1}` : `رسالة صوتية رقم ${idx + 1}`) 
-                            : (content.language === 'en' || content.language === 'en-GB' ? `Track #${idx + 1}` : content.language === 'es' ? `Canción #${idx + 1}` : `الأغنية رقم ${idx + 1}`)}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeMusic(idx)}
-                        className="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-semibold"
-                        title={t.deleteBtn}
-                      >
-                        <Trash2 size={12} />
-                        {t.deleteBtn || 'حذف'}
-                      </button>
-                    </div>
-
-                    <Field label={content.language === 'es' ? 'Título de la canción / Audio' : content.language === 'en' || content.language === 'en-GB' ? 'Song / Audio Title' : 'عنوان الأغنية / الصوت'}>
-                      <TextInput
-                        value={track.title ?? ''}
-                        onChange={(v) => {
-                          updateMusicTrackTitle(idx, v)
-                        }}
-                        placeholder={content.language === 'en' || content.language === 'en-GB' ? 'Track title or voice message...' : content.language === 'es' ? 'Nombre de canción o mensaje de voz...' : 'اسم الأغنية أو الرسالة الصوتية...'}
-                      />
-                    </Field>
-
-                    {track.src ? (
-                      <div className="space-y-2">
-                        <p className="text-xs text-rose-400 truncate">
-                          {content.language === 'es' ? 'Archivo:' : content.language === 'en' || content.language === 'en-GB' ? 'File:' : 'الملف:'} {track.fileName || (content.language === 'es' ? 'Archivo de audio' : content.language === 'en' || content.language === 'en-GB' ? 'Audio file' : 'ملف صوتي')}
-                        </p>
-                        {(() => {
-                          const audioSrc = track.localUrl || track.src
-                          return (
-                            <audio
-                              controls
-                              preload="auto"
-                              src={audioSrc}
-                              className="w-full h-8"
-                              key={audioSrc}
-                              onError={(e) => {
-                                // Auto-retry with cache-busting on load error
-                                const el = e.currentTarget
-                                if (!el.dataset.retried && track.src) {
-                                  el.dataset.retried = 'true'
-                                  setTimeout(() => {
-                                    el.src = track.src + (track.src.includes('?') ? '&' : '?') + 't=' + Date.now()
-                                    el.load()
-                                  }, 1000)
-                                }
-                              }}
-                            />
-                          )
-                        })()}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            updateMusicTrackTitle(idx, track.title)
-                            uploadMusic(null, idx).catch(() => {})
-                          }}
-                          className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline"
-                        >
-                          {content.language === 'es' ? 'Cambiar o volver a subir audio' : content.language === 'en' || content.language === 'en-GB' ? 'Change or re-upload audio' : 'تغيير أو إعادة رفع الصوت'}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {musicUploadError?.index === idx && musicUploadError?.message ? (
-                          <p className="mb-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
-                            {musicUploadError.message}
-                          </p>
-                        ) : null}
-
-                        {currentMode === 'voice' ? (
-                          <>
-                            {/* Live Browser Voice Recorder */}
-                            <VoiceRecorder
-                              isUploading={musicUploadingIndex === idx}
-                              onRecordingComplete={(recordedFile, recordedDuration) => {
-                                uploadMusic(recordedFile, idx, recordedDuration).catch(() => {})
-                              }}
-                            />
-
-                            <div className="pt-1 text-center">
-                              <button
-                                type="button"
-                                onClick={() => setTrackModes((prev) => ({ ...prev, [trackKey]: 'file' }))}
-                                className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1"
-                              >
-                                <Music2 size={12} />
-                                {content.language === 'es' ? 'Cambiar a subir archivo de audio desde el dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Switch to uploading an audio file from your device 📁' : 'التبديل إلى رفع ملف صوتي جاهز من الجهاز 📁'}
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            {/* Prominent Direct File Upload Box for Songs */}
-                            <div className={`rounded-2xl border-2 border-dashed p-5 text-center transition ${
-                              musicUploadingIndex === idx
-                                ? 'border-rose-400 bg-rose-50/70'
-                                : 'border-rose-200 bg-white hover:border-rose-300 hover:bg-rose-50/50'
-                            }`}>
-                              {musicUploadingIndex === idx ? (
-                                <div className="flex flex-col items-center justify-center gap-3 py-3">
-                                  {/* Animated double pulse spinner */}
-                                  <div className="relative flex items-center justify-center">
-                                    <div className="absolute h-10 w-10 rounded-full bg-rose-400/20 animate-ping" />
-                                    <div className="h-10 w-10 rounded-full border-4 border-rose-100 border-t-rose-500 animate-spin" />
-                                  </div>
-                                  <span className="text-xs font-bold text-rose-800 animate-pulse">
-                                    {content.language === 'es'
-                                      ? 'Subiendo archivo de audio... Por favor espere ⏳'
-                                      : content.language === 'en' || content.language === 'en-GB'
-                                        ? 'Uploading audio file... Please wait ⏳'
-                                        : 'جاري رفع وتحميل ملف الموسيقى الآن... يرجى الانتظار ⏳'}
-                                  </span>
-                                  <span className="text-[10px] text-rose-400 font-semibold animate-pulse">
-                                    {content.language === 'es'
-                                      ? 'Por favor, no cierres esta pestaña hasta finalizar.'
-                                      : content.language === 'en' || content.language === 'en-GB'
-                                        ? 'Please do not close this tab until finished.'
-                                        : 'من فضلك لا تغلق الصفحة حتى يكتمل التحميل.'}
-                                  </span>
-                                </div>
-                              ) : (
-                                <label className="cursor-pointer flex flex-col items-center justify-center gap-2">
-                                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-inner">
-                                    <Music2 size={22} />
-                                  </div>
-                                  <span className="text-xs font-bold text-rose-900">
-                                    {content.language === 'es' ? 'Elige un archivo de canción desde tu dispositivo 📁' : content.language === 'en' || content.language === 'en-GB' ? 'Choose an audio file from your device 📁' : 'اختر ملف أغنية جاهز من جهازك 📁'}
-                                  </span>
-                                  <span className="text-[11px] text-rose-400 font-medium">
-                                    {content.language === 'es' ? 'Soporta formatos MP3, M4A, WAV, AAC y otros' : content.language === 'en' || content.language === 'en-GB' ? 'Supports MP3, M4A, WAV, AAC and others' : 'يدعم صيغ MP3, M4A, WAV, AAC وغيرهم'}
-                                  </span>
-                                  <input
-                                    type="file"
-                                    accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.webm,.opus,.mpeg,.mpga"
-                                    className="hidden"
-                                    disabled={musicUploadingIndex !== null}
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0]
-                                      if (file) {
-                                        uploadMusic(file, idx).catch(() => {})
-                                      }
-                                      e.target.value = ''
-                                    }}
-                                  />
-                                </label>
-                              )}
-                            </div>
-
-                            <div className="pt-1 text-center">
-                              <button
-                                type="button"
-                                onClick={() => setTrackModes((prev) => ({ ...prev, [trackKey]: 'voice' }))}
-                                className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 underline inline-flex items-center gap-1"
-                              >
-                                <Mic size={12} />
-                                {content.language === 'es' ? 'Cambiar a grabar tu voz en vivo 🎙️' : content.language === 'en' || content.language === 'en-GB' ? 'Switch to recording your live voice 🎙️' : 'التبديل إلى تسجيل صوتك المباشر 🎙️'}
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </Reorder.Item>
+                    track={track}
+                    idx={idx}
+                    trackKey={trackKey}
+                    currentMode={currentMode}
+                    content={content}
+                    t={t}
+                    removeMusic={removeMusic}
+                    updateMusicTrackTitle={updateMusicTrackTitle}
+                    uploadMusic={uploadMusic}
+                    musicUploadError={musicUploadError}
+                    musicUploadingIndex={musicUploadingIndex}
+                    setTrackModes={setTrackModes}
+                  />
                 )
               })}
             </Reorder.Group>
@@ -890,33 +1097,31 @@ export default function Dashboard() {
           >
             <Reorder.Group axis="y" values={content.memories ?? []} onReorder={reorderMemories} className="space-y-4">
               {(content.memories ?? []).map((memory, index) => (
-                <Reorder.Item key={memory.id} value={memory} className="cursor-grab active:cursor-grabbing">
-                  <MemoryEditor
-                    memory={memory}
-                    index={index}
-                    showDragHandle={true}
-                    itemLabel={content.language === 'es' ? 'Recuerdo' : content.language === 'en' || content.language === 'en-GB' ? 'Memory' : 'ذكرى'}
-                    imageHint={content.language === 'es' ? 'Imagen opcional' : content.language === 'en' || content.language === 'en-GB' ? 'Optional image' : 'صورة اختيارية (تُضغط تلقائياً)'}
-                    onChange={(id, patch) => {
-                      updateMemory(id, patch)
-                    }}
-                    onImageUpload={async (id, file) => {
-                      try {
-                        setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
-                        await uploadMemoryImage(id, file)
-                        setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
-                      } catch (err) {
-                        console.error('Upload error:', err)
-                        setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
-                      }
-                    }}
-                    onImageRemove={(id) => {
-                      updateMemory(id, { image: '', url: '' })
-                    }}
-                    onRemove={removeMemory}
-                    canRemove={(content.memories ?? []).length > 0}
-                  />
-                </Reorder.Item>
+                <ReorderableMemoryItem
+                  key={memory.id}
+                  memory={memory}
+                  index={index}
+                  itemLabel={content.language === 'es' ? 'Recuerdo' : content.language === 'en' || content.language === 'en-GB' ? 'Memory' : 'ذكرى'}
+                  imageHint={content.language === 'es' ? 'Imagen opcional' : content.language === 'en' || content.language === 'en-GB' ? 'Optional image' : 'صورة اختيارية (تُضغط تلقائياً)'}
+                  onChange={(id, patch) => {
+                    updateMemory(id, patch)
+                  }}
+                  onImageUpload={async (id, file) => {
+                    try {
+                      setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
+                      await uploadMemoryImage(id, file)
+                      setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
+                    } catch (err) {
+                      console.error('Upload error:', err)
+                      setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
+                    }
+                  }}
+                  onImageRemove={(id) => {
+                    updateMemory(id, { image: '', url: '' })
+                  }}
+                  onRemove={removeMemory}
+                  canRemove={(content.memories ?? []).length > 0}
+                />
               ))}
             </Reorder.Group>
             <button
@@ -963,33 +1168,31 @@ export default function Dashboard() {
               >
                 <Reorder.Group axis="y" values={content.galleryItems ?? []} onReorder={reorderGalleryItems} className="space-y-4">
                   {(content.galleryItems ?? []).map((item, index) => (
-                    <Reorder.Item key={item.id} value={item} className="cursor-grab active:cursor-grabbing">
-                      <MemoryEditor
-                        memory={item}
-                        index={index}
-                        showDragHandle={true}
-                        itemLabel={content.language === 'es' ? 'Foto' : content.language === 'en' || content.language === 'en-GB' ? 'Photo' : 'صورة'}
-                        imageHint={content.language === 'es' ? 'Subir foto' : content.language === 'en' || content.language === 'en-GB' ? 'Upload photo' : 'رفع صورة'}
-                        onChange={(id, patch) => {
-                          updateGalleryItem(id, patch)
-                        }}
-                        onImageUpload={async (id, file) => {
-                          try {
-                            setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
-                            await uploadGalleryImage(id, file)
-                            setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
-                          } catch (err) {
-                            console.error('Upload error:', err)
-                            setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
-                          }
-                        }}
-                        onImageRemove={(id) => {
-                          updateGalleryItem(id, { image: '', url: '' })
-                        }}
-                        onRemove={removeGalleryItem}
-                        canRemove={(content.galleryItems ?? []).length > 0}
-                      />
-                    </Reorder.Item>
+                    <ReorderableMemoryItem
+                      key={item.id}
+                      memory={item}
+                      index={index}
+                      itemLabel={content.language === 'es' ? 'Foto' : content.language === 'en' || content.language === 'en-GB' ? 'Photo' : 'صورة'}
+                      imageHint={content.language === 'es' ? 'Subir foto' : content.language === 'en' || content.language === 'en-GB' ? 'Upload photo' : 'رفع صورة'}
+                      onChange={(id, patch) => {
+                        updateGalleryItem(id, patch)
+                      }}
+                      onImageUpload={async (id, file) => {
+                        try {
+                          setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
+                          await uploadGalleryImage(id, file)
+                          setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
+                        } catch (err) {
+                          console.error('Upload error:', err)
+                          setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
+                        }
+                      }}
+                      onImageRemove={(id) => {
+                        updateGalleryItem(id, { image: '', url: '' })
+                      }}
+                      onRemove={removeGalleryItem}
+                      canRemove={(content.galleryItems ?? []).length > 0}
+                    />
                   ))}
                 </Reorder.Group>
                 <button
@@ -1014,62 +1217,14 @@ export default function Dashboard() {
           >
             <Reorder.Group axis="y" values={countdownsList} onReorder={reorderCountdowns} className="space-y-4">
               {countdownsList.map((timer, idx) => (
-                <Reorder.Item
+                <ReorderableCountdownItem
                   key={timer.id || `cnt-${idx}`}
-                  value={timer}
-                  className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3 cursor-grab active:cursor-grabbing"
-                >
-                  <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
-                    <div className="flex items-center gap-2">
-                      <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
-                      <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
-                        <Clock size={14} className="text-rose-500" />
-                        {content.language === 'es' ? 'Contador' : content.language === 'en' || content.language === 'en-GB' ? 'Countdown' : 'عداد'} #{idx + 1}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeCountdown(idx)}
-                      className="text-xs text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1"
-                    >
-                      <Trash2 size={13} />
-                      {content.language === 'es' ? 'Eliminar contador' : content.language === 'en' || content.language === 'en-GB' ? 'Delete countdown' : 'حذف العداد'}
-                    </button>
-                  </div>
-
-                  <Field label={content.language === 'es' ? 'Título del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Title' : 'عنوان المناسبة'}>
-                    <TextInput
-                      value={timer.title || ''}
-                      onChange={(v) => updateCountdown(idx, 'title', v)}
-                      placeholder={content.language === 'es' ? 'Ej: Tu cumpleaños 🎂' : content.language === 'en' || content.language === 'en-GB' ? 'e.g. Your birthday 🎂' : 'مثال: عيد ميلادك 🎂'}
-                    />
-                  </Field>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field label={content.language === 'es' ? 'Fecha del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Date' : 'تاريخ المناسبة'}>
-                      <DateInput
-                        value={timer.date || ''}
-                        onChange={(v) => updateCountdown(idx, 'date', v)}
-                      />
-                    </Field>
-
-                    <Field label={content.language === 'es' ? 'Hora del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Time' : 'وقت المناسبة'}>
-                      <TimeInput
-                        value={timer.time || '00:00'}
-                        onChange={(v) => updateCountdown(idx, 'time', v)}
-                      />
-                    </Field>
-                  </div>
-
-                  <Field label={content.language === 'es' ? 'Descripción o mensaje del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Description or Message' : 'وصف أو رسالة المناسبة'}>
-                    <TextArea
-                      value={timer.description || ''}
-                      onChange={(v) => updateCountdown(idx, 'description', v)}
-                      rows={2}
-                      placeholder={content.language === 'es' ? 'Un mensaje que se muestra con el contador' : content.language === 'en' || content.language === 'en-GB' ? 'A message displayed with the countdown' : 'رسالة تظهر مع العداد التنازلي'}
-                    />
-                  </Field>
-                </Reorder.Item>
+                  timer={timer}
+                  idx={idx}
+                  content={content}
+                  removeCountdown={removeCountdown}
+                  updateCountdown={updateCountdown}
+                />
               ))}
             </Reorder.Group>
 
@@ -1123,48 +1278,15 @@ export default function Dashboard() {
           >
             <Reorder.Group axis="y" values={content.wishlist ?? []} onReorder={reorderWishlist} className="space-y-4">
               {(content.wishlist ?? []).map((item, index) => (
-                <Reorder.Item
+                <ReorderableWishlistItem
                   key={item.id}
-                  value={item}
-                  className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3 cursor-grab active:cursor-grabbing shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
-                      <span className="text-xs font-semibold text-rose-400">
-                        {(content.language === 'en' || content.language === 'en-GB' ? 'Item' : content.language === 'es' ? 'Elemento' : 'عنصر')} #{index + 1}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeWishlistItem(item.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-rose-400 transition hover:bg-rose-50 hover:text-rose-600"
-                      title={content.language === 'es' ? 'Eliminar' : 'Delete'}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  <Field label={content.language === 'en' || content.language === 'en-GB' ? 'Wish text' : content.language === 'es' ? 'Texto del deseo' : 'نص الأمنية'}>
-                    <TextInput
-                      value={item.text ?? ''}
-                      onChange={(v) => {
-                        updateWishlistItem(item.id, { text: v })
-                      }}
-                      placeholder={t.wishlistTextPlaceholder}
-                    />
-                  </Field>
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={item.completed}
-                      onChange={(e) => {
-                        updateWishlistItem(item.id, { completed: e.target.checked })
-                      }}
-                      className="h-4 w-4 rounded border-rose-200 text-rose-500 focus:ring-rose-200"
-                    />
-                    <span className="text-xs text-rose-800 font-medium">{t.wishlistCompleted}</span>
-                  </label>
-                </Reorder.Item>
+                  item={item}
+                  index={index}
+                  content={content}
+                  t={t}
+                  removeWishlistItem={removeWishlistItem}
+                  updateWishlistItem={updateWishlistItem}
+                />
               ))}
             </Reorder.Group>
             <button

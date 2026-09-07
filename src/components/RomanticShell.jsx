@@ -30,9 +30,9 @@ export default function RomanticShell({
   const navItems = [
     { id: 'welcome', label: isEs ? 'Inicio' : isEn ? 'Home' : 'الرئيسية', icon: Home },
     { id: 'story', label: isEs ? 'Nuestra Historia' : isEn ? 'Our Story' : 'القصة', icon: Calendar },
-    { id: 'countdowns', label: isEs ? 'Contadores' : isEn ? 'Countdowns' : 'العدادات', icon: Clock },
-    { id: 'wishlist', label: isEs ? 'Lista de Deseos' : isEn ? 'Wishlist' : 'الأمنيات', icon: Sparkles },
-    { id: 'final', label: isEs ? 'Página Final' : isEn ? 'Final Letter' : 'النهاية', icon: Heart },
+    { id: 'countdowns', label: isEs ? 'Contadores' : isEn ? 'Countdowns' : 'العدادات التنازلية', icon: Clock },
+    { id: 'wishlist', label: isEs ? 'Lista de Deseos' : isEn ? 'Wishlist' : 'قائمة الأمنيات', icon: Sparkles },
+    { id: 'final', label: isEs ? 'Página Final' : isEn ? 'Final Page' : 'الصفحة الأخيرة', icon: Heart },
   ]
 
   useEffect(() => {
@@ -41,35 +41,40 @@ export default function RomanticShell({
     }
   }, [showMusic, tryWelcomeMusicStart])
 
-  // Close menu on click outside or escape key
+  // Close menu on escape key
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false)
-      }
-    }
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         setIsMenuOpen(false)
       }
     }
     if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('touchstart', handleClickOutside)
       document.addEventListener('keydown', handleKeyDown)
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isMenuOpen])
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden">
+      {/* Backdrop for open navigation menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setIsMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-black/15 dark:bg-black/30 backdrop-blur-[2px]"
+          />
+        )}
+      </AnimatePresence>
+
       {(showBack || showGalleryToggle || showNavMenu) ? (
         <div
-          className="pointer-events-none fixed inset-x-0 z-40 flex justify-center px-5 sm:px-6"
+          className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-5 sm:px-6"
           style={{ top: 'max(0.75rem, env(safe-area-inset-top))' }}
         >
           <div className="flow-screen pointer-events-auto flex w-full justify-between items-center">
@@ -80,7 +85,7 @@ export default function RomanticShell({
             )}
 
             <div className="flex items-center gap-2">
-              {/* 1. Gallery Icon (Moved to first position) */}
+              {/* 1. Gallery Icon (First in top action controls) */}
               {showGalleryToggle ? (
                 <button
                   type="button"
@@ -95,13 +100,20 @@ export default function RomanticShell({
                 </button>
               ) : null}
 
-              {/* 2. Plus / Menu Button (Rotates 45deg to X with vertical dropdown) */}
+              {/* 2. Plus / Menu Button with vertical dropdown */}
               {showNavMenu ? (
                 <div className="relative" ref={menuRef}>
                   <button
                     type="button"
-                    onClick={() => setIsMenuOpen((prev) => !prev)}
-                    className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 dark:text-rose-300 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsMenuOpen((prev) => !prev)
+                    }}
+                    className={`glass-card flex h-10 w-10 items-center justify-center rounded-full shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                      isMenuOpen
+                        ? 'bg-rose-500 text-white dark:bg-rose-600'
+                        : 'text-rose-600 dark:text-rose-300'
+                    }`}
                     title={isMenuOpen ? (isEs ? "Cerrar menú" : isEn ? "Close menu" : "إغلاق القائمة") : (isEs ? "Navegación" : isEn ? "Quick Navigation" : "التنقل السريع")}
                     aria-expanded={isMenuOpen}
                   >
@@ -116,11 +128,11 @@ export default function RomanticShell({
                   <AnimatePresence>
                     {isMenuOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                        initial={{ opacity: 0, y: -10, scale: 0.92 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                        transition={{ duration: 0.2, ease: 'easeOut' }}
-                        className="absolute top-12 end-0 z-50 flex flex-col gap-1 p-2 rounded-2xl border border-rose-200/80 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-xl backdrop-blur-xl min-w-[155px]"
+                        exit={{ opacity: 0, y: -10, scale: 0.92 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute top-12 end-0 z-50 flex flex-col gap-1 p-2 rounded-2xl border border-rose-200/80 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-2xl backdrop-blur-xl min-w-[160px]"
                       >
                         {navItems.map(({ id, label, icon: Icon }) => {
                           const isActive = !isGalleryOpen && currentStep === id
@@ -132,7 +144,7 @@ export default function RomanticShell({
                                 setIsMenuOpen(false)
                                 onNavigate?.(id)
                               }}
-                              className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all text-start cursor-pointer ${
+                              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-start cursor-pointer ${
                                 isActive
                                   ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-xs'
                                   : 'text-rose-700 dark:text-rose-200 hover:bg-rose-50 dark:hover:bg-slate-800 active:scale-95'
@@ -166,7 +178,7 @@ export default function RomanticShell({
 
       {showMusic ? (
         <div
-          className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-5 sm:px-6"
+          className="pointer-events-none fixed inset-x-0 z-30 flex justify-center px-5 sm:px-6"
           style={{ bottom: 'max(1rem, env(safe-area-inset-bottom))' }}
         >
           <div className="flow-screen pointer-events-auto w-full">

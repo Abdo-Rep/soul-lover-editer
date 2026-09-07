@@ -14,6 +14,7 @@ export default function MemoryEditor({
   imageHint,
   showImage = true,
   showDragHandle = false,
+  dragControls,
 }) {
   const { content } = useContent()
   const lang = content?.language || 'ar'
@@ -31,9 +32,15 @@ export default function MemoryEditor({
   return (
     <article className="rounded-xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div
+          {...(dragControls ? { onPointerDown: (e) => dragControls.start(e) } : {})}
+          className={`flex items-center gap-2 select-none py-1 px-2 -mx-2 rounded-xl transition ${
+            showDragHandle ? 'cursor-grab active:cursor-grabbing hover:bg-rose-100/60' : ''
+          }`}
+          style={showDragHandle ? { touchAction: 'none' } : undefined}
+        >
           {showDragHandle && (
-            <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
+            <GripVertical size={16} className="text-rose-400" />
           )}
           <span className="text-sm font-semibold text-rose-700">
             {defaultItemLabel} #{index + 1}

@@ -115,15 +115,14 @@ export function TimeInput({ value, onChange }) {
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
         {[
-          { label: '12:00 ص', val: '00:00' },
-          { label: '12:00 م', val: '12:00' },
-          { label: '08:00 م', val: '20:00' },
+          { label: '12:00 ص (بليل)', val: '00:00' },
+          { label: '12:00 م (الصبح)', val: '12:00' },
         ].map((preset) => (
           <button
             key={preset.val}
             type="button"
             onClick={() => onChange?.(preset.val)}
-            className={`px-2.5 py-2 text-[11px] font-bold rounded-xl border transition active:scale-95 ${
+            className={`px-3 py-2 text-[11px] font-bold rounded-xl border transition active:scale-95 ${
               timeVal === preset.val
                 ? 'bg-rose-500 text-white border-rose-500 shadow-xs'
                 : 'bg-white text-rose-600 border-rose-200 hover:bg-rose-50'
