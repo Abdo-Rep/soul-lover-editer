@@ -115,8 +115,8 @@ export function TimeInput({ value, onChange }) {
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
         {[
-          { label: '12:00 ص (بليل)', val: '00:00' },
-          { label: '12:00 م (الصبح)', val: '12:00' },
+          { label: '12:00 ص', val: '00:00' },
+          { label: '12:00 م', val: '12:00' },
         ].map((preset) => (
           <button
             key={preset.val}

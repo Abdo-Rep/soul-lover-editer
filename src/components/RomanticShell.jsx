@@ -77,7 +77,7 @@ export default function RomanticShell({
           className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-5 sm:px-6"
           style={{ top: 'max(0.75rem, env(safe-area-inset-top))' }}
         >
-          <div className="flow-screen pointer-events-auto flex w-full justify-between items-center">
+          <div className="w-full max-w-[26rem] mx-auto pointer-events-auto flex justify-between items-center overflow-visible">
             {showBack ? (
               <BackButton onClick={onBack} />
             ) : (
@@ -132,7 +132,7 @@ export default function RomanticShell({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.92 }}
                         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute top-12 end-0 z-50 flex flex-col gap-1 p-2 rounded-2xl border border-rose-200/80 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-2xl backdrop-blur-xl min-w-[160px]"
+                        className="absolute top-12 end-0 z-50 flex flex-col gap-1 p-2 rounded-2xl border border-rose-200/80 dark:border-rose-800/60 bg-white dark:bg-slate-900 shadow-2xl backdrop-blur-xl min-w-[170px]"
                       >
                         {navItems.map(({ id, label, icon: Icon }) => {
                           const isActive = !isGalleryOpen && currentStep === id

@@ -1314,10 +1314,10 @@ export default function Dashboard() {
   }))
 
   return (
-    <div className="min-h-dvh overflow-x-hidden">
+    <div className="min-h-dvh">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {/* Sticky Action Header and Tabs Navigation */}
-        <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 pt-3 pb-2 mb-6 bg-[#fff1f2]/95 dark:bg-[#0a060e]/95 backdrop-blur-md border-b border-rose-100/60 dark:border-rose-900/30 shadow-sm transition-colors">
+        <div className="sticky top-0 z-30 pt-1 pb-3 mb-6 bg-white/85 dark:bg-[#0a060e]/85 backdrop-blur-md transition-colors">
           <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
