@@ -89,16 +89,6 @@ export function TimelineLoveConfession({
   )
 }
 
-function hasMemoryContent(memory) {
-  return Boolean(
-    memory.image?.trim() || memory.url?.trim() || memory.date || memory.text?.trim(),
-  )
-}
-
-export function isVisibleMemory(memory) {
-  return hasMemoryContent(memory)
-}
-
 export function TimelineMemoryCard({ memory, showConnector = true, onImageClick, onOpen }) {
   const hasImage = Boolean(memory.image?.trim() || memory.url?.trim())
   const imgSrc = memory.image || memory.url

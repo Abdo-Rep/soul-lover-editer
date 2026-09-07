@@ -35,7 +35,7 @@ async function run() {
           const slugs = sitesRes.rows.map(r => r.slug)
           console.log(`🔍 Schema "${schema}" contains sites:`, slugs)
         }
-      } catch (err) {
+      } catch {
         // Ignore schema permission errors
       }
     }

@@ -253,7 +253,7 @@ function apiPlugin() {
             if (body) {
               try {
                 req.body = JSON.parse(body)
-              } catch (e) {}
+              } catch {}
             }
             handleRequest()
           })

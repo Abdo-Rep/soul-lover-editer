@@ -100,7 +100,7 @@ export async function verifySitePassword(password, slug) {
     })
     clearTimeout(timeoutId)
     return res.ok
-  } catch (e) {
+  } catch {
     return false
   }
 }
@@ -125,7 +125,7 @@ export async function verifyAdminPassword(password, slug) {
       setAdminPasswordForSync(password, slug)
     }
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 }

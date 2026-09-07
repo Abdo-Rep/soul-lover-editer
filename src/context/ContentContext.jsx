@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { defaultContent } from '../data/defaultContent'
 import { musicAsset } from '../data/musicAsset'
 import { getSeedContent, mergeContent, nextItemId } from '../utils/contentMerge'
 import { applySiteTheme } from '../utils/theme'
@@ -351,7 +350,7 @@ export function ContentProvider({ children }) {
       setSyncError(error.message || 'فشل الحفظ على Supabase')
       throw error
     }
-  }, [])
+  }, [getClientSlug])
 
   const verifyPassword = useCallback(async (password) => {
     const clean = String(password || '').trim()
@@ -984,6 +983,7 @@ export function ContentProvider({ children }) {
       syncError,
       musicUploadingIndex,
       musicUploadError,
+      siteNotFound,
       verifyPassword,
       verifyAdminPasswordFn,
       updateField,
@@ -1009,6 +1009,7 @@ export function ContentProvider({ children }) {
       reorderWishlist,
       uploadMemoryImage,
       uploadGalleryImage,
+      addMusicTrack,
       uploadMusic,
       removeMusic,
       updateMusicTrackTitle,

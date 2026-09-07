@@ -5,7 +5,6 @@ import { useContent } from './ContentContext'
 
 const MUSIC_KEY = config.music.storageKey
 const PENDING_KEY = config.music.pendingStartKey
-const SEEK_STEP = 10
 
 const MusicContext = createContext(null)
 
@@ -167,7 +166,7 @@ export function MusicProvider({ children }) {
       await audio.play()
       persistPreference(true)
       return true
-    } catch (err) {
+    } catch {
       // If audio has no source loaded yet, load it and wait for canplay
       try {
         audio.src = activeMusicSrc
@@ -378,6 +377,7 @@ export function MusicProvider({ children }) {
       pauseMusic,
       playMusic,
       progress,
+      primeAudio,
       requestMusicStart,
       seekTo,
       prevTrack,

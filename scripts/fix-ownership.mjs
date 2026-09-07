@@ -48,12 +48,12 @@ async function run() {
       try {
         await client.query(`GRANT ALL PRIVILEGES ON TABLE "old-romantic".sites TO "${user}";`)
         console.log(`  🔑 Granted privileges on "old-romantic".sites to "${user}"`)
-      } catch (e) {}
+      } catch {}
 
       try {
         await client.query(`ALTER TABLE "old-romantic".sites OWNER TO "${user}";`)
         console.log(`  👑 Changed owner of "old-romantic".sites to "${user}"`)
-      } catch (e) {}
+      } catch {}
 
       // Add columns
       await client.query(`

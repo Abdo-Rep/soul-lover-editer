@@ -126,7 +126,7 @@ export default function SiteMeta() {
     return () => {
       URL.revokeObjectURL(manifestUrl)
     }
-  }, [content])
+  }, [content, getClientSlug])
 
   return null
 }

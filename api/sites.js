@@ -177,7 +177,7 @@ export default async function handler(req, res) {
           if (decoded && decoded.slug === slug) {
             isAuthenticated = true
           }
-        } catch (e) {
+        } catch {
           // Token invalid or expired
         }
       }

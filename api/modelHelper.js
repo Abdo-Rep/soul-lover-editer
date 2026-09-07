@@ -70,30 +70,6 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
   const isEs = lang === 'es'
   const isEn = lang === 'en' || lang === 'en-GB'
 
-  const defaultLoginEyebrow = isEs ? 'Un regalo de mi corazón' : isEn ? 'A gift from my heart' : 'هدية من قلبي'
-  const defaultLoginTitle = isEs ? 'Bienvenida mi amor' : isEn ? 'Welcome my love' : 'أهلاً يا حبيبتي'
-  const defaultLoginSubtitle = isEs ? 'Detrás de esta puerta hay un pequeño mundo que construí para ti sola: nuestros recuerdos, nuestra historia y cada latido de amor en mi corazón.' : isEn ? 'Behind this door is a small world I built for you alone — our memories, our story, and every heartbeat of love in my heart.' : 'خلف هذا الباب عالم صغير صنعته لكِ وحدك — ذكرياتنا، قصتنا، وكل نبضة حب في قلبي.'
-  const defaultLoginPlaceholder = isEs ? 'Contraseña secreta' : isEn ? 'Secret password' : 'كلمة المرور السرية'
-  const defaultLoginPasswordLabel = isEs ? 'Contraseña' : isEn ? 'Password' : 'كلمة المرور'
-  const defaultLoginButton = isEs ? 'Abre mi corazón' : isEn ? 'Open my heart' : 'افتحي قلبي'
-  const defaultLoginError = isEs ? 'Contraseña incorrecta, inténtalo de nuevo mi bella.' : isEn ? 'Incorrect password, try again my beautiful.' : 'كلمة المرور غير صحيحة، حاولي مرة أخرى يا جميلتي.'
-  const defaultLoginFooter = isEs ? 'Hecho con amor, solo para ti' : isEn ? 'Made with love, for you alone' : 'صُنع بحب، لكِ وحدك'
-
-  const defaultWelcomeEyebrow = isEs ? 'Finalmente llegaste' : isEn ? 'You finally arrived' : 'وصلتِ إليه أخيراً'
-  const defaultWelcomeTitle = isEs ? 'Bienvenida, el amor más bello de mi vida' : isEn ? 'Welcome, the most beautiful love in my life' : 'مرحباً يا أجمل حب في حياتي'
-  const defaultWelcomeSubtitle = isEs ? 'Todo lo que te espera aquí fue escrito y preparado pensando en ti: un viaje suave a través de nuestra historia, nuestro tiempo y el amor que vivimos juntos.' : isEn ? 'Everything waiting for you here was written and prepared with you in mind — a gentle journey through our story, our time, and the love we live together.' : 'كل ما ينتظركِ هنا كُتب وأُعدّ بكِ في بالي — رحلة ناعمة عبر قصتنا، وقتنا، والحب الذي نعيشه معاً.'
-
-  const defaultStoryEyebrow = isEs ? 'Una historia de amor' : 'A Love Story'
-  const defaultStoryTitle = isEs ? 'Nuestra Historia' : 'Our Story'
-  const defaultStoryFirstMeetingLabel = isEs ? 'El primer día que nos conocimos' : isEn ? 'The first day we met' : 'أول يوم التقينا فيه'
-  const defaultStoryFirstMeetingDesc = isEs ? 'Aún no lo sabía, pero mi corazón ya estaba encontrando su camino hacia ti.' : isEn ? 'I did not know it yet, but my heart was already finding its way to you.' : 'لم أكن أعلم بعد، لكن قلبي كان قد بدأ بالفعل يجد طريقه إليكِ.'
-  const defaultStoryLoveConfessionLabel = isEs ? 'El día que dije "Te amo"' : isEn ? 'The day I said "I love you"' : 'اليوم الذي قلت فيه "أحبك"'
-  const defaultStoryLoveConfessionMsg = isEs ? 'Tres pequeñas palabras, y de repente el mundo se volvió más cálido, más suave e infinitamente más hermoso.' : isEn ? 'Three small words — and suddenly the world became warmer, softer, and infinitely more beautiful.' : 'ثلاث كلمات صغيرة — وفجأة أصبح العالم أدفأ، وأنعم، وأجمل بلا حدود.'
-
-  const defaultFinalEyebrow = isEs ? 'Una carta final' : isEn ? 'A final letter' : 'رسالة أخيرة'
-  const defaultFinalTitle = isEs ? 'Por siempre y para siempre' : isEn ? 'Forever and always' : 'للأبد ودائماً'
-  const defaultFinalText = isEs ? 'Dondequiera que nos lleve la vida, mi corazón siempre encontrará el camino de regreso a ti. Eres mi sueño que quiero vivir todos los días, y mi pulso que extraño a cada momento. Gracias por ser tú.' : isEn ? 'Wherever life takes us, my heart will always find its way back to you. You are my dream that I want to live every day, and my pulse that I miss every moment. Thank you for being you.' : 'أينما ذهب بنا الحياة، سيجد قلبي دائماً طريقه العائد إليكِ. أنتِ حلمي الذي أريد أن أعيشه كل يوم، ونبضتي التي أشتاق إليها في كل لحظة. شكراً لأنكِ أنتِ.'
-
   return {
     siteName: row.site_name,
     password: decrypt(row.visitor_password),

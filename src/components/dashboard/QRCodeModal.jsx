@@ -6,7 +6,6 @@ import { drawQRCodeToCanvas } from '../../utils/qrCodeGenerator'
 // Lightweight Instant Local QR Code Generator (Matrix renderer with central heart logo)
 export default function QRCodeModal({ isOpen, onClose, slug }) {
   const [copied, setCopied] = useState(false)
-  const [loading, setLoading] = useState(false)
   const canvasRef = useRef(null)
   const { content, t } = useContent() || {}
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Smartphone, Download, X, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function PWAInstallBanner({ dark = false }) {
+export default function PWAInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [showBanner, setShowBanner] = useState(false)
   const [installed, setInstalled] = useState(false)

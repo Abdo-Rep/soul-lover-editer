@@ -11,7 +11,6 @@ export default function MemoryEditor({
   onRemove,
   canRemove,
   itemLabel,
-  imageHint,
   showImage = true,
   showDragHandle = false,
   dragControls,

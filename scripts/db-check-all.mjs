@@ -29,7 +29,7 @@ async function run() {
           const rowsRes = await client.query(`SELECT slug, visitor_password, created_at FROM "${schema}".sites LIMIT 10;`)
           console.log(`  📌 Table "${schema}".sites - Count: ${res.rows[0].count}`)
           console.log('  Rows:', rowsRes.rows)
-        } catch (e) {
+        } catch {
           // ignore
         }
       }

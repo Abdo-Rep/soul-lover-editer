@@ -8,8 +8,8 @@ import StoryTimeline, {
   TimelineLoveConfession,
   TimelineMemoryCard,
   TimelineMilestone,
-  isVisibleMemory,
 } from '../components/StoryTimeline'
+import { isVisibleMemory } from '../utils/contentMerge'
 import { useContent } from '../context/ContentContext'
 
 export default function Story({ onNext }) {

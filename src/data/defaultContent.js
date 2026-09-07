@@ -1,5 +1,3 @@
-import { musicAsset } from './musicAsset'
-
 export const defaultContent = {
   siteName: '',
   password: '',

@@ -46,7 +46,7 @@ async function run() {
       try {
         await client.query(`ALTER TABLE "${schema}".sites OWNER TO CURRENT_USER;`)
         console.log(`  👑 Changed ownership of "${schema}".sites to CURRENT_USER`)
-      } catch (e) {
+      } catch {
         // Ignored if already owner or not allowed
       }
 

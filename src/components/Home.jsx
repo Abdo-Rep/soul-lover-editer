@@ -13,7 +13,6 @@ import NotFound from '../pages/NotFound'
 import Story from '../pages/Story'
 import Welcome from '../pages/Welcome'
 import HeartExplosionTransition from './HeartExplosionTransition'
-import ContentLoadingHearts from './ContentLoadingHearts'
 import LoveTransition from './LoveTransition'
 import RomanticShell from './RomanticShell'
 import Wishlist from './Wishlist'
@@ -29,16 +28,12 @@ const PREVIOUS_STEP = {
   final: 'wishlist',
 }
 
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 function shouldSkipLoginIntro() {
   return sessionStorage.getItem(skipIntroKey) === 'true'
 }
 
 export default function Home() {
-  const { siteNotFound, isLoading } = useContent()
+  const { siteNotFound } = useContent()
   const { isAuthenticated, login } = useAuth()
   const { requestMusicStart, playMusic } = useMusic()
   const [step, setStep] = useState(() => (isAuthenticated ? 'welcome' : 'enter'))
@@ -54,11 +49,6 @@ export default function Home() {
 
   const canGoBack =
     isAuthenticated && Boolean(PREVIOUS_STEP[step]) && !isTransitioning
-
-  const showHome =
-    isAuthenticated &&
-    !isTransitioning &&
-    (step !== 'welcome' || showWishlist || showGallery)
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -88,18 +78,6 @@ export default function Home() {
     setShowGallery((prev) => !prev)
     setShowWishlist(false)
   }, [])
-
-  const handleWishlistToggle = useCallback(() => {
-    setShowWishlist((prev) => !prev)
-    setShowGallery(false)
-  }, [])
-
-  const handleHomeClick = useCallback(() => {
-    setStep('welcome')
-    setShowWishlist(false)
-    setShowGallery(false)
-    triggerPageFade()
-  }, [triggerPageFade])
 
   const handleLogin = useCallback(() => {
     if (shouldSkipLoginIntro()) {

@@ -220,3 +220,10 @@ export function nextItemId(items = []) {
   }, 0)
   return maxId + 1
 }
+
+export function isVisibleMemory(memory) {
+  if (!memory) return false
+  return Boolean(
+    memory.image?.trim() || memory.url?.trim() || memory.date || memory.text?.trim() || memory.description?.trim(),
+  )
+}
