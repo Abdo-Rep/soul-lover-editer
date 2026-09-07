@@ -1,5 +1,5 @@
 import { ImagePlus, Trash2, X, GripVertical } from 'lucide-react'
-import { DateInput, Field, TextArea } from './DashboardFields'
+import { DateInput, TextArea } from './DashboardFields'
 import { useContent } from '../../context/ContentContext'
 
 export default function MemoryEditor({
@@ -22,11 +22,12 @@ export default function MemoryEditor({
   const isEs = lang === 'es'
 
   const defaultItemLabel = itemLabel || (isEs ? 'Recuerdo' : isEn ? 'Memory' : 'ذكرى')
-  const defaultImageHint = imageHint || (isEs ? 'Subir' : isEn ? 'Upload' : 'رفع صورة')
+  const uploadLabel = isEs ? 'Subir imagen' : isEn ? 'Upload image' : 'رفع صورة'
+  const changeLabel = isEs ? 'Cambiar imagen' : isEn ? 'Change image' : 'تغيير الصورة'
+  const hasImage = Boolean(memory.image || memory.url)
+  const imageButtonText = hasImage ? changeLabel : uploadLabel
 
   const deleteLabel = isEs ? 'Eliminar' : isEn ? 'Delete' : 'حذف'
-  const dateLabel = isEs ? 'Fecha (اختياري)' : isEn ? 'Date (Optional)' : 'التاريخ (اختياري)'
-  const textLabel = isEs ? 'Texto' : isEn ? 'Text' : 'النص'
   const textPlaceholder = isEs ? 'Escribe los detalles aquí...' : isEn ? 'Write details here...' : 'اكتب تفاصيل أو كلام هذه الذكرى هنا...'
 
   return (
@@ -59,13 +60,13 @@ export default function MemoryEditor({
         ) : null}
       </div>
 
-      {/* 2. Middle Row: Image right + Date beside it */}
+      {/* 2. Middle Row: Image (Gap 1) + Beside it: [Upload/Change Button, Date Input] (Gap 2) */}
       <div className="flex items-center gap-3">
         {showImage && (
-          <div className="shrink-0 flex items-center gap-2">
+          <div className="shrink-0">
             {/* Image Box */}
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 flex items-center justify-center shadow-xs">
-              {(memory.image || memory.url) ? (
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 flex items-center justify-center shadow-xs">
+              {hasImage ? (
                 <>
                   <img
                     src={memory.image || memory.url}
@@ -78,13 +79,12 @@ export default function MemoryEditor({
                     className="absolute start-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white shadow-md transition hover:bg-rose-600 cursor-pointer"
                     aria-label={isEs ? 'Eliminar imagen' : isEn ? 'Remove image' : 'حذف الصورة'}
                   >
-                    <X size={10} />
+                    <X size={11} />
                   </button>
                 </>
               ) : (
                 <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer text-rose-400 hover:text-rose-600 hover:bg-rose-100/50 transition">
-                  <ImagePlus size={18} />
-                  <span className="text-[9px] font-bold mt-0.5">{defaultImageHint}</span>
+                  <ImagePlus size={22} />
                   <input
                     type="file"
                     accept="image/*"
@@ -98,46 +98,46 @@ export default function MemoryEditor({
                 </label>
               )}
             </div>
-
-            {/* Change button if image exists */}
-            {(memory.image || memory.url) && (
-              <label className="flex cursor-pointer items-center justify-center h-8 w-8 rounded-xl border border-dashed border-rose-200 bg-white text-rose-500 hover:bg-rose-50 hover:border-rose-300 transition" title={defaultImageHint}>
-                <ImagePlus size={14} />
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) onImageUpload(memory.id, file)
-                    e.target.value = ''
-                  }}
-                />
-              </label>
-            )}
           </div>
         )}
 
-        {/* Date Input beside the image */}
-        <div className="flex-1">
-          <Field label={dateLabel}>
+        {/* Column beside image: Change/Upload button above Date input */}
+        <div className="flex-1 min-w-0 space-y-2">
+          {/* Upload/Change Button */}
+          {showImage && (
+            <label className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-3 py-1.5 rounded-xl border border-rose-200 bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-300 shadow-2xs text-xs font-semibold cursor-pointer transition active:scale-98">
+              <ImagePlus size={14} className="text-rose-500" />
+              <span>{imageButtonText}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) onImageUpload(memory.id, file)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+          )}
+
+          {/* Date Input without label */}
+          <div>
             <DateInput
               value={memory.date ?? ''}
               onChange={(value) => onChange(memory.id, { date: value })}
             />
-          </Field>
+          </div>
         </div>
       </div>
 
-      {/* 3. Bottom Row: Text Area underneath image and date */}
-      <Field label={textLabel}>
-        <TextArea
-          value={memory.text ?? memory.description ?? ''}
-          onChange={(value) => onChange(memory.id, { text: value, description: value })}
-          rows={2}
-          placeholder={textPlaceholder}
-        />
-      </Field>
+      {/* 3. Bottom Row: TextArea without label */}
+      <TextArea
+        value={memory.text ?? memory.description ?? ''}
+        onChange={(value) => onChange(memory.id, { text: value, description: value })}
+        rows={2}
+        placeholder={textPlaceholder}
+      />
     </article>
   )
 }

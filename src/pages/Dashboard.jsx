@@ -1386,7 +1386,7 @@ export default function Dashboard() {
                 title={content.language === 'es' ? 'Código QR' : 'QR Code'}
               >
                 <QrCode size={14} className="text-rose-600 dark:text-rose-300" />
-                <span>{content.language === 'es' ? 'Código QR 📱' : (content.language === 'en' || content.language === 'en-GB' ? 'QR Code 📱' : 'كود QR 📱')}</span>
+                <span>{content.language === 'es' ? 'Código QR' : (content.language === 'en' || content.language === 'en-GB' ? 'QR Code' : 'كود QR')}</span>
               </button>
               <button
                 type="button"
@@ -1435,9 +1435,8 @@ export default function Dashboard() {
         </motion.div>
 
         <p className="mt-8 text-center text-xs text-rose-400">
-          {t.visitorLink || 'رابط الزائر:'}{' '}
-          <Link to={visitorPath} className="underline hover:text-rose-600">
-            {t.visitorPage || 'صفحة الزائر'}
+          <Link to={visitorPath} className="underline hover:text-rose-600 font-medium">
+            {siteDisplayName}
           </Link>
         </p>
 
