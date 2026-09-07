@@ -1318,15 +1318,15 @@ export default function Dashboard() {
   return (
     <div className="min-h-dvh">
       {/* 📌 Fixed Top Navigation Bar for Mobile and Desktop */}
-      <div className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-white/90 dark:bg-[#0a060e]/90 border-b border-rose-100/60 dark:border-rose-900/30 transition-colors shadow-xs">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-2 pb-2.5">
-          <header className="mb-2 flex items-center justify-between gap-3">
-            {/* Site Name & Save Status (Mobile + Desktop) */}
-            <div className="flex-1 min-w-[120px] overflow-hidden text-start">
+      <div className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#ffeef2]/95 dark:bg-[#140819]/95 border-b border-rose-200/90 dark:border-rose-900/60 transition-colors shadow-sm">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-2.5 pb-2.5">
+          <header className="mb-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+            {/* Site Name & Save Status */}
+            <div className="w-full sm:flex-1 min-w-0 flex items-center justify-between sm:block gap-2 overflow-hidden text-start">
               <p className="font-display text-sm sm:text-base font-bold text-rose-900 dark:text-rose-100 truncate">
                 {siteDisplayName}
               </p>
-              <p className="text-[11px] text-rose-500 dark:text-rose-400 truncate">
+              <p className="text-[11px] text-rose-600 dark:text-rose-400 truncate shrink-0 sm:shrink">
                 {saveMessage ||
                   (isDirty
                     ? (content.language === 'en' || content.language === 'en-GB' ? '● Unsaved changes — click Save' : content.language === 'es' ? '● Cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
@@ -1340,13 +1340,13 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Action Buttons: Always visible in fixed navbar */}
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {/* Action Buttons: Clear line on mobile, aligned right on desktop */}
+            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={redo}
                 disabled={!canRedo}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-300 shadow-xs transition hover:bg-rose-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 title={content.language === 'es' ? 'Rehacer' : 'Redo'}
               >
                 <Redo size={14} />
@@ -1355,7 +1355,7 @@ export default function Dashboard() {
                 type="button"
                 onClick={undo}
                 disabled={!canUndo}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-300 shadow-xs transition hover:bg-rose-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 title={content.language === 'es' ? 'Deshacer' : 'Undo'}
               >
                 <Undo size={14} />
@@ -1364,7 +1364,7 @@ export default function Dashboard() {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || syncStatus === 'loading' || !isDirty}
-                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                className="flex flex-1 sm:flex-none justify-center items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:from-rose-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 <Save size={14} />
                 {isSaving ? t.saving : (content.language === 'en' || content.language === 'en-GB' ? 'Save' : content.language === 'es' ? 'Guardar' : 'حفظ')}
@@ -1372,7 +1372,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={handlePreview}
-                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50 cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-300 shadow-xs transition hover:bg-rose-50 dark:hover:bg-slate-800 cursor-pointer"
                 title={content.language === 'es' ? 'Vista previa' : 'Preview site'}
               >
                 <ExternalLink size={14} />
@@ -1382,16 +1382,16 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setShowQRModal(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95 cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-rose-300 bg-rose-100/90 dark:bg-rose-950/40 px-3 py-2 text-xs font-bold text-rose-700 dark:text-rose-200 shadow-xs transition hover:bg-rose-200 active:scale-95 cursor-pointer"
                 title={content.language === 'es' ? 'Código QR' : 'QR Code'}
               >
-                <QrCode size={14} className="text-rose-500" />
+                <QrCode size={14} className="text-rose-600 dark:text-rose-300" />
                 <span>{content.language === 'es' ? 'Código QR 📱' : (content.language === 'en' || content.language === 'en-GB' ? 'QR Code 📱' : 'كود QR 📱')}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(true)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200 cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-200/80 dark:bg-rose-900/60 text-rose-700 dark:text-rose-200 transition hover:bg-rose-300 cursor-pointer"
                 title={t.logoutBtn}
                 aria-label={t.logoutBtn}
               >
@@ -1424,7 +1424,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Scrollable Content Container */}
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-24 sm:pt-28 pb-12">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-36 sm:pt-32 pb-12">
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 8 }}
