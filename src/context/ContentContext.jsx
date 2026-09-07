@@ -447,6 +447,13 @@ export function ContentProvider({ children }) {
     })
   }, [patchContent])
 
+  const reorderCountdowns = useCallback((newCountdowns) => {
+    patchContent((prev) => ({
+      ...prev,
+      countdowns: newCountdowns,
+    }))
+  }, [patchContent])
+
   const updateDate = useCallback(
     (field, value) => {
       patchContent((prev) => ({
@@ -497,6 +504,17 @@ export function ContentProvider({ children }) {
     [patchContent, getClientSlug],
   )
 
+  const reorderMemories = useCallback(
+    (newMemories) => {
+      dirtySectionsRef.current.add('memories')
+      patchContent((prev) => ({
+        ...prev,
+        memories: newMemories,
+      }))
+    },
+    [patchContent],
+  )
+
   const updateGalleryItem = useCallback(
     (id, patch) => {
       dirtySectionsRef.current.add('galleryItems')
@@ -541,6 +559,17 @@ export function ContentProvider({ children }) {
     [patchContent, getClientSlug],
   )
 
+  const reorderGalleryItems = useCallback(
+    (newItems) => {
+      dirtySectionsRef.current.add('galleryItems')
+      patchContent((prev) => ({
+        ...prev,
+        galleryItems: newItems,
+      }))
+    },
+    [patchContent],
+  )
+
   const updateWishlistItem = useCallback(
     (id, patch) => {
       dirtySectionsRef.current.add('wishlist')
@@ -575,6 +604,17 @@ export function ContentProvider({ children }) {
       patchContent((prev) => ({
         ...prev,
         wishlist: (prev.wishlist ?? []).filter((item) => String(item.id) !== String(id)),
+      }))
+    },
+    [patchContent],
+  )
+
+  const reorderWishlist = useCallback(
+    (newWishlist) => {
+      dirtySectionsRef.current.add('wishlist')
+      patchContent((prev) => ({
+        ...prev,
+        wishlist: newWishlist,
       }))
     },
     [patchContent],
@@ -862,6 +902,25 @@ export function ContentProvider({ children }) {
     [patchContent, getInitialTracks],
   )
 
+  const reorderMusicTracks = useCallback(
+    (newTracks) => {
+      patchContent((prev) => {
+        const firstActiveTrack = newTracks.find((t) => t.src)
+        return {
+          ...prev,
+          music: {
+            ...prev.music,
+            src: firstActiveTrack ? firstActiveTrack.src : '',
+            fileName: firstActiveTrack ? firstActiveTrack.fileName : '',
+            title: firstActiveTrack ? firstActiveTrack.title : (newTracks[0]?.title || prev.music?.title || ''),
+            tracks: newTracks,
+          },
+        }
+      })
+    },
+    [patchContent],
+  )
+
   const musicSrc = resolveMusicSrc(content)
 
   const value = useMemo(
@@ -884,22 +943,27 @@ export function ContentProvider({ children }) {
       updateMemory,
       addMemory,
       removeMemory,
+      reorderMemories,
       updateGalleryItem,
       addGalleryItem,
       removeGalleryItem,
+      reorderGalleryItems,
       updateWishlistItem,
       addWishlistItem,
       removeWishlistItem,
       toggleWishlistItem,
+      reorderWishlist,
       uploadMemoryImage,
       uploadGalleryImage,
       addCountdown,
       updateCountdown,
       removeCountdown,
+      reorderCountdowns,
       addMusicTrack,
       uploadMusic,
       removeMusic,
       updateMusicTrackTitle,
+      reorderMusicTracks,
       saveChanges,
       loadFromDatabase,
       undo,
@@ -928,22 +992,27 @@ export function ContentProvider({ children }) {
       addCountdown,
       updateCountdown,
       removeCountdown,
+      reorderCountdowns,
       updateDate,
       updateMemory,
       addMemory,
       removeMemory,
+      reorderMemories,
       updateGalleryItem,
       addGalleryItem,
       removeGalleryItem,
+      reorderGalleryItems,
       updateWishlistItem,
       addWishlistItem,
       removeWishlistItem,
       toggleWishlistItem,
+      reorderWishlist,
       uploadMemoryImage,
       uploadGalleryImage,
       uploadMusic,
       removeMusic,
       updateMusicTrackTitle,
+      reorderMusicTracks,
       saveChanges,
       loadFromDatabase,
       undo,

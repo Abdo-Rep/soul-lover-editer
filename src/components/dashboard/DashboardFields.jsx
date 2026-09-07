@@ -100,6 +100,43 @@ export function DateInput({ value, onChange, placeholder = 'اختر التار�
   )
 }
 
+export function TimeInput({ value, onChange }) {
+  const timeVal = value || '00:00'
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="relative flex-1 min-w-[130px]">
+        <input
+          type="time"
+          value={timeVal}
+          onChange={(e) => onChange?.(e.target.value || '00:00')}
+          className={`${inputClass} cursor-pointer font-medium tracking-wide`}
+        />
+      </div>
+      <div className="flex shrink-0 items-center gap-1.5">
+        {[
+          { label: '12:00 ص', val: '00:00' },
+          { label: '12:00 م', val: '12:00' },
+          { label: '08:00 م', val: '20:00' },
+        ].map((preset) => (
+          <button
+            key={preset.val}
+            type="button"
+            onClick={() => onChange?.(preset.val)}
+            className={`px-2.5 py-2 text-[11px] font-bold rounded-xl border transition active:scale-95 ${
+              timeVal === preset.val
+                ? 'bg-rose-500 text-white border-rose-500 shadow-xs'
+                : 'bg-white text-rose-600 border-rose-200 hover:bg-rose-50'
+            }`}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function Section({ title, description, children }) {
   return (
     <section className="rounded-2xl border border-rose-100 bg-white/80 p-5 shadow-sm">

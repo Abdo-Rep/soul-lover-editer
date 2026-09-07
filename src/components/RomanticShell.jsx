@@ -1,24 +1,39 @@
-import { useEffect } from 'react'
-import { Sparkles, X, Home, Image } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Sparkles, X, Home, Image, Plus, Calendar, Clock, Heart } from 'lucide-react'
 import BackButton from './BackButton'
 import MusicPlayer from './MusicPlayer'
 import { useMusic } from '../context/MusicContext'
+import { useContent } from '../context/ContentContext'
 
 export default function RomanticShell({
   children,
   showMusic = false,
   showBack = false,
   onBack,
-  showWishlistToggle = false,
-  onWishlistToggle,
-  isWishlistOpen = false,
   showGalleryToggle = false,
   onGalleryToggle,
   isGalleryOpen = false,
-  showHome = false,
-  onHomeClick,
+  showNavMenu = false,
+  currentStep = 'welcome',
+  onNavigate,
 }) {
   const { tryWelcomeMusicStart } = useMusic()
+  const { content } = useContent()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  const lang = content?.language || 'ar'
+  const isEn = lang === 'en' || lang === 'en-GB'
+  const isEs = lang === 'es'
+
+  const navItems = [
+    { id: 'welcome', label: isEs ? 'Inicio' : isEn ? 'Home' : 'الرئيسية', icon: Home },
+    { id: 'story', label: isEs ? 'Nuestra Historia' : isEn ? 'Our Story' : 'القصة', icon: Calendar },
+    { id: 'countdowns', label: isEs ? 'Contadores' : isEn ? 'Countdowns' : 'العدادات', icon: Clock },
+    { id: 'wishlist', label: isEs ? 'Lista de Deseos' : isEn ? 'Wishlist' : 'الأمنيات', icon: Sparkles },
+    { id: 'final', label: isEs ? 'Página Final' : isEn ? 'Final Letter' : 'النهاية', icon: Heart },
+  ]
 
   useEffect(() => {
     if (showMusic) {
@@ -26,9 +41,33 @@ export default function RomanticShell({
     }
   }, [showMusic, tryWelcomeMusicStart])
 
+  // Close menu on click outside or escape key
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false)
+      }
+    }
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false)
+      }
+    }
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMenuOpen])
+
   return (
     <div className="relative min-h-dvh overflow-x-hidden">
-      {(showBack || showWishlistToggle || showGalleryToggle || showHome) ? (
+      {(showBack || showGalleryToggle || showNavMenu) ? (
         <div
           className="pointer-events-none fixed inset-x-0 z-40 flex justify-center px-5 sm:px-6"
           style={{ top: 'max(0.75rem, env(safe-area-inset-top))' }}
@@ -41,37 +80,73 @@ export default function RomanticShell({
             )}
 
             <div className="flex items-center gap-2">
-              {showHome ? (
-                <button
-                  type="button"
-                  onClick={onHomeClick}
-                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95"
-                  title="الرجوع للترحيب"
-                >
-                  <Home size={20} />
-                </button>
-              ) : null}
-
+              {/* 1. Gallery Icon (Moved to first position) */}
               {showGalleryToggle ? (
                 <button
                   type="button"
-                  onClick={onGalleryToggle}
-                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95"
-                  title={isGalleryOpen ? "إغلاق ذكرياتنا" : "ذكرياتنا"}
+                  onClick={() => {
+                    setIsMenuOpen(false)
+                    onGalleryToggle?.()
+                  }}
+                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 dark:text-rose-300 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  title={isGalleryOpen ? (isEs ? "Cerrar recuerdos" : isEn ? "Close memories" : "إغلاق المعرض") : (isEs ? "Recuerdos" : isEn ? "Our Memories" : "المعرض")}
                 >
                   {isGalleryOpen ? <X size={20} /> : <Image size={20} />}
                 </button>
               ) : null}
 
-              {showWishlistToggle ? (
-                <button
-                  type="button"
-                  onClick={onWishlistToggle}
-                  className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95"
-                  title={isWishlistOpen ? "إغلاق قائمة الأمنيات" : "قائمة الأمنيات"}
-                >
-                  {isWishlistOpen ? <X size={20} /> : <Sparkles size={20} />}
-                </button>
+              {/* 2. Plus / Menu Button (Rotates 45deg to X with vertical dropdown) */}
+              {showNavMenu ? (
+                <div className="relative" ref={menuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsMenuOpen((prev) => !prev)}
+                    className="glass-card flex h-10 w-10 items-center justify-center rounded-full text-rose-600 dark:text-rose-300 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    title={isMenuOpen ? (isEs ? "Cerrar menú" : isEn ? "Close menu" : "إغلاق القائمة") : (isEs ? "Navegación" : isEn ? "Quick Navigation" : "التنقل السريع")}
+                    aria-expanded={isMenuOpen}
+                  >
+                    <Plus
+                      size={22}
+                      className={`transition-transform duration-300 ease-out ${
+                        isMenuOpen ? 'rotate-45' : 'rotate-0'
+                      }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        className="absolute top-12 end-0 z-50 flex flex-col gap-1 p-2 rounded-2xl border border-rose-200/80 dark:border-rose-800/60 bg-white/95 dark:bg-slate-900/95 shadow-xl backdrop-blur-xl min-w-[155px]"
+                      >
+                        {navItems.map(({ id, label, icon: Icon }) => {
+                          const isActive = !isGalleryOpen && currentStep === id
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => {
+                                setIsMenuOpen(false)
+                                onNavigate?.(id)
+                              }}
+                              className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all text-start cursor-pointer ${
+                                isActive
+                                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-xs'
+                                  : 'text-rose-700 dark:text-rose-200 hover:bg-rose-50 dark:hover:bg-slate-800 active:scale-95'
+                              }`}
+                            >
+                              <Icon size={16} className={isActive ? 'text-white' : 'text-rose-500 dark:text-rose-400'} />
+                              <span>{label}</span>
+                            </button>
+                          )
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ) : null}
             </div>
           </div>

@@ -178,6 +178,10 @@ export default function SuperAdmin() {
   const [deleteTargetSlug, setDeleteTargetSlug] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  // Toggle Status Confirm Modal State
+  const [toggleStatusTarget, setToggleStatusTarget] = useState(null)
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false)
+
   // Copy Feedback Toast
   const [copiedKey, setCopiedKey] = useState('')
 
@@ -317,6 +321,17 @@ export default function SuperAdmin() {
       }
     } catch (err) {
       setFetchError(err.message)
+    }
+  }
+
+  const confirmToggleActive = async () => {
+    if (!toggleStatusTarget) return
+    setIsTogglingStatus(true)
+    try {
+      await handleToggleActive(toggleStatusTarget.slug, !toggleStatusTarget.currentStatus)
+      setToggleStatusTarget(null)
+    } finally {
+      setIsTogglingStatus(false)
     }
   }
 
@@ -607,8 +622,8 @@ export default function SuperAdmin() {
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
                             <button
                               type="button"
-                              onClick={() => handleToggleActive(site.slug, !site.is_active)}
-                              className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold text-white transition-all shadow-sm ${
+                              onClick={() => setToggleStatusTarget({ slug: site.slug, currentStatus: site.is_active !== false })}
+                              className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold text-white transition-all shadow-sm cursor-pointer ${
                                 site.is_active !== false 
                                   ? 'bg-[#10b981] hover:bg-[#0d9668] shadow-emerald-900/10' 
                                   : 'bg-[#6b7280] hover:bg-[#5a616e] shadow-slate-900/10'
@@ -822,6 +837,74 @@ export default function SuperAdmin() {
                 className="px-5 py-2.5 rounded-xl bg-[#ff3b68] hover:bg-[#e62e5c] text-white text-xs font-bold transition-colors flex items-center gap-2"
               >
                 {isDeleting ? <RefreshSvg className="w-4 h-4 animate-spin" /> : 'نعم، احذف الموقع'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toggle Status Confirmation Modal */}
+      {toggleStatusTarget && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+          dir="rtl"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setToggleStatusTarget(null)
+          }}
+        >
+          <div className="w-full max-w-sm rounded-3xl bg-[#0b0e20] border border-[#19213d] p-6 shadow-2xl text-center space-y-4 cursor-default">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto ${
+              toggleStatusTarget.currentStatus
+                ? 'bg-[#281125] text-[#ff3b68] border border-[#4a1835]'
+                : 'bg-[#06241a] text-[#10b981] border border-[#0d4a34]'
+            }`}>
+              {toggleStatusTarget.currentStatus ? (
+                <AlertSvg className="w-7 h-7" />
+              ) : (
+                <CheckSvg className="w-7 h-7 text-[#10b981]" />
+              )}
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white">
+                {toggleStatusTarget.currentStatus ? 'تأكيد تعطيل الموقع' : 'تأكيد تفعيل الموقع'}
+              </h4>
+              <p className="text-xs text-[#7786a5] leading-relaxed">
+                {toggleStatusTarget.currentStatus ? (
+                  <>
+                    هل أنت متأكد من تعطيل موقع العميل (<span className="text-[#ff3b68] font-mono font-bold">/{toggleStatusTarget.slug}</span>)؟ لن يتمكن الزوار من تصفح الموقع أثناء التعطيل.
+                  </>
+                ) : (
+                  <>
+                    هل أنت متأكد من تفعيل موقع العميل (<span className="text-[#10b981] font-mono font-bold">/{toggleStatusTarget.slug}</span>)؟ سيتمكن الزوار من الدخول وتصفح الموقع.
+                  </>
+                )}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setToggleStatusTarget(null)}
+                className="flex-1 py-2.5 rounded-xl bg-[#0f152d] border border-[#1e294d] text-white/70 text-xs font-medium transition-colors"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={confirmToggleActive}
+                disabled={isTogglingStatus}
+                className={`flex-1 py-2.5 rounded-xl text-white text-xs font-bold transition-colors flex items-center justify-center gap-2 ${
+                  toggleStatusTarget.currentStatus
+                    ? 'bg-[#ff3b68] hover:bg-[#e62e5c]'
+                    : 'bg-[#10b981] hover:bg-[#0d9668]'
+                }`}
+              >
+                {isTogglingStatus ? (
+                  <RefreshSvg className="w-4 h-4 animate-spin" />
+                ) : toggleStatusTarget.currentStatus ? (
+                  'تعطيل الموقع'
+                ) : (
+                  'تفعيل الموقع'
+                )}
               </button>
             </div>
           </div>

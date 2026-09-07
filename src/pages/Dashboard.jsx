@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState, useMemo } from 'react'
+import { motion, Reorder } from 'framer-motion'
 import {
   Calendar,
   ExternalLink,
@@ -17,6 +17,7 @@ import {
   QrCode,
   Mic,
   Clock,
+  GripVertical,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import FeedbackModal from '../components/FeedbackModal'
@@ -27,6 +28,7 @@ import NotFound from './NotFound'
 import MemoryEditor from '../components/dashboard/MemoryEditor'
 import {
   DateInput,
+  TimeInput,
   Field,
   PasswordInput,
   Section,
@@ -156,21 +158,26 @@ export default function Dashboard() {
     updateMemory,
     addMemory,
     removeMemory,
+    reorderMemories,
     updateGalleryItem,
     addGalleryItem,
     removeGalleryItem,
+    reorderGalleryItems,
     updateWishlistItem,
     addWishlistItem,
     removeWishlistItem,
+    reorderWishlist,
     addCountdown,
     updateCountdown,
     removeCountdown,
+    reorderCountdowns,
     uploadMemoryImage,
     uploadGalleryImage,
     uploadMusic,
     addMusicTrack,
     removeMusic,
     updateMusicTrackTitle,
+    reorderMusicTracks,
     musicUploadingIndex,
     musicUploadError,
     saveChanges,
@@ -196,7 +203,12 @@ export default function Dashboard() {
   })
 
   const [trackModes, setTrackModes] = useState({})
-  const countdownsList = content?.countdowns || []
+  const countdownsList = useMemo(() => {
+    return (content?.countdowns || []).map((item, idx) => ({
+      ...item,
+      id: item.id || `cnt-${idx}`,
+    }))
+  }, [content?.countdowns])
 
   const handleAdminLogin = async (password) => {
     // ✅ مسح جلسة الزائر عند تسجيل دخول الأدمن لمنع الدخول التلقائي للموقع
@@ -490,18 +502,21 @@ export default function Dashboard() {
 
       case 'music':
         const rawTracks = content.music?.tracks || []
-        const tracksList = rawTracks.length > 0
+        const tracksList = (rawTracks.length > 0
           ? rawTracks
           : (content.music?.src
             ? [{ id: 'default', title: content.music.title || (content.language === 'en' || content.language === 'en-GB' ? 'Our Song' : content.language === 'es' ? 'Nuestra canción' : 'أغنيتنا'), fileName: content.music.fileName || 'romantic.mp3', src: content.music.src }]
-            : [{ id: 'track-1', title: (content.language === 'en' || content.language === 'en-GB' ? 'Track 1' : content.language === 'es' ? 'Pista 1' : 'أغنية 1'), fileName: '', src: '' }])
+            : [{ id: 'track-1', title: (content.language === 'en' || content.language === 'en-GB' ? 'Track 1' : content.language === 'es' ? 'Pista 1' : 'أغنية 1'), fileName: '', src: '' }])).map((tr, idx) => ({
+              ...tr,
+              id: tr.id || `track-${idx}`,
+            }))
 
         return (
           <Section
             title={t.musicSettings}
             description={t.musicDesc}
           >
-            <div className="space-y-6">
+            <Reorder.Group axis="y" values={tracksList} onReorder={reorderMusicTracks} className="space-y-6">
               {tracksList.map((track, idx) => {
                 const trackKey = track.id || idx
                 const titleText = (track.title || '').toLowerCase()
@@ -509,13 +524,20 @@ export default function Dashboard() {
                 const currentMode = trackModes[trackKey] || (defaultIsVoice ? 'voice' : 'file')
 
                 return (
-                  <div key={trackKey} className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3">
+                  <Reorder.Item
+                    key={trackKey}
+                    value={track}
+                    className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3 shadow-sm cursor-grab active:cursor-grabbing"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-rose-400">
-                        {currentMode === 'voice' 
-                          ? (content.language === 'en' || content.language === 'en-GB' ? `Voice Message #${idx + 1}` : content.language === 'es' ? `Mensaje de voz #${idx + 1}` : `رسالة صوتية رقم ${idx + 1}`) 
-                          : (content.language === 'en' || content.language === 'en-GB' ? `Track #${idx + 1}` : content.language === 'es' ? `Canción #${idx + 1}` : `الأغنية رقم ${idx + 1}`)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
+                        <span className="text-xs font-semibold text-rose-500">
+                          {currentMode === 'voice' 
+                            ? (content.language === 'en' || content.language === 'en-GB' ? `Voice Message #${idx + 1}` : content.language === 'es' ? `Mensaje de voz #${idx + 1}` : `رسالة صوتية رقم ${idx + 1}`) 
+                            : (content.language === 'en' || content.language === 'en-GB' ? `Track #${idx + 1}` : content.language === 'es' ? `Canción #${idx + 1}` : `الأغنية رقم ${idx + 1}`)}
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeMusic(idx)}
@@ -677,32 +699,32 @@ export default function Dashboard() {
                         )}
                       </div>
                     )}
-                  </div>
+                  </Reorder.Item>
                 )
               })}
+            </Reorder.Group>
 
-              {tracksList.length < 7 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => addMusicTrack({ isVoice: false })}
-                    className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-1.5"
-                  >
-                    <Plus size={15} />
-                    {content.language === 'en' || content.language === 'en-GB' ? '+ Add new song 🎵' : content.language === 'es' ? '+ Añadir nueva canción 🎵' : '+ إضافة أغنية جديدة 🎵'}
-                  </button>
+            {tracksList.length < 7 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => addMusicTrack({ isVoice: false })}
+                  className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 flex items-center justify-center gap-1.5"
+                >
+                  <Plus size={15} />
+                  {content.language === 'en' || content.language === 'en-GB' ? '+ Add new song 🎵' : content.language === 'es' ? '+ Añadir nueva canción 🎵' : '+ إضافة أغنية جديدة 🎵'}
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={() => addMusicTrack({ isVoice: true })}
-                    className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
-                  >
-                    <Mic size={15} className="text-rose-500" />
-                    {content.language === 'en' || content.language === 'en-GB' ? '+ Add voice recording 🎙️' : content.language === 'es' ? '+ Grabar mensaje de voz 🎙️' : '+ إضافة رسالة بصوتي 🎙️'}
-                  </button>
-                </div>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => addMusicTrack({ isVoice: true })}
+                  className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
+                >
+                  <Mic size={15} className="text-rose-500" />
+                  {content.language === 'en' || content.language === 'en-GB' ? '+ Add voice recording 🎙️' : content.language === 'es' ? '+ Grabar mensaje de voz 🎙️' : '+ إضافة رسالة بصوتي 🎙️'}
+                </button>
+              </div>
+            )}
           </Section>
         )
 
@@ -866,41 +888,43 @@ export default function Dashboard() {
             title={t.memoriesTab}
             description={content.language === 'en' || content.language === 'en-GB' ? 'Stories + dates in timeline — Our Story page only' : content.language === 'es' ? 'Historias + fechas en la línea de tiempo — Solo página de historia' : 'نص + تاريخ في خط الزمن — صفحة القصة فقط'}
           >
-            <div className="space-y-4">
-              {content.memories.map((memory, index) => (
-                <MemoryEditor
-                  key={memory.id}
-                  memory={memory}
-                  index={index}
-                  itemLabel={content.language === 'es' ? 'Recuerdo' : content.language === 'en' || content.language === 'en-GB' ? 'Memory' : 'ذكرى'}
-                  imageHint={content.language === 'es' ? 'Imagen opcional' : content.language === 'en' || content.language === 'en-GB' ? 'Optional image' : 'صورة اختيارية (تُضغط تلقائياً)'}
-                  onChange={(id, patch) => {
-                    updateMemory(id, patch)
-                  }}
-                  onImageUpload={async (id, file) => {
-                    try {
-                      setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
-                      await uploadMemoryImage(id, file)
-                      setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
-                    } catch (err) {
-                      console.error('Upload error:', err)
-                      setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
-                    }
-                  }}
-                  onImageRemove={(id) => {
-                    updateMemory(id, { image: '', url: '' })
-                  }}
-                  onRemove={removeMemory}
-                  canRemove={(content.memories ?? []).length > 0}
-                />
+            <Reorder.Group axis="y" values={content.memories ?? []} onReorder={reorderMemories} className="space-y-4">
+              {(content.memories ?? []).map((memory, index) => (
+                <Reorder.Item key={memory.id} value={memory} className="cursor-grab active:cursor-grabbing">
+                  <MemoryEditor
+                    memory={memory}
+                    index={index}
+                    showDragHandle={true}
+                    itemLabel={content.language === 'es' ? 'Recuerdo' : content.language === 'en' || content.language === 'en-GB' ? 'Memory' : 'ذكرى'}
+                    imageHint={content.language === 'es' ? 'Imagen opcional' : content.language === 'en' || content.language === 'en-GB' ? 'Optional image' : 'صورة اختيارية (تُضغط تلقائياً)'}
+                    onChange={(id, patch) => {
+                      updateMemory(id, patch)
+                    }}
+                    onImageUpload={async (id, file) => {
+                      try {
+                        setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
+                        await uploadMemoryImage(id, file)
+                        setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
+                      } catch (err) {
+                        console.error('Upload error:', err)
+                        setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
+                      }
+                    }}
+                    onImageRemove={(id) => {
+                      updateMemory(id, { image: '', url: '' })
+                    }}
+                    onRemove={removeMemory}
+                    canRemove={(content.memories ?? []).length > 0}
+                  />
+                </Reorder.Item>
               ))}
-            </div>
+            </Reorder.Group>
             <button
               type="button"
               onClick={() => {
                 addMemory()
               }}
-              className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
+              className="mt-4 w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
             >
               {content.language === 'es' ? '+ Añadir recuerdo a la historia' : content.language === 'en' || content.language === 'en-GB' ? '+ Add story memory' : '+ إضافة ذكرى للقصة'}
             </button>
@@ -937,41 +961,43 @@ export default function Dashboard() {
                 title={t.galleryTab}
                 description={content.language === 'es' ? 'Foto + Fecha + Descripción — Solo página de galería' : content.language === 'en' || content.language === 'en-GB' ? 'Photo + Date + Description — Gallery page only' : 'صورة + تاريخ + وصف — صفحة المعرض فقط'}
               >
-                <div className="space-y-4">
+                <Reorder.Group axis="y" values={content.galleryItems ?? []} onReorder={reorderGalleryItems} className="space-y-4">
                   {(content.galleryItems ?? []).map((item, index) => (
-                    <MemoryEditor
-                      key={item.id}
-                      memory={item}
-                      index={index}
-                      itemLabel={content.language === 'es' ? 'Foto' : content.language === 'en' || content.language === 'en-GB' ? 'Photo' : 'صورة'}
-                      imageHint={content.language === 'es' ? 'Subir foto' : content.language === 'en' || content.language === 'en-GB' ? 'Upload photo' : 'رفع صورة'}
-                      onChange={(id, patch) => {
-                        updateGalleryItem(id, patch)
-                      }}
-                      onImageUpload={async (id, file) => {
-                        try {
-                          setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
-                          await uploadGalleryImage(id, file)
-                          setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
-                        } catch (err) {
-                          console.error('Upload error:', err)
-                          setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
-                        }
-                      }}
-                      onImageRemove={(id) => {
-                        updateGalleryItem(id, { image: '', url: '' })
-                      }}
-                      onRemove={removeGalleryItem}
-                      canRemove={(content.galleryItems ?? []).length > 0}
-                    />
+                    <Reorder.Item key={item.id} value={item} className="cursor-grab active:cursor-grabbing">
+                      <MemoryEditor
+                        memory={item}
+                        index={index}
+                        showDragHandle={true}
+                        itemLabel={content.language === 'es' ? 'Foto' : content.language === 'en' || content.language === 'en-GB' ? 'Photo' : 'صورة'}
+                        imageHint={content.language === 'es' ? 'Subir foto' : content.language === 'en' || content.language === 'en-GB' ? 'Upload photo' : 'رفع صورة'}
+                        onChange={(id, patch) => {
+                          updateGalleryItem(id, patch)
+                        }}
+                        onImageUpload={async (id, file) => {
+                          try {
+                            setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
+                            await uploadGalleryImage(id, file)
+                            setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
+                          } catch (err) {
+                            console.error('Upload error:', err)
+                            setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
+                          }
+                        }}
+                        onImageRemove={(id) => {
+                          updateGalleryItem(id, { image: '', url: '' })
+                        }}
+                        onRemove={removeGalleryItem}
+                        canRemove={(content.galleryItems ?? []).length > 0}
+                      />
+                    </Reorder.Item>
                   ))}
-                </div>
+                </Reorder.Group>
                 <button
                   type="button"
                   onClick={() => {
                     addGalleryItem()
                   }}
-                  className="w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
+                  className="mt-4 w-full rounded-xl border border-dashed border-rose-200 py-3 text-sm font-medium text-rose-500 transition hover:border-rose-300 hover:bg-rose-50"
                 >
                   {content.language === 'es' ? '+ Añadir foto a la galería' : content.language === 'en' || content.language === 'en-GB' ? '+ Add photo to gallery' : '+ إضافة صورة للمعرض'}
                 </button>
@@ -986,17 +1012,21 @@ export default function Dashboard() {
             title={t.countdownTab || 'العدادات التنازلية ⏳'}
             description={content.language === 'es' ? 'Administrar y seguir los contadores en vivo para próximos eventos' : content.language === 'en' || content.language === 'en-GB' ? 'Manage and track live countdowns for upcoming events' : 'إدارة ومتابعة العدادات التنازلية المباشرة للمناسبات القادمة'}
           >
-            <div className="space-y-4">
+            <Reorder.Group axis="y" values={countdownsList} onReorder={reorderCountdowns} className="space-y-4">
               {countdownsList.map((timer, idx) => (
-                <div
-                  key={timer.id || idx}
-                  className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3"
+                <Reorder.Item
+                  key={timer.id || `cnt-${idx}`}
+                  value={timer}
+                  className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm space-y-3 cursor-grab active:cursor-grabbing"
                 >
                   <div className="flex items-center justify-between border-b border-rose-100/60 pb-2">
-                    <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
-                      <Clock size={14} className="text-rose-500" />
-                      {content.language === 'es' ? 'Contador' : content.language === 'en' || content.language === 'en-GB' ? 'Countdown' : 'عداد'} #{idx + 1}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
+                      <span className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+                        <Clock size={14} className="text-rose-500" />
+                        {content.language === 'es' ? 'Contador' : content.language === 'en' || content.language === 'en-GB' ? 'Countdown' : 'عداد'} #{idx + 1}
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeCountdown(idx)}
@@ -1024,10 +1054,9 @@ export default function Dashboard() {
                     </Field>
 
                     <Field label={content.language === 'es' ? 'Hora del evento' : content.language === 'en' || content.language === 'en-GB' ? 'Event Time' : 'وقت المناسبة'}>
-                      <TextInput
+                      <TimeInput
                         value={timer.time || '00:00'}
                         onChange={(v) => updateCountdown(idx, 'time', v)}
-                        placeholder="00:00"
                       />
                     </Field>
                   </div>
@@ -1040,18 +1069,18 @@ export default function Dashboard() {
                       placeholder={content.language === 'es' ? 'Un mensaje que se muestra con el contador' : content.language === 'en' || content.language === 'en-GB' ? 'A message displayed with the countdown' : 'رسالة تظهر مع العداد التنازلي'}
                     />
                   </Field>
-                </div>
+                </Reorder.Item>
               ))}
+            </Reorder.Group>
 
-              <button
-                type="button"
-                onClick={addCountdown}
-                className="w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
-              >
-                <Plus size={15} />
-                {content.language === 'es' ? '+ Añadir nuevo contador ⏳' : content.language === 'en' || content.language === 'en-GB' ? '+ Add new countdown ⏳' : '+ إضافة عداد تنازلي جديد ⏳'}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={addCountdown}
+              className="mt-4 w-full rounded-xl border border-dashed border-rose-300 bg-rose-50/50 py-3 text-xs font-bold text-rose-700 transition hover:bg-rose-100 flex items-center justify-center gap-1.5"
+            >
+              <Plus size={15} />
+              {content.language === 'es' ? '+ Añadir nuevo contador ⏳' : content.language === 'en' || content.language === 'en-GB' ? '+ Add new countdown ⏳' : '+ إضافة عداد تنازلي جديد ⏳'}
+            </button>
           </Section>
         )
 
@@ -1092,16 +1121,20 @@ export default function Dashboard() {
             title={t.wishlistTab || 'قائمة الأمنيات'}
             description={t.wishlistDesc || 'حاجات نفسي نعملها سوا — تقدر تضيف وتعدل وتمسح العناصر'}
           >
-            <div className="space-y-4">
+            <Reorder.Group axis="y" values={content.wishlist ?? []} onReorder={reorderWishlist} className="space-y-4">
               {(content.wishlist ?? []).map((item, index) => (
-                <div
+                <Reorder.Item
                   key={item.id}
-                  className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3"
+                  value={item}
+                  className="rounded-2xl border border-rose-100 bg-rose-50/20 p-4 space-y-3 cursor-grab active:cursor-grabbing shadow-sm"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-rose-400">
-                      {(content.language === 'en' || content.language === 'en-GB' ? 'Item' : content.language === 'es' ? 'Elemento' : 'عنصر')} #{index + 1}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
+                      <span className="text-xs font-semibold text-rose-400">
+                        {(content.language === 'en' || content.language === 'en-GB' ? 'Item' : content.language === 'es' ? 'Elemento' : 'عنصر')} #{index + 1}
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => removeWishlistItem(item.id)}
@@ -1131,9 +1164,9 @@ export default function Dashboard() {
                     />
                     <span className="text-xs text-rose-800 font-medium">{t.wishlistCompleted}</span>
                   </label>
-                </div>
+                </Reorder.Item>
               ))}
-            </div>
+            </Reorder.Group>
             <button
               type="button"
               onClick={() => {
@@ -1161,102 +1194,105 @@ export default function Dashboard() {
   return (
     <div className="min-h-dvh overflow-x-hidden">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-        <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
-            <h1 className="font-display text-2xl font-bold text-rose-900">
-              {t.dashboardTitle}
-            </h1>
-            <p className="text-sm text-rose-500">
-              {saveMessage ||
-                (isDirty
-                  ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
-                  : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
-              <span className="mt-1 block text-xs">
-                {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
-                {syncStatus === 'saving' && `💾 ${t.saving}`}
-                {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
-                {syncError ? ` — ${syncError}` : ''}
-              </span>
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={redo}
-              disabled={!canRedo}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
-              title={content.language === 'es' ? 'Rehacer' : 'Redo'}
-            >
-              <Redo size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={undo}
-              disabled={!canUndo}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
-              title={content.language === 'es' ? 'Deshacer' : 'Undo'}
-            >
-              <Undo size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving || syncStatus === 'loading' || !isDirty}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Save size={14} />
-              {isSaving ? t.saving : (content.language === 'en' || content.language === 'en-GB' ? 'Save' : content.language === 'es' ? 'Guardar' : 'حفظ')}
-            </button>
-            <button
-              type="button"
-              onClick={handlePreview}
-              className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
-              title={content.language === 'es' ? 'Vista previa' : 'Preview site'}
-            >
-              <ExternalLink size={14} />
-              <span className="hidden sm:inline">{content.language === 'es' ? 'Vista previa' : (content.language === 'en' || content.language === 'en-GB' ? 'Preview' : 'معاينة')}</span>
-            </button>
- 
-            <button
-              type="button"
-              onClick={() => setShowQRModal(true)}
-              className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95"
-              title={content.language === 'es' ? 'Código QR' : 'QR Code'}
-            >
-              <QrCode size={14} className="text-rose-500" />
-              <span>{content.language === 'es' ? 'Código QR 📱' : (content.language === 'en' || content.language === 'en-GB' ? 'QR Code 📱' : 'كود QR 📱')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowLogoutModal(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200"
-              title={t.logoutBtn}
-              aria-label={t.logoutBtn}
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        </header>
+        {/* Sticky Action Header and Tabs Navigation */}
+        <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 pt-3 pb-2 mb-6 bg-[#fff1f2]/95 dark:bg-[#0a060e]/95 backdrop-blur-md border-b border-rose-100/60 dark:border-rose-900/30 shadow-sm transition-colors">
+          <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
+              <h1 className="font-display text-xl sm:text-2xl font-bold text-rose-900">
+                {t.dashboardTitle}
+              </h1>
+              <p className="text-xs sm:text-sm text-rose-500">
+                {saveMessage ||
+                  (isDirty
+                    ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
+                    : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
+                <span className="mt-0.5 block text-[11px] sm:text-xs">
+                  {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
+                  {syncStatus === 'saving' && `💾 ${t.saving}`}
+                  {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
+                  {syncError ? ` — ${syncError}` : ''}
+                </span>
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={redo}
+                disabled={!canRedo}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
+                title={content.language === 'es' ? 'Rehacer' : 'Redo'}
+              >
+                <Redo size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={undo}
+                disabled={!canUndo}
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 disabled:opacity-40 disabled:pointer-events-none active:scale-95"
+                title={content.language === 'es' ? 'Deshacer' : 'Undo'}
+              >
+                <Undo size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving || syncStatus === 'loading' || !isDirty}
+                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-400 px-3.5 py-2 text-xs font-semibold text-white shadow-md transition hover:from-rose-500 hover:to-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={14} />
+                {isSaving ? t.saving : (content.language === 'en' || content.language === 'en-GB' ? 'Save' : content.language === 'es' ? 'Guardar' : 'حفظ')}
+              </button>
+              <button
+                type="button"
+                onClick={handlePreview}
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
+                title={content.language === 'es' ? 'Vista previa' : 'Preview site'}
+              >
+                <ExternalLink size={14} />
+                <span className="hidden sm:inline">{content.language === 'es' ? 'Vista previa' : (content.language === 'en' || content.language === 'en-GB' ? 'Preview' : 'معاينة')}</span>
+              </button>
 
-        <PWAInstallBanner />
+              <button
+                type="button"
+                onClick={() => setShowQRModal(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-3 py-2 text-xs font-bold text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95"
+                title={content.language === 'es' ? 'Código QR' : 'QR Code'}
+              >
+                <QrCode size={14} className="text-rose-500" />
+                <span>{content.language === 'es' ? 'Código QR 📱' : (content.language === 'en' || content.language === 'en-GB' ? 'QR Code 📱' : 'كود QR 📱')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-rose-600 transition hover:bg-rose-200"
+                title={t.logoutBtn}
+                aria-label={t.logoutBtn}
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          </header>
 
-        <nav className="romantic-scrollbar mb-6 flex gap-2 overflow-x-auto pb-1">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition ${activeTab === id
-                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md'
-                  : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
-                }`}
-            >
-              <Icon size={14} />
-              {label}
-            </button>
-          ))}
-        </nav>
+          <PWAInstallBanner />
+
+          <nav className="romantic-scrollbar flex gap-2 overflow-x-auto pb-1">
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition ${activeTab === id
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md'
+                    : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
+                  }`}
+              >
+                <Icon size={14} />
+                {label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
         <motion.div
           key={activeTab}

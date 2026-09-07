@@ -1,4 +1,4 @@
-import { ImagePlus, Trash2, X } from 'lucide-react'
+import { ImagePlus, Trash2, X, GripVertical } from 'lucide-react'
 import { DateInput, Field, TextArea } from './DashboardFields'
 import { useContent } from '../../context/ContentContext'
 
@@ -13,6 +13,7 @@ export default function MemoryEditor({
   itemLabel,
   imageHint,
   showImage = true,
+  showDragHandle = false,
 }) {
   const { content } = useContent()
   const lang = content?.language || 'ar'
@@ -28,11 +29,16 @@ export default function MemoryEditor({
   const textPlaceholder = isEs ? 'Escribe los detalles aquí...' : isEn ? 'Write details here...' : 'اكتب تفاصيل أو كلام هذه الذكرى هنا...'
 
   return (
-    <article className="rounded-xl border border-rose-100 bg-rose-50/40 p-4">
+    <article className="rounded-xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-semibold text-rose-700">
-          {defaultItemLabel} #{index + 1}
-        </span>
+        <div className="flex items-center gap-2">
+          {showDragHandle && (
+            <GripVertical size={16} className="text-rose-400 cursor-grab active:cursor-grabbing" />
+          )}
+          <span className="text-sm font-semibold text-rose-700">
+            {defaultItemLabel} #{index + 1}
+          </span>
+        </div>
         {canRemove ? (
           <button
             type="button"

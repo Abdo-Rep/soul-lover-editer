@@ -180,14 +180,16 @@ export default function Home() {
       showMusic={showMusic}
       showBack={(showWishlist || showGallery) ? false : canGoBack}
       onBack={handleBack}
-      showWishlistToggle={false}
-      onWishlistToggle={handleWishlistToggle}
-      isWishlistOpen={showWishlist}
       showGalleryToggle={isAuthenticated && (step !== 'enter' || loginOverlay)}
       onGalleryToggle={handleGalleryToggle}
       isGalleryOpen={showGallery}
-      showHome={showHome}
-      onHomeClick={handleHomeClick}
+      showNavMenu={isAuthenticated && (step !== 'enter' || loginOverlay)}
+      currentStep={step}
+      onNavigate={(targetStep) => {
+        setShowGallery(false)
+        setShowWishlist(false)
+        goTo(targetStep)
+      }}
     >
       <AnimatePresence mode="wait">
         {showWishlist ? (
