@@ -37,6 +37,7 @@ import {
 } from '../components/dashboard/DashboardFields'
 import { useContent } from '../context/ContentContext'
 import { useAdminAuth, grantVisitorPreviewAccess } from '../hooks/useAuth'
+import { formatSiteDisplayName } from '../utils/formatSiteName'
 
 const TABS = [
   { id: 'general', label: 'عام', icon: KeyRound },
@@ -1307,6 +1308,7 @@ export default function Dashboard() {
 
   const activeSlug = getClientSlug()
   const visitorPath = activeSlug ? `/${activeSlug}` : '/'
+  const siteDisplayName = formatSiteDisplayName(content?.siteName, activeSlug)
 
   const tabs = TABS.map(tab => ({
     ...tab,
@@ -1318,29 +1320,28 @@ export default function Dashboard() {
       {/* 📌 Fixed Top Navigation Bar for Mobile and Desktop */}
       <div className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-white/90 dark:bg-[#0a060e]/90 border-b border-rose-100/60 dark:border-rose-900/30 transition-colors shadow-xs">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-2 pb-2.5">
-          <header className="mb-2 flex flex-wrap items-center justify-between gap-3">
-            {/* Desktop Only: Title info */}
-            <div className="hidden sm:block">
-              <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
-              <h1 className="font-display text-xl sm:text-2xl font-bold text-rose-900">
-                {t.dashboardTitle}
-              </h1>
-              <p className="text-xs text-rose-500">
+          <header className="mb-2 flex items-center justify-between gap-3">
+            {/* Site Name & Save Status (Mobile + Desktop) */}
+            <div className="flex-1 min-w-[120px] overflow-hidden text-start">
+              <p className="font-display text-sm sm:text-base font-bold text-rose-900 dark:text-rose-100 truncate">
+                {siteDisplayName}
+              </p>
+              <p className="text-[11px] text-rose-500 dark:text-rose-400 truncate">
                 {saveMessage ||
                   (isDirty
-                    ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
+                    ? (content.language === 'en' || content.language === 'en-GB' ? '● Unsaved changes — click Save' : content.language === 'es' ? '● Cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
                     : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
-                <span className="mt-0.5 inline-block ms-1.5 text-[11px]">
-                  {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading...' : content.language === 'es' ? '⏳ Cargando...' : '⏳ جاري التحميل...')}
+                <span className="ms-1 font-semibold">
+                  {syncStatus === 'loading' && '⏳'}
                   {syncStatus === 'saving' && `💾 ${t.saving}`}
-                  {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
+                  {syncStatus === 'error' && '⚠️'}
                   {syncError ? ` — ${syncError}` : ''}
                 </span>
               </p>
             </div>
 
             {/* Action Buttons: Always visible in fixed navbar */}
-            <div className="flex flex-wrap items-center gap-2 ms-auto sm:ms-0">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={redo}
@@ -1423,27 +1424,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Scrollable Content Container */}
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-28 sm:pt-36 pb-12">
-        {/* On Mobile: Site title & status message in normal document flow */}
-        <div className="sm:hidden mb-4">
-          <p className="text-xs font-medium text-rose-400">{content.siteName}</p>
-          <h1 className="font-display text-xl font-bold text-rose-900">
-            {t.dashboardTitle}
-          </h1>
-          <p className="text-xs text-rose-500">
-            {saveMessage ||
-              (isDirty
-                ? (content.language === 'en' || content.language === 'en-GB' ? '● You have unsaved changes — click Save' : content.language === 'es' ? '● Tienes cambios sin guardar — haz clic en Guardar' : '● لديك تغييرات غير محفوظة — اضغط «حفظ»')
-                : (content.language === 'en' || content.language === 'en-GB' ? '✓ Content saved successfully' : content.language === 'es' ? '✓ Contenido guardado con éxito' : '✓ المحتوى محفوظ على قاعدة البيانات'))}
-            <span className="mt-0.5 block text-[11px]">
-              {syncStatus === 'loading' && (content.language === 'en' || content.language === 'en-GB' ? '⏳ Loading database content...' : content.language === 'es' ? '⏳ Cargando contenido...' : '⏳ جاري التحميل من قاعدة البيانات...')}
-              {syncStatus === 'saving' && `💾 ${t.saving}`}
-              {syncStatus === 'error' && (content.language === 'en' || content.language === 'en-GB' ? '⚠️ Connection problem' : content.language === 'es' ? '⚠️ Problema de conexión' : '⚠️ مشكلة في الاتصال')}
-              {syncError ? ` — ${syncError}` : ''}
-            </span>
-          </p>
-        </div>
-
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-24 sm:pt-28 pb-12">
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 8 }}

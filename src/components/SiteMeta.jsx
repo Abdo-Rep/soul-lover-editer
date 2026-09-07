@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useContent } from '../context/ContentContext'
+import { formatSiteDisplayName } from '../utils/formatSiteName'
 
 function setMetaTag(attribute, key, content) {
   if (!content) return
@@ -13,10 +14,12 @@ function setMetaTag(attribute, key, content) {
 }
 
 export default function SiteMeta() {
-  const { content } = useContent()
+  const { content, getClientSlug } = useContent()
 
   useEffect(() => {
-    const title = content?.siteName?.trim() || content?.welcome?.title || 'soulove • عالمنا السرّي الخاص 💖'
+    const slug = getClientSlug?.() || window.location.pathname.split('/').filter(Boolean)[0] || ''
+    const formattedName = formatSiteDisplayName(content?.siteName, slug)
+    const title = formattedName || 'soulove • عالمنا السرّي الخاص 💖'
     const description = content?.welcome?.subtitle || content?.login?.subtitle || 'قصة حبنا، ذكرياتنا، وكل نبضة في قلبي — صُنع بحب لكِ وحدك.'
     const coverImage = content?.memories?.[0]?.image || content?.galleryItems?.[0]?.image || content?.galleryItems?.[0]?.url || 'https://media.soulove.app/uploads/default-cover.jpg'
     const pageUrl = window.location.href
@@ -35,7 +38,7 @@ export default function SiteMeta() {
     setMetaTag('property', 'og:description', description)
     setMetaTag('property', 'og:image', coverImage)
     setMetaTag('property', 'og:url', pageUrl)
-    setMetaTag('property', 'og:site_name', 'soulove')
+    setMetaTag('property', 'og:site_name', title)
 
     // 4. Dynamic Isolated PWA Manifest generation (3 Separate Standalone Apps!)
     const path = window.location.pathname
