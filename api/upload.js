@@ -25,6 +25,15 @@ function getMime(ext) {
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.avif': 'image/avif',
+    '.bmp': 'image/bmp',
+    '.heic': 'image/heic',
+    '.heif': 'image/heif',
+    '.ico': 'image/x-icon',
+    '.tiff': 'image/tiff',
+    '.tif': 'image/tiff',
     '.mp3': 'audio/mpeg',
     '.mpga': 'audio/mpeg',
     '.wav': 'audio/wav',
@@ -85,6 +94,11 @@ export default async function handler(req, res) {
       if (parsedExt) ext = parsedExt
     } else if (contentType.includes('image/png')) ext = '.png'
     else if (contentType.includes('image/webp')) ext = '.webp'
+    else if (contentType.includes('image/gif')) ext = '.gif'
+    else if (contentType.includes('image/svg')) ext = '.svg'
+    else if (contentType.includes('image/avif')) ext = '.avif'
+    else if (contentType.includes('image/bmp')) ext = '.bmp'
+    else if (contentType.includes('image/heic') || contentType.includes('image/heif')) ext = '.heic'
     else if (contentType.includes('audio/webm')) ext = '.webm'
     else if (contentType.includes('audio/mpeg') || contentType.includes('audio/mp3')) ext = '.mp3'
     else if (contentType.includes('audio/mp4') || contentType.includes('audio/m4a')) ext = '.m4a'

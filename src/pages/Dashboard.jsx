@@ -1109,12 +1109,13 @@ export default function Dashboard() {
                   }}
                   onImageUpload={async (id, file) => {
                     try {
-                      setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
+                      setSaveMessage(content.language === 'es' ? 'Subiendo y optimizando imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and optimizing image...' : 'جاري معالجة ورفع الصورة...')
                       await uploadMemoryImage(id, file)
                       setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
                     } catch (err) {
                       console.error('Upload error:', err)
-                      setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
+                      const msg = err?.message || (content.language === 'es' ? '✗ Error al subir la imagen.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image.' : '✗ فشل رفع الصورة، يرجى المحاولة مرة أخرى.')
+                      setSaveMessage(msg.startsWith('✗') ? msg : `✗ ${msg}`)
                     }
                   }}
                   onImageRemove={(id) => {
@@ -1180,12 +1181,13 @@ export default function Dashboard() {
                       }}
                       onImageUpload={async (id, file) => {
                         try {
-                          setSaveMessage(content.language === 'es' ? 'Subiendo y comprimiendo imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and compressing image...' : 'جاري رفع وضغط الصورة...')
+                          setSaveMessage(content.language === 'es' ? 'Subiendo y optimizando imagen...' : content.language === 'en' || content.language === 'en-GB' ? 'Uploading and optimizing image...' : 'جاري معالجة ورفع الصورة...')
                           await uploadGalleryImage(id, file)
                           setSaveMessage(content.language === 'es' ? '✓ ¡Imagen subida con éxito!' : content.language === 'en' || content.language === 'en-GB' ? '✓ Image uploaded successfully!' : '✓ تم رفع الصورة بنجاح!')
                         } catch (err) {
                           console.error('Upload error:', err)
-                          setSaveMessage(content.language === 'es' ? '✗ Error al subir la imagen debido a una conexión débil, inténtalo de nuevo.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image due to weak connection, please try again.' : '✗ فشل رفع الصورة بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.')
+                          const msg = err?.message || (content.language === 'es' ? '✗ Error al subir la imagen.' : content.language === 'en' || content.language === 'en-GB' ? '✗ Failed to upload image.' : '✗ فشل رفع الصورة، يرجى المحاولة مرة أخرى.')
+                          setSaveMessage(msg.startsWith('✗') ? msg : `✗ ${msg}`)
                         }
                       }}
                       onImageRemove={(id) => {
