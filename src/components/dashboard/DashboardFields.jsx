@@ -90,12 +90,14 @@ export function TextArea({ value, onChange, rows = 3, ...props }) {
   )
 }
 
-export function DateInput({ value, onChange, placeholder = 'اختر التاريخ' }) {
+export function DateInput({ value, onChange, placeholder = 'اختر التاريخ', centered = false, ...props }) {
   return (
     <ModernDatePicker
       value={value?.slice(0, 10) || ''}
       onChange={onChange}
       placeholder={placeholder}
+      centered={centered}
+      {...props}
     />
   )
 }

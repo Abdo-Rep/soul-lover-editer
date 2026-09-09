@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Sparkles } from 'lucide-react'
 import { useContent } from '../../context/ContentContext'
 
-export default function ModernDatePicker({ value, onChange, placeholder = 'اختر التاريخ' }) {
+export default function ModernDatePicker({ value, onChange, placeholder = 'اختر التاريخ', centered = false }) {
   const { content } = useContent()
   const lang = content?.language || 'ar'
   const isEn = lang === 'en' || lang === 'en-GB'
@@ -49,18 +49,18 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
     }
   }, [value])
 
-  // Close calendar popover on outside click
+  // Close calendar popover on outside click (for uncentered mode)
   useEffect(() => {
+    if (!isOpen || centered) return
+
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false)
       }
     }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
+    document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen])
+  }, [isOpen, centered])
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
@@ -126,13 +126,126 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
     }
   }
 
+  const calendarBody = (
+    <>
+      {/* Calendar Header */}
+      <div className="mb-3 flex items-center justify-between pb-2 border-b border-rose-100/60">
+        <button
+          type="button"
+          onClick={handlePrevMonth}
+          className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+          title={isEs ? 'Mes anterior' : isEn ? 'Previous month' : 'الشهر السابق'}
+        >
+          {lang === 'ar' ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+
+        <div className="flex items-center gap-1.5 font-bold text-rose-900 text-sm">
+          <span>{MONTH_NAMES[currentMonth]}</span>
+          <select
+            value={currentYear}
+            onChange={(e) => setCurrentYear(Number(e.target.value))}
+            className="bg-transparent text-rose-700 font-bold focus:outline-none cursor-pointer"
+          >
+            {Array.from({ length: 40 }, (_, i) => 1990 + i).map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+            title={isEs ? 'Mes siguiente' : isEn ? 'Next month' : 'الشهر التالي'}
+          >
+            {lang === 'ar' ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </button>
+          {centered && (
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="ms-1 flex h-8 w-8 items-center justify-center rounded-full bg-rose-100/70 text-rose-600 hover:bg-rose-200 transition-colors cursor-pointer"
+              title={isEs ? 'Cerrar' : isEn ? 'Close' : 'إغلاق'}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Weekday Names */}
+      <div className="mb-1.5 grid grid-cols-7 text-center text-[11px] font-bold text-rose-400">
+        {DAYS.map((day, idx) => (
+          <div key={idx} className="py-1">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Days Grid */}
+      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium">
+        {/* Empty slots for leading days */}
+        {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
+          <div key={`empty-${idx}`} className="h-8" />
+        ))}
+
+        {/* Month days */}
+        {Array.from({ length: daysInMonth }).map((_, idx) => {
+          const day = idx + 1
+          const isSelected = selectedDay === day
+          const isToday = isCurrentMonthToday === day
+
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => handleSelectDay(day)}
+              className={`h-8 w-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                isSelected
+                  ? 'bg-gradient-to-r from-rose-400 to-pink-500 font-bold text-white shadow-md shadow-rose-300/80 scale-105'
+                  : isToday
+                  ? 'border border-rose-300 font-bold text-rose-600 bg-rose-50/80'
+                  : 'text-rose-900 hover:bg-rose-50 hover:text-rose-600'
+              }`}
+            >
+              {day}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Quick Footer Controls */}
+      <div className="mt-3.5 flex items-center justify-between pt-2 border-t border-rose-100/60 text-xs">
+        <button
+          type="button"
+          onClick={handleSetToday}
+          className="font-bold text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
+        >
+          {isEs ? 'Hoy 🎯' : isEn ? 'Today 🎯' : 'اليوم 🎯'}
+        </button>
+        {value && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
+          >
+            {isEs ? 'Limpiar' : isEn ? 'Clear' : 'إلغاء التحديد'}
+          </button>
+        )}
+      </div>
+    </>
+  )
+
   return (
     <div className={`relative w-full ${lang === 'ar' ? 'text-right' : 'text-left'}`} ref={containerRef} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Trigger Button */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`group flex w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-all shadow-sm ${
+        className={`group flex w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-all shadow-sm cursor-pointer ${
           isOpen
             ? 'border-rose-400 bg-white ring-2 ring-rose-200/60'
             : 'border-rose-200/80 bg-white/90 hover:border-rose-300 hover:bg-white'
@@ -160,106 +273,24 @@ export default function ModernDatePicker({ value, onChange, placeholder = 'اخ�
         )}
       </button>
 
-      {/* Popover Calendar Modal */}
+      {/* Popover / Centered Modal */}
       {isOpen && (
-        <div className={`absolute ${lang === 'ar' ? 'right-0' : 'left-0'} z-50 mt-2 w-80 rounded-2xl border border-rose-100 bg-white p-4 shadow-2xl shadow-rose-900/10 backdrop-blur-lg animate-in fade-in zoom-in-95 duration-150`}>
-          {/* Calendar Header */}
-          <div className="mb-3 flex items-center justify-between pb-2 border-b border-rose-100/60">
-            <button
-              type="button"
-              onClick={handlePrevMonth}
-              className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors"
-              title={isEs ? 'Mes anterior' : isEn ? 'Previous month' : 'الشهر السابق'}
-            >
-              {lang === 'ar' ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </button>
-
-            <div className="flex items-center gap-1.5 font-bold text-rose-900 text-sm">
-              <span>{MONTH_NAMES[currentMonth]}</span>
-              <select
-                value={currentYear}
-                onChange={(e) => setCurrentYear(Number(e.target.value))}
-                className="bg-transparent text-rose-700 font-bold focus:outline-none cursor-pointer"
-              >
-                {Array.from({ length: 40 }, (_, i) => 1990 + i).map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
+        centered ? (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsOpen(false)
+            }}
+          >
+            <div className="relative w-full max-w-xs sm:max-w-sm rounded-3xl border border-rose-100 bg-white p-5 shadow-2xl shadow-rose-950/20 animate-in zoom-in-95 duration-150">
+              {calendarBody}
             </div>
-
-            <button
-              type="button"
-              onClick={handleNextMonth}
-              className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors"
-              title={isEs ? 'Mes siguiente' : isEn ? 'Next month' : 'الشهر التالي'}
-            >
-              {lang === 'ar' ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </button>
           </div>
-
-          {/* Weekday Names */}
-          <div className="mb-1.5 grid grid-cols-7 text-center text-[11px] font-bold text-rose-400">
-            {DAYS.map((day, idx) => (
-              <div key={idx} className="py-1">
-                {day}
-              </div>
-            ))}
+        ) : (
+          <div className={`absolute ${lang === 'ar' ? 'right-0' : 'left-0'} z-50 mt-2 w-80 rounded-2xl border border-rose-100 bg-white p-4 shadow-2xl shadow-rose-900/10 backdrop-blur-lg animate-in fade-in zoom-in-95 duration-150`}>
+            {calendarBody}
           </div>
-
-          {/* Days Grid */}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium">
-            {/* Empty slots for leading days */}
-            {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
-              <div key={`empty-${idx}`} className="h-8" />
-            ))}
-
-            {/* Month days */}
-            {Array.from({ length: daysInMonth }).map((_, idx) => {
-              const day = idx + 1
-              const isSelected = selectedDay === day
-              const isToday = isCurrentMonthToday === day
-
-              return (
-                <button
-                  key={day}
-                  type="button"
-                  onClick={() => handleSelectDay(day)}
-                  className={`h-8 w-8 rounded-xl flex items-center justify-center transition-all ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-rose-400 to-pink-500 font-bold text-white shadow-md shadow-rose-300/80 scale-105'
-                      : isToday
-                      ? 'border border-rose-300 font-bold text-rose-600 bg-rose-50/80'
-                      : 'text-rose-900 hover:bg-rose-50 hover:text-rose-600'
-                  }`}
-                >
-                  {day}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Quick Footer Controls */}
-          <div className="mt-3.5 flex items-center justify-between pt-2 border-t border-rose-100/60 text-xs">
-            <button
-              type="button"
-              onClick={handleSetToday}
-              className="font-bold text-rose-500 hover:text-rose-700 transition-colors"
-            >
-              {isEs ? 'Hoy 🎯' : isEn ? 'Today 🎯' : 'اليوم 🎯'}
-            </button>
-            {value && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-rose-400 hover:text-rose-600 transition-colors"
-              >
-                {isEs ? 'Limpiar' : isEn ? 'Clear' : 'إلغاء التحديد'}
-              </button>
-            )}
-          </div>
-        </div>
+        )
       )}
     </div>
   )

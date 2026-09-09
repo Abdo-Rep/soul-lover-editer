@@ -120,11 +120,12 @@ export default function MemoryEditor({
             </label>
           )}
 
-          {/* Date Input without label */}
+          {/* Date Input without label, centered calendar modal */}
           <div>
             <DateInput
               value={memory.date ?? ''}
               onChange={(value) => onChange(memory.id, { date: value })}
+              centered={true}
             />
           </div>
         </div>
