@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
 import { encrypt, decrypt } from './cryptoHelper.js'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'soulove-jwt-secret-key-2026'
+const JWT_SECRET = process.env.JWT_SECRET || 'soulove-super-secret-jwt-2026'
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
