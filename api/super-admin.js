@@ -234,14 +234,14 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       let r = await fetch(
         `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at,is_active,language&order=created_at.desc`,
-        { headers: restHeaders }
+        { headers: restHeaders, signal: AbortSignal.timeout(10000) }
       )
 
       if (!r.ok) {
         // Fallback fetch if is_active or language is not in PostgREST schema cache yet
         r = await fetch(
           `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at&order=created_at.desc`,
-          { headers: restHeaders }
+          { headers: restHeaders, signal: AbortSignal.timeout(10000) }
         )
       }
 

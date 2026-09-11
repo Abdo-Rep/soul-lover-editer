@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 // ─── PWA Install Button ───────────────────────────────────────────────────────
 function PWAInstallButton() {
@@ -453,9 +453,12 @@ export default function SuperAdmin() {
   }
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const souloveSite = sites.find((s) => s.slug === 'soulove')
-  const disabledSites = sites.filter((s) => s.is_active === false)
-  const filteredSites = activeFilterTab === 'disabled' ? disabledSites : sites
+  const souloveSite = useMemo(() => sites.find((s) => s.slug === 'soulove'), [sites])
+  const disabledSites = useMemo(() => sites.filter((s) => s.is_active === false), [sites])
+  const filteredSites = useMemo(
+    () => (activeFilterTab === 'disabled' ? disabledSites : sites),
+    [activeFilterTab, disabledSites, sites]
+  )
 
   return (
     <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans" dir="rtl">
