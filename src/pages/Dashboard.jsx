@@ -642,6 +642,43 @@ export default function Dashboard() {
     }
   }
 
+  // ⚡ Debounced Auto-Save (automatically syncs changes to database in background after 4s idle)
+  useEffect(() => {
+    if (!isDirty || !isAdmin || !adminPassword || isSaving) return
+
+    const timer = setTimeout(async () => {
+      try {
+        setSaveMessage(content.language === 'en' || content.language === 'en-GB' ? '⏳ Auto-saving...' : content.language === 'es' ? '⏳ Guardando...' : '⏳ جاري الحفظ التلقائي...')
+        const result = await saveChanges(adminPassword)
+        if (result?.nextLoginPassword) {
+          updateAdminPassword(result.nextLoginPassword)
+        }
+        setSaveMessage(content.language === 'en' || content.language === 'en-GB' ? '✓ Auto-saved' : content.language === 'es' ? '✓ Guardado automáticamente' : '✓ تم الحفظ التلقائي')
+        setTimeout(() => setSaveMessage(''), 3000)
+      } catch (err) {
+        console.warn('Auto-save background warning:', err)
+        setSaveMessage('')
+      }
+    }, 4000)
+
+    return () => clearTimeout(timer)
+  }, [isDirty, isAdmin, adminPassword, isSaving, saveChanges, updateAdminPassword, content])
+
+  const handleSaveAndLogout = async () => {
+    if (isDirty && adminPassword) {
+      setIsSaving(true)
+      try {
+        await saveChanges(adminPassword)
+      } catch (e) {
+        console.error('Save before logout error:', e)
+      } finally {
+        setIsSaving(false)
+      }
+    }
+    setShowLogoutModal(false)
+    adminLogout()
+  }
+
   const handlePreview = () => {
     grantVisitorPreviewAccess()
     const parts = window.location.pathname.split('/').filter(Boolean)
@@ -1442,6 +1479,47 @@ export default function Dashboard() {
           </Link>
         </p>
 
+        {/* ⚡ Floating Unsaved Changes Alert Bar at the Bottom */}
+        {isDirty && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-rose-300 dark:border-rose-800 shadow-2xl"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-3 w-3 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+              </span>
+              <span className="text-xs font-bold text-rose-950 dark:text-rose-100">
+                {content.language === 'en' || content.language === 'en-GB'
+                  ? 'Unsaved changes'
+                  : content.language === 'es'
+                  ? 'Cambios sin guardar'
+                  : 'لديك تعديلات غير محفوظة'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md hover:from-rose-600 hover:to-pink-600 active:scale-95 transition disabled:opacity-50 cursor-pointer"
+            >
+              <Save size={13} />
+              <span>
+                {isSaving
+                  ? t.saving
+                  : content.language === 'en' || content.language === 'en-GB'
+                  ? 'Save Now'
+                  : content.language === 'es'
+                  ? 'Guardar ahora'
+                  : 'حفظ التعديلات الآن'}
+              </span>
+            </button>
+          </motion.div>
+        )}
+
         {showLogoutModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="w-full max-w-sm rounded-3xl bg-white border border-rose-100 p-6 text-center shadow-2xl space-y-4">
@@ -1450,26 +1528,66 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-rose-900">تأكيد تسجيل الخروج</h3>
-                <p className="text-xs text-rose-500 mt-1">هل أنت متأكد من رغبتك في الخروج من لوحة التحكم؟</p>
+                {isDirty ? (
+                  <p className="text-xs text-amber-700 font-semibold mt-1 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                    ⚠️ تنبيه: لديك تعديلات لم تُحفظ بعد! هل تود حفظها قبل تسجيل الخروج؟
+                  </p>
+                ) : (
+                  <p className="text-xs text-rose-500 mt-1">هل أنت متأكد من رغبتك في الخروج من لوحة التحكم؟</p>
+                )}
               </div>
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowLogoutModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors"
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowLogoutModal(false)
-                    adminLogout()
-                  }}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-500 text-white text-xs font-semibold shadow-md transition-all hover:from-rose-500 hover:to-pink-600"
-                >
-                  تسجيل الخروج
-                </button>
+              <div className="flex flex-col gap-2 pt-2">
+                {isDirty ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleSaveAndLogout}
+                      disabled={isSaving}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md transition-all hover:from-rose-600 hover:to-pink-600 cursor-pointer"
+                    >
+                      {isSaving ? 'جاري الحفظ...' : '💾 حفظ التعديلات وتسجيل الخروج'}
+                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowLogoutModal(false)}
+                        className="flex-1 py-2 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors cursor-pointer"
+                      >
+                        إلغاء
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowLogoutModal(false)
+                          adminLogout()
+                        }}
+                        className="flex-1 py-2 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-semibold transition-colors cursor-pointer"
+                      >
+                        خروج دون حفظ
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowLogoutModal(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowLogoutModal(false)
+                        adminLogout()
+                      }}
+                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-400 to-pink-500 text-white text-xs font-semibold shadow-md transition-all hover:from-rose-500 hover:to-pink-600 cursor-pointer"
+                    >
+                      تسجيل الخروج
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
