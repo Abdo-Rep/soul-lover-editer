@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { encrypt, decrypt } from './cryptoHelper.js'
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
@@ -173,6 +173,31 @@ function getDefaultFields(language) {
   }
 }
 
+async function fetchWithRetry(url, options = {}, retries = 3, backoff = 800) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(18000),
+      })
+
+      // If PostgREST is starting up or reloading schema cache (503 PGRST002), retry
+      if (response.status === 503 && attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
+        continue
+      }
+
+      return response
+    } catch (err) {
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
+        continue
+      }
+      throw err
+    }
+  }
+}
+
 export default async function handler(req, res) {
   // CORS and Cache Control
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -206,7 +231,7 @@ export default async function handler(req, res) {
       isAuthorized = true
     } else {
       try {
-        const r = await fetch(
+        const r = await fetchWithRetry(
           `${SUPABASE_URL}/rest/v1/super_admins?email=eq.${encodeURIComponent(cleanEmail)}`,
           { headers: restHeaders }
         )
@@ -232,16 +257,16 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      let r = await fetch(
+      let r = await fetchWithRetry(
         `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at,is_active,language&order=created_at.desc`,
-        { headers: restHeaders, signal: AbortSignal.timeout(10000) }
+        { headers: restHeaders }
       )
 
       if (!r.ok) {
         // Fallback fetch if is_active or language is not in PostgREST schema cache yet
-        r = await fetch(
+        r = await fetchWithRetry(
           `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at&order=created_at.desc`,
-          { headers: restHeaders, signal: AbortSignal.timeout(10000) }
+          { headers: restHeaders }
         )
       }
 

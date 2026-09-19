@@ -4,7 +4,7 @@ import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
 import { encrypt, decrypt } from './cryptoHelper.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-super-secret-jwt-2026'
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
@@ -13,6 +13,30 @@ const restHeaders = {
   'Authorization': `Bearer ${JWT_TOKEN}`,
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
+}
+
+async function fetchWithRetry(url, options = {}, retries = 3, backoff = 800) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(18000),
+      })
+
+      if (response.status === 503 && attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
+        continue
+      }
+
+      return response
+    } catch (err) {
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
+        continue
+      }
+      throw err
+    }
+  }
 }
 
 export default async function handler(req, res) {
@@ -39,7 +63,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const result = await fetchCompleteSite(null, slug)
       if (!result) {
-      return res.status(404).json({ error: 'site_not_found' })
+        return res.status(404).json({ error: 'site_not_found' })
       }
 
       const { row, content } = result
@@ -52,7 +76,7 @@ export default async function handler(req, res) {
 
       if (sitePass === 'ThisIsLove' || !sitePass) {
         sitePass = adminPass || 'soulove'
-        fetch(`${SUPABASE_URL}/rest/v1/sites?id=eq.${row.id}`, {
+        fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?id=eq.${row.id}`, {
           method: 'PATCH',
           headers: restHeaders,
           body: JSON.stringify({ visitor_password: encrypt(sitePass) })
@@ -82,8 +106,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=visitor_password,admin_password,is_active,language`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
-      if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
+      const r = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active,language`, { headers: restHeaders })
+      if (!r.ok) return res.status(404).json({ error: 'site_not_found' })
       const rows = await r.json()
 
       if (!Array.isArray(rows) || rows.length === 0) {
@@ -154,8 +178,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'payload_too_large', message: 'حجم طلب الحفظ يتجاوز الحد المسموح به.' })
       }
 
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders, signal: AbortSignal.timeout(5000) })
-      if (!r.ok) return res.status(444).json({ error: 'site_not_found' })
+      const r = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders })
+      if (!r.ok) return res.status(404).json({ error: 'site_not_found' })
       const rows = await r.json()
 
       if (!Array.isArray(rows) || rows.length === 0) {

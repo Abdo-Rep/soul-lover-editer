@@ -54,7 +54,7 @@ function apiPlugin() {
           if (!mediaPath) {
             return res.status(400).json({ error: 'Missing path' })
           }
-          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
           const targetUrl = `${SUPABASE_URL}/storage/v1/object/public/site-media/${mediaPath}`
           try {
             const upstream = await fetch(targetUrl)
@@ -141,7 +141,7 @@ function apiPlugin() {
               else if (ext === '.ogg') fileMime = 'audio/ogg'
               else if (ext === '.m4a' || ext === '.aac') fileMime = 'audio/mp4'
 
-              const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+              const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
               const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
               const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
@@ -200,7 +200,7 @@ function apiPlugin() {
 
         // Handle /api/delete for local dev server
         if (url.pathname === '/api/delete' && req.method === 'POST') {
-          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
           const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
           const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
           const storageHeaders = {
@@ -271,7 +271,7 @@ export default defineConfig({
     },
     proxy: {
       '/api/storage': {
-        target: process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000',
+        target: process.env.VITE_SUPABASE_URL || 'http://localhost:9000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/storage/, '/storage/v1/object/public'),
       }

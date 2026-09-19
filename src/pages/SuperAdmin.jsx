@@ -385,6 +385,14 @@ export default function SuperAdmin() {
     }
   }
 
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const souloveSite = useMemo(() => sites.find((s) => s.slug === 'soulove'), [sites])
+  const disabledSites = useMemo(() => sites.filter((s) => s.is_active === false), [sites])
+  const filteredSites = useMemo(
+    () => (activeFilterTab === 'disabled' ? disabledSites : sites),
+    [activeFilterTab, disabledSites, sites]
+  )
+
   // Login Screen if not logged in
   if (!token) {
     return (
@@ -451,14 +459,6 @@ export default function SuperAdmin() {
       </div>
     )
   }
-
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-  const souloveSite = useMemo(() => sites.find((s) => s.slug === 'soulove'), [sites])
-  const disabledSites = useMemo(() => sites.filter((s) => s.is_active === false), [sites])
-  const filteredSites = useMemo(
-    () => (activeFilterTab === 'disabled' ? disabledSites : sites),
-    [activeFilterTab, disabledSites, sites]
-  )
 
   return (
     <div className="min-h-screen bg-[#060713] text-white p-3 sm:p-6 font-sans" dir="rtl">

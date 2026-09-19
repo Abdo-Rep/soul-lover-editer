@@ -85,24 +85,27 @@ export default function SiteMeta() {
       bgColor = isDark ? '#0b0a12' : '#fff1f2'
     }
 
+    const origin = window.location.origin
+
     setMetaTag('name', 'theme-color', themeColor)
+    setMetaTag('name', 'mobile-web-app-capable', 'yes')
 
     const dynamicManifest = {
-      id: manifestId,
-      scope: manifestScope,
+      id: `${origin}${manifestId}`,
+      scope: `${origin}${manifestScope}`,
       name: appName,
       short_name: shortName,
       description: description,
-      start_url: startUrl,
+      start_url: `${origin}${startUrl}`,
       display: 'standalone',
       background_color: bgColor,
       theme_color: themeColor,
       orientation: 'portrait',
       icons: [
-        { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
-        { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-        { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }
+        { src: `${origin}/icon-192.png`, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: `${origin}/icon-512.png`, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+        { src: `${origin}/apple-touch-icon.png`, sizes: '180x180', type: 'image/png' },
+        { src: `${origin}/icon.svg`, sizes: 'any', type: 'image/svg+xml', purpose: 'any' }
       ]
     }
 

@@ -1,6 +1,6 @@
 import { encrypt, decrypt } from './cryptoHelper.js'
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
@@ -9,6 +9,30 @@ const restHeaders = {
   'Authorization': `Bearer ${JWT_TOKEN}`,
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
+}
+
+async function fetchWithRetry(url, options = {}, retries = 3, backoff = 800) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(18000),
+      })
+
+      if (response.status === 503 && attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
+        continue
+      }
+
+      return response
+    } catch (err) {
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
+        continue
+      }
+      throw err
+    }
+  }
 }
 
 export function rowToContent(row, memories = [], galleryItems = [], wishlistItems = []) {
@@ -159,7 +183,7 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
 
 export async function fetchCompleteSite(pool, slug) {
   try {
-    const siteR = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}`, { headers: restHeaders })
+    const siteR = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, { headers: restHeaders })
     if (!siteR.ok) return null
     const siteData = await siteR.json()
     if (!Array.isArray(siteData) || siteData.length === 0) return null
@@ -168,9 +192,9 @@ export async function fetchCompleteSite(pool, slug) {
     const siteId = row.id
 
     const [memR, galR, wishR] = await Promise.all([
-      fetch(`${SUPABASE_URL}/rest/v1/memories?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
-      fetch(`${SUPABASE_URL}/rest/v1/gallery_items?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
-      fetch(`${SUPABASE_URL}/rest/v1/wishlist_items?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
+      fetchWithRetry(`${SUPABASE_URL}/rest/v1/memories?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
+      fetchWithRetry(`${SUPABASE_URL}/rest/v1/gallery_items?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
+      fetchWithRetry(`${SUPABASE_URL}/rest/v1/wishlist_items?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
     ])
 
     const memories = memR.ok ? await memR.json() : []
@@ -189,7 +213,7 @@ export async function fetchCompleteSite(pool, slug) {
 
 export async function saveRelationalContent(pool, slug, content) {
   // 1. Get site metadata
-  const siteR = await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${slug}&select=id,visitor_password,admin_password`, { headers: restHeaders })
+  const siteR = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=id,visitor_password,admin_password`, { headers: restHeaders })
   if (!siteR.ok) throw new Error('site_not_found')
   const siteData = await siteR.json()
   if (!Array.isArray(siteData) || siteData.length === 0) throw new Error('site_not_found')
@@ -299,7 +323,7 @@ export async function saveRelationalContent(pool, slug, content) {
   const shouldUpdateWishlist = !hasDirtyList || dirtySections.includes('wishlist')
 
   const step1 = [
-    fetch(`${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}`, {
+    fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}`, {
       method: 'PATCH',
       headers: restHeaders,
       body: JSON.stringify(payload)
@@ -307,13 +331,13 @@ export async function saveRelationalContent(pool, slug, content) {
   ]
 
   if (shouldUpdateMemories && content.memories && Array.isArray(content.memories)) {
-    step1.push(fetch(`${SUPABASE_URL}/rest/v1/memories?site_id=eq.${siteId}`, { method: 'DELETE', headers: restHeaders }))
+    step1.push(fetchWithRetry(`${SUPABASE_URL}/rest/v1/memories?site_id=eq.${siteId}`, { method: 'DELETE', headers: restHeaders }))
   }
   if (shouldUpdateGallery && content.galleryItems && Array.isArray(content.galleryItems)) {
-    step1.push(fetch(`${SUPABASE_URL}/rest/v1/gallery_items?site_id=eq.${siteId}`, { method: 'DELETE', headers: restHeaders }))
+    step1.push(fetchWithRetry(`${SUPABASE_URL}/rest/v1/gallery_items?site_id=eq.${siteId}`, { method: 'DELETE', headers: restHeaders }))
   }
   if (shouldUpdateWishlist && content.wishlist && Array.isArray(content.wishlist)) {
-    step1.push(fetch(`${SUPABASE_URL}/rest/v1/wishlist_items?site_id=eq.${siteId}`, { method: 'DELETE', headers: restHeaders }))
+    step1.push(fetchWithRetry(`${SUPABASE_URL}/rest/v1/wishlist_items?site_id=eq.${siteId}`, { method: 'DELETE', headers: restHeaders }))
   }
 
   await Promise.all(step1)
@@ -328,7 +352,7 @@ export async function saveRelationalContent(pool, slug, content) {
       date: m.date || '',
       text: m.text || ''
     }))
-    step2.push(fetch(`${SUPABASE_URL}/rest/v1/memories`, { method: 'POST', headers: restHeaders, body: JSON.stringify(memsToInsert) }))
+    step2.push(fetchWithRetry(`${SUPABASE_URL}/rest/v1/memories`, { method: 'POST', headers: restHeaders, body: JSON.stringify(memsToInsert) }))
   }
 
   if (shouldUpdateGallery && content.galleryItems && Array.isArray(content.galleryItems) && content.galleryItems.length > 0) {
@@ -339,7 +363,7 @@ export async function saveRelationalContent(pool, slug, content) {
       date: item.date || '',
       description: item.text ?? item.description ?? ''
     }))
-    step2.push(fetch(`${SUPABASE_URL}/rest/v1/gallery_items`, { method: 'POST', headers: restHeaders, body: JSON.stringify(itemsToInsert) }))
+    step2.push(fetchWithRetry(`${SUPABASE_URL}/rest/v1/gallery_items`, { method: 'POST', headers: restHeaders, body: JSON.stringify(itemsToInsert) }))
   }
 
   if (shouldUpdateWishlist && content.wishlist && Array.isArray(content.wishlist) && content.wishlist.length > 0) {
@@ -349,7 +373,7 @@ export async function saveRelationalContent(pool, slug, content) {
       text: item.text || '',
       completed: Boolean(item.completed)
     }))
-    step2.push(fetch(`${SUPABASE_URL}/rest/v1/wishlist_items`, { method: 'POST', headers: restHeaders, body: JSON.stringify(wishToInsert) }))
+    step2.push(fetchWithRetry(`${SUPABASE_URL}/rest/v1/wishlist_items`, { method: 'POST', headers: restHeaders, body: JSON.stringify(wishToInsert) }))
   }
 
   if (step2.length > 0) {

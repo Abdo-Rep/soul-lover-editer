@@ -1,4 +1,4 @@
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://31.220.93.65:9000'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 

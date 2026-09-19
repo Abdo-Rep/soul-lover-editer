@@ -4,14 +4,6 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/storage/:path*",
-      "destination": "http://31.220.93.65:9000/storage/v1/object/public/:path*"
-    },
-    {
-      "source": "/storage-proxy/:path*",
-      "destination": "http://31.220.93.65:9000/storage/v1/object/:path*"
-    },
-    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
