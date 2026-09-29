@@ -54,7 +54,27 @@ export function setAdminTokenForSync(token, slug = '') {
 export async function fetchRemoteContent(slug) {
   if (!slug) return mergeContent(getSeedContent())
 
-  const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`)
+  let res = null
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+        signal: AbortSignal.timeout(9000),
+      })
+      if (res.status === 503 && attempt === 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        continue
+      }
+      break
+    } catch (e) {
+      if (attempt === 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        continue
+      }
+      throw e
+    }
+  }
+
+  if (!res) return null
 
   if (res.status === 444 || res.status === 404) {
     try {

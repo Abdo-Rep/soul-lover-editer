@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { encrypt, decrypt } from './cryptoHelper.js'
+import { fetchWithResilience, sanitizeDatabaseError } from './fetchHelper.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
 const SECRET_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -173,30 +174,6 @@ function getDefaultFields(language) {
   }
 }
 
-async function fetchWithRetry(url, options = {}, retries = 3, backoff = 800) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: AbortSignal.timeout(18000),
-      })
-
-      // If PostgREST is starting up or reloading schema cache (503 PGRST002), retry
-      if (response.status === 503 && attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
-        continue
-      }
-
-      return response
-    } catch (err) {
-      if (attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
-        continue
-      }
-      throw err
-    }
-  }
-}
 
 export default async function handler(req, res) {
   // CORS and Cache Control
@@ -231,7 +208,7 @@ export default async function handler(req, res) {
       isAuthorized = true
     } else {
       try {
-        const r = await fetchWithRetry(
+        const r = await fetchWithResilience(
           `${SUPABASE_URL}/rest/v1/super_admins?email=eq.${encodeURIComponent(cleanEmail)}`,
           { headers: restHeaders }
         )
@@ -257,14 +234,14 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      let r = await fetchWithRetry(
+      let r = await fetchWithResilience(
         `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at,is_active,language&order=created_at.desc`,
         { headers: restHeaders }
       )
 
       if (!r.ok) {
         // Fallback fetch if is_active or language is not in PostgREST schema cache yet
-        r = await fetchWithRetry(
+        r = await fetchWithResilience(
           `${SUPABASE_URL}/rest/v1/sites?select=slug,visitor_password,admin_password,created_at,updated_at&order=created_at.desc`,
           { headers: restHeaders }
         )
@@ -272,7 +249,8 @@ export default async function handler(req, res) {
 
       if (!r.ok) {
         const errText = await r.text().catch(() => '')
-        return res.status(500).json({ error: `فشل جلب قائمة المواقع: ${r.status} - ${errText}` })
+        const cleanMsg = sanitizeDatabaseError(errText, `تعذّر جلب قائمة المواقع (${r.status})`)
+        return res.status(r.status || 500).json({ error: cleanMsg })
       }
 
       const rows = await r.json()
@@ -423,7 +401,7 @@ export default async function handler(req, res) {
       if (isActive !== undefined) updateData.is_active = Boolean(isActive)
       if (language !== undefined) updateData.language = String(language)
 
-      await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
+      await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
         method: 'PATCH',
         headers: restHeaders,
         body: JSON.stringify(updateData),
@@ -438,7 +416,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'slug_required' })
       }
 
-      await fetch(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
+      await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
         method: 'DELETE',
         headers: restHeaders,
       })
@@ -449,6 +427,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' })
   } catch (err) {
     console.error('API /super-admin error:', err)
-    return res.status(500).json({ error: err.message })
+    const isTimeout = err.name === 'TimeoutError' || err.message?.includes('timeout') || err.message?.includes('aborted')
+    const message = isTimeout
+      ? 'استغرق خادم قاعدة البيانات وقتاً أطول من المتوقع للاستجابة. يرجى إعادة المحاولة.'
+      : sanitizeDatabaseError(err.message, 'حدث خطأ غير متوقع أثناء معالجة الطلب.')
+    return res.status(isTimeout ? 504 : 500).json({ error: message })
   }
 }

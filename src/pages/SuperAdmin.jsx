@@ -162,6 +162,8 @@ export default function SuperAdmin() {
   const [activeFilterTab, setActiveFilterTab] = useState('all') // 'all' | 'disabled'
   const [isLoading, setIsLoading] = useState(false)
   const [fetchError, setFetchError] = useState('')
+  const [retryNotice, setRetryNotice] = useState('')
+  const retryTimeoutRef = useRef(null)
 
   // Modal State
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -191,15 +193,19 @@ export default function SuperAdmin() {
     setTimeout(() => setCopiedKey(''), 2000)
   }
 
-  const fetchSites = useCallback(async (authToken, adminEmail) => {
+  const fetchSites = useCallback(async (authToken, adminEmail, retryAttempt = 0) => {
     setIsLoading(true)
-    setFetchError('')
+    if (retryAttempt === 0) {
+      setFetchError('')
+      setRetryNotice('')
+    }
     try {
       const res = await fetch(`/api/super-admin`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'X-Admin-Email': adminEmail,
         },
+        signal: AbortSignal.timeout(9000),
       })
       if (!res.ok) {
         if (res.status === 401) {
@@ -213,10 +219,31 @@ export default function SuperAdmin() {
       }
       const data = await res.json()
       setSites(data.sites || [])
+      setFetchError('')
+      setRetryNotice('')
     } catch (err) {
-      setFetchError(err.message)
+      const isRetryable = err.name === 'TimeoutError' || err.message?.includes('تحديث') || err.message?.includes('استيقاظ') || err.message?.includes('timeout') || err.message?.includes('PGRST')
+      
+      // Auto-retry up to 2 times with a 2-second delay
+      if (isRetryable && retryAttempt < 2) {
+        setRetryNotice(`خادم قاعدة البيانات يستجيب، جاري إعادة المحاولة تلقائياً (${retryAttempt + 1}/2)...`)
+        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
+        retryTimeoutRef.current = setTimeout(() => {
+          fetchSites(authToken, adminEmail, retryAttempt + 1)
+        }, 2200)
+        return
+      }
+
+      setRetryNotice('')
+      setFetchError(err.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
     } finally {
       setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
     }
   }, [])
 
@@ -553,13 +580,35 @@ export default function SuperAdmin() {
             </button>
           </div>
 
-          {fetchError && (
-            <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs">
-              {fetchError}
+          {retryNotice && (
+            <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#1e1528] border border-[#a855f7]/40 text-[#c084fc] text-xs flex items-center gap-2.5 animate-pulse">
+              <RefreshSvg className="w-4 h-4 animate-spin shrink-0 text-[#c084fc]" />
+              <span className="font-medium">{retryNotice}</span>
             </div>
           )}
 
-          {filteredSites.length === 0 && !isLoading ? (
+          {fetchError && !retryNotice && (
+            <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[#281125] border border-[#ff3b68]/40 text-[#ff3b68] text-xs space-y-3">
+              <div className="flex items-center gap-2 font-bold text-sm text-white">
+                <AlertSvg className="w-5 h-5 text-[#ff3b68] shrink-0" />
+                <span>تعذّر الاتصال بقاعدة البيانات</span>
+              </div>
+              <p className="leading-relaxed text-[#ff8ba7]">{fetchError}</p>
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => fetchSites(token, email, 0)}
+                  disabled={isLoading}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff3b68] to-[#e11d48] text-white text-xs font-bold hover:opacity-95 transition-all shadow-md shadow-[#ff3b68]/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <RefreshSvg className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                  {isLoading ? 'جاري الاتصال...' : 'إعادة المحاولة الآن'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {(fetchError || retryNotice) && sites.length === 0 ? null : filteredSites.length === 0 && !isLoading ? (
             <div className="p-8 sm:p-10 text-center rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
               <GlobeSvg className="w-10 h-10 text-[#7786a5]/30 mx-auto" />
               <p className="text-[#7786a5] text-xs">

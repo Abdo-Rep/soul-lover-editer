@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
 import { encrypt, decrypt } from './cryptoHelper.js'
+import { fetchWithResilience, sanitizeDatabaseError } from './fetchHelper.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soulove-super-secret-jwt-2026'
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
@@ -13,30 +14,6 @@ const restHeaders = {
   'Authorization': `Bearer ${JWT_TOKEN}`,
   'Content-Type': 'application/json',
   'Prefer': 'return=representation'
-}
-
-async function fetchWithRetry(url, options = {}, retries = 3, backoff = 800) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: AbortSignal.timeout(18000),
-      })
-
-      if (response.status === 503 && attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
-        continue
-      }
-
-      return response
-    } catch (err) {
-      if (attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, backoff * attempt))
-        continue
-      }
-      throw err
-    }
-  }
 }
 
 export default async function handler(req, res) {
@@ -76,7 +53,7 @@ export default async function handler(req, res) {
 
       if (sitePass === 'ThisIsLove' || !sitePass) {
         sitePass = adminPass || 'soulove'
-        fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?id=eq.${row.id}`, {
+        fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?id=eq.${row.id}`, {
           method: 'PATCH',
           headers: restHeaders,
           body: JSON.stringify({ visitor_password: encrypt(sitePass) })
@@ -106,7 +83,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const r = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active,language`, { headers: restHeaders })
+      const r = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active,language`, { headers: restHeaders })
       if (!r.ok) return res.status(404).json({ error: 'site_not_found' })
       const rows = await r.json()
 
@@ -178,7 +155,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'payload_too_large', message: 'حجم طلب الحفظ يتجاوز الحد المسموح به.' })
       }
 
-      const r = await fetchWithRetry(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders })
+      const r = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders })
       if (!r.ok) return res.status(404).json({ error: 'site_not_found' })
       const rows = await r.json()
 
@@ -248,6 +225,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' })
   } catch (err) {
     console.error('API /sites error:', err)
-    return res.status(500).json({ error: 'حدث خطأ داخلي، حاول مرة أخرى' })
+    const isTimeout = err.name === 'TimeoutError' || err.message?.includes('timeout') || err.message?.includes('aborted')
+    const message = isTimeout
+      ? 'استغرق خادم قاعدة البيانات وقتاً أطول من المتوقع للاستجابة. يرجى إعادة المحاولة.'
+      : sanitizeDatabaseError(err.message, 'حدث خطأ داخلي، حاول مرة أخرى')
+    return res.status(isTimeout ? 504 : 500).json({ error: message })
   }
 }

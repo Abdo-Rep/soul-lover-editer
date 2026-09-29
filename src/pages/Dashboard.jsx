@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { motion, Reorder, useDragControls } from 'framer-motion'
 import {
   Calendar,
@@ -564,6 +564,35 @@ export default function Dashboard() {
   const [saveMessage, setSaveMessage] = useState('')
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [showQRModal, setShowQRModal] = useState(false)
+
+  // 🧭 Auto-center selected tab in horizontal scrollable bar
+  const tabsNavRef = useRef(null)
+  const selectedTabRef = useRef(null)
+
+  const centerItemInContainer = (container, element, smooth = true) => {
+    if (!container || !element) return
+    if (typeof element.scrollIntoView === 'function') {
+      element.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', inline: 'center', block: 'nearest' })
+      return
+    }
+    const containerRect = container.getBoundingClientRect()
+    const elementRect = element.getBoundingClientRect()
+    const relativeLeft = elementRect.left - containerRect.left + container.scrollLeft
+    const targetScrollLeft = relativeLeft - (containerRect.width / 2) + (elementRect.width / 2)
+    container.scrollTo({
+      left: targetScrollLeft,
+      behavior: smooth ? 'smooth' : 'auto'
+    })
+  }
+
+  useEffect(() => {
+    if (activeTab && selectedTabRef.current && tabsNavRef.current) {
+      const timer = setTimeout(() => {
+        centerItemInContainer(tabsNavRef.current, selectedTabRef.current, true)
+      }, 60)
+      return () => clearTimeout(timer)
+    }
+  }, [activeTab])
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
     type: 'success',
@@ -1405,22 +1434,29 @@ export default function Dashboard() {
           <PWAInstallBanner />
 
           {/* Tabs row */}
-          <nav className="romantic-scrollbar flex gap-2 overflow-x-auto pb-0.5">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setActiveTab(id)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
-                  activeTab === id
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-xs'
-                    : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
-                }`}
-              >
-                <Icon size={13} />
-                {label}
-              </button>
-            ))}
+          <nav ref={tabsNavRef} className="romantic-scrollbar flex gap-2 overflow-x-auto pb-0.5 scroll-smooth">
+            {tabs.map(({ id, label, icon: Icon }) => {
+              const isSelected = activeTab === id
+              return (
+                <button
+                  key={id}
+                  ref={isSelected ? selectedTabRef : null}
+                  type="button"
+                  onClick={(e) => {
+                    setActiveTab(id)
+                    centerItemInContainer(tabsNavRef.current, e.currentTarget, true)
+                  }}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-xs'
+                      : 'bg-white/80 dark:bg-slate-900/80 text-rose-600 dark:text-rose-300 hover:bg-white dark:hover:bg-slate-800 border border-rose-100/60 dark:border-rose-900/40'
+                  }`}
+                >
+                  <Icon size={13} />
+                  {label}
+                </button>
+              )
+            })}
           </nav>
         </div>
       </div>
