@@ -55,32 +55,44 @@ export async function fetchRemoteContent(slug) {
   if (!slug) return mergeContent(getSeedContent())
 
   let res = null
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  let lastError = null
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
-        signal: AbortSignal.timeout(9000),
+        signal: AbortSignal.timeout(8000),
       })
-      if (res.status === 503 && attempt === 1) {
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+      if ((res.status === 503 || res.status === 504) && attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, attempt === 1 ? 1200 : 2000))
         continue
       }
       break
     } catch (e) {
-      if (attempt === 1) {
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+      lastError = e
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, attempt === 1 ? 1200 : 2000))
         continue
       }
-      throw e
     }
   }
 
-  if (!res) return null
+  if (!res) {
+    const err = new Error(lastError?.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
+    err.isDbConnecting = true
+    throw err
+  }
 
   if (res.status === 444 || res.status === 404) {
     try {
       const errJson = await res.json()
+      if (errJson.error === 'database_unavailable' || errJson.isDbConnecting) {
+        const err = new Error(errJson.message || 'خادم قاعدة البيانات قيد الاتصال')
+        err.isDbConnecting = true
+        throw err
+      }
       return { siteNotFound: true, language: errJson.language || 'ar' }
-    } catch {
+    } catch (e) {
+      if (e.isDbConnecting) throw e
       return { siteNotFound: true, language: 'ar' }
     }
   }
@@ -89,12 +101,17 @@ export async function fetchRemoteContent(slug) {
   if (!contentType.includes('application/json')) {
     const text = await res.text().catch(() => '')
     console.warn('Non-JSON response from /api/sites:', text.slice(0, 100))
-    return null
+    const err = new Error('استجابة غير متوقعة من الخادم')
+    err.isDbConnecting = true
+    throw err
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error || 'تعذّر الاتصال بالخادم')
+    const errJson = await res.json().catch(() => ({}))
+    const errorObj = new Error(errJson.message || errJson.error || 'تعذّر الاتصال بالخادم')
+    errorObj.status = res.status
+    errorObj.isDbConnecting = res.status === 503 || res.status === 504 || Boolean(errJson.isDbConnecting)
+    throw errorObj
   }
 
   const json = await res.json()
@@ -106,42 +123,64 @@ export async function fetchRemoteContent(slug) {
   return content
 }
 
-// 100% Server-Side Visitor Password Verification
+// 100% Server-Side Visitor Password Verification with Auto-Retry on 503
 export async function verifySitePassword(password, slug) {
   if (!slug) return true
-  try {
-    const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, action: 'verify_visitor' }),
-      signal: AbortSignal.timeout(12000),
-    })
-    return res.ok
-  } catch {
-    return false
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, action: 'verify_visitor' }),
+        signal: AbortSignal.timeout(9000),
+      })
+      if (res.status === 503 && attempt === 1) {
+        await new Promise((r) => setTimeout(r, 1200))
+        continue
+      }
+      return res.ok
+    } catch {
+      if (attempt === 1) {
+        await new Promise((r) => setTimeout(r, 1200))
+        continue
+      }
+      return false
+    }
   }
+  return false
 }
 
-// 100% Server-Side Admin Dashboard Password Verification
+// 100% Server-Side Admin Dashboard Password Verification with Auto-Retry on 503
 export async function verifyAdminPassword(password, slug) {
   if (!slug) return false
-  try {
-    const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, action: 'verify_admin' }),
-      signal: AbortSignal.timeout(12000),
-    })
-    if (!res.ok) return false
-    const data = await res.json().catch(() => ({}))
-    if (data.token) {
-      setAdminTokenForSync(data.token, slug)
-      setAdminPasswordForSync(password, slug)
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, action: 'verify_admin' }),
+        signal: AbortSignal.timeout(9000),
+      })
+      if (res.status === 503 && attempt === 1) {
+        await new Promise((r) => setTimeout(r, 1200))
+        continue
+      }
+      if (!res.ok) return false
+      const data = await res.json().catch(() => ({}))
+      if (data.token) {
+        setAdminTokenForSync(data.token, slug)
+        setAdminPasswordForSync(password, slug)
+      }
+      return true
+    } catch {
+      if (attempt === 1) {
+        await new Promise((r) => setTimeout(r, 1200))
+        continue
+      }
+      return false
     }
-    return true
-  } catch {
-    return false
   }
+  return false
 }
 
 // Convert base64 data URL to a File object for automatic uploading

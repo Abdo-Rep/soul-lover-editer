@@ -185,8 +185,18 @@ export function ContentProvider({ children }) {
   }, [location.pathname])
 
   const [siteNotFound, setSiteNotFound] = useState(false)
+  const retryTimerRef = useRef(null)
 
-  const loadFromDatabase = useCallback(async () => {
+  useEffect(() => {
+    return () => {
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current)
+        retryTimerRef.current = null
+      }
+    }
+  }, [])
+
+  const loadFromDatabase = useCallback(async (isRetry = false) => {
     const slug = getClientSlug()
     if (!slug) {
       setSiteNotFound(true)
@@ -194,18 +204,22 @@ export function ContentProvider({ children }) {
       return null
     }
 
-    setSyncStatus('loading')
-    setSyncError('')
+    if (!isRetry) {
+      setSyncStatus('loading')
+      setSyncError('')
+    }
 
     try {
       const remote = await loadSiteContent(slug)
       if (remote && !remote.siteNotFound) {
         setSiteNotFound(false)
-        applyLoadedContent(remote, slug)
-      } else {
-        if (remote && remote.siteNotFound) {
-          setContent((prev) => ({ ...prev, language: remote.language }))
+        if (retryTimerRef.current) {
+          clearTimeout(retryTimerRef.current)
+          retryTimerRef.current = null
         }
+        applyLoadedContent(remote, slug)
+      } else if (remote && remote.siteNotFound) {
+        setContent((prev) => ({ ...prev, language: remote.language }))
         setSiteNotFound(true)
         setSyncStatus('ready')
       }
@@ -213,9 +227,15 @@ export function ContentProvider({ children }) {
     } catch (error) {
       setSyncStatus('error')
       setSyncError(error.message || 'تعذّر تحميل المحتوى')
-      if (!contentRef.current) {
-        setSiteNotFound(true)
-      }
+
+      // Do NOT set siteNotFound on network or server errors — retry silently in background
+      setSiteNotFound(false)
+
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+      retryTimerRef.current = setTimeout(() => {
+        loadFromDatabase(true).catch(() => {})
+      }, 2000)
+
       throw error
     }
   }, [applyLoadedContent, getClientSlug])

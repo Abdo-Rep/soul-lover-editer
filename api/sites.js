@@ -38,7 +38,21 @@ export default async function handler(req, res) {
   try {
     // GET: Return site content with accurate passwords for Dashboard and Site
     if (req.method === 'GET') {
-      const result = await fetchCompleteSite(null, slug)
+      let result = null
+      try {
+        result = await fetchCompleteSite(null, slug)
+      } catch (dbErr) {
+        console.error(`DB error fetching site ${slug}:`, dbErr.message)
+        const isTimeout = dbErr.name === 'TimeoutError' || dbErr.message?.includes('timeout') || dbErr.message?.includes('aborted')
+        const is503 = dbErr.status === 503 || dbErr.message?.includes('503') || dbErr.message?.includes('PGRST')
+        const status = isTimeout ? 504 : (is503 ? 503 : 500)
+        return res.status(status).json({
+          error: 'database_unavailable',
+          isDbConnecting: true,
+          message: sanitizeDatabaseError(dbErr.message, 'خادم قاعدة البيانات يستجيب ببطء، جاري المحاولة...')
+        })
+      }
+
       if (!result) {
         return res.status(404).json({ error: 'site_not_found' })
       }
@@ -83,8 +97,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'password_required' })
       }
 
-      const r = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active,language`, { headers: restHeaders })
-      if (!r.ok) return res.status(404).json({ error: 'site_not_found' })
+      let r
+      try {
+        r = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active,language`, { headers: restHeaders })
+      } catch {
+        return res.status(503).json({ error: 'database_unavailable', isDbConnecting: true })
+      }
+
+      if (!r.ok) {
+        return res.status(r.status === 503 ? 503 : 500).json({ error: 'database_unavailable', isDbConnecting: true })
+      }
       const rows = await r.json()
 
       if (!Array.isArray(rows) || rows.length === 0) {
@@ -155,12 +177,19 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'payload_too_large', message: 'حجم طلب الحفظ يتجاوز الحد المسموح به.' })
       }
 
-      const r = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders })
-      if (!r.ok) return res.status(404).json({ error: 'site_not_found' })
+      let r
+      try {
+        r = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=visitor_password,admin_password,is_active`, { headers: restHeaders })
+      } catch {
+        return res.status(503).json({ error: 'database_unavailable', isDbConnecting: true })
+      }
+      if (!r.ok) {
+        return res.status(r.status === 503 ? 503 : 500).json({ error: 'database_unavailable', isDbConnecting: true })
+      }
       const rows = await r.json()
 
       if (!Array.isArray(rows) || rows.length === 0) {
-        return res.status(444).json({ error: 'site_not_found' })
+        return res.status(404).json({ error: 'site_not_found' })
       }
 
       const row = rows[0]

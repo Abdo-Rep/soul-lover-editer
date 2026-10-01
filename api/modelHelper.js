@@ -159,39 +159,37 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
 }
 
 export async function fetchCompleteSite(pool, slug) {
-  try {
-    const siteR = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, { headers: restHeaders })
-    if (!siteR.ok) return null
-    const siteData = await siteR.json()
-    if (!Array.isArray(siteData) || siteData.length === 0) return null
+  // Single-shot atomic query: loads site, memories, gallery_items, and wishlist_items in ONE request (~250ms)
+  const url = `${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=*,memories(*),gallery_items(*),wishlist_items(*)&memories.order=created_at.asc&gallery_items.order=created_at.asc&wishlist_items.order=created_at.asc`
+  const siteR = await fetchWithResilience(url, { headers: restHeaders })
+  if (!siteR.ok) {
+    const errText = await siteR.text().catch(() => '')
+    const err = new Error(`Database error (${siteR.status}): ${errText}`)
+    err.status = siteR.status
+    throw err
+  }
+  const siteData = await siteR.json()
+  if (!Array.isArray(siteData) || siteData.length === 0) return null
 
-    const row = siteData[0]
-    const siteId = row.id
+  const row = siteData[0]
+  const memories = Array.isArray(row.memories) ? row.memories : []
+  const galleryItems = Array.isArray(row.gallery_items) ? row.gallery_items : []
+  const wishlistItems = Array.isArray(row.wishlist_items) ? row.wishlist_items : []
 
-    const [memR, galR, wishR] = await Promise.all([
-      fetchWithResilience(`${SUPABASE_URL}/rest/v1/memories?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
-      fetchWithResilience(`${SUPABASE_URL}/rest/v1/gallery_items?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
-      fetchWithResilience(`${SUPABASE_URL}/rest/v1/wishlist_items?site_id=eq.${siteId}&order=created_at.asc`, { headers: restHeaders }),
-    ])
-
-    const memories = memR.ok ? await memR.json() : []
-    const galleryItems = galR.ok ? await galR.json() : []
-    const wishlistItems = wishR.ok ? await wishR.json() : []
-
-    return {
-      row,
-      content: rowToContent(row, memories, galleryItems, wishlistItems)
-    }
-  } catch (e) {
-    console.error('fetchCompleteSite REST error:', e)
-    return null
+  return {
+    row,
+    content: rowToContent(row, memories, galleryItems, wishlistItems)
   }
 }
 
 export async function saveRelationalContent(pool, slug, content) {
   // 1. Get site metadata
   const siteR = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}&select=id,visitor_password,admin_password`, { headers: restHeaders })
-  if (!siteR.ok) throw new Error('site_not_found')
+  if (!siteR.ok) {
+    const err = new Error(`database_unavailable: ${siteR.status}`)
+    err.status = siteR.status
+    throw err
+  }
   const siteData = await siteR.json()
   if (!Array.isArray(siteData) || siteData.length === 0) throw new Error('site_not_found')
 
