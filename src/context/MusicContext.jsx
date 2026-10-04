@@ -48,7 +48,7 @@ function proxyMediaUrl(url) {
 }
 
 export function MusicProvider({ children }) {
-  const { content, musicSrc } = useContent()
+  const { content, musicSrc, siteNotFound } = useContent()
   const audioRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(() => readMusicPreference() === true)
   const [currentTime, setCurrentTime] = useState(0)
@@ -105,11 +105,12 @@ export function MusicProvider({ children }) {
     const audio = audioRef.current
     if (!audio) return
 
-    if (isSuperAdminRoute) {
+    if (isSuperAdminRoute || siteNotFound || !content) {
       audio.pause()
       audio.removeAttribute('src')
       audio.load()
       prevSrcRef.current = ''
+      setIsPlaying(false)
       return
     }
 

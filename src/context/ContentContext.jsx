@@ -59,9 +59,38 @@ function resolveMusicSrc(content) {
   return musicAsset || ''
 }
 
+function isSiteClosed(slug) {
+  if (!slug || typeof localStorage === 'undefined') return false
+  return localStorage.getItem(`soulove-closed-${slug}`) === 'true'
+}
+
+function clearSiteClosed(slug) {
+  if (!slug || typeof localStorage === 'undefined') return
+  try {
+    localStorage.removeItem(`soulove-closed-${slug}`)
+  } catch {}
+}
+
+function markSiteClosed(slug) {
+  if (!slug) return
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(`soulove-closed-${slug}`, 'true')
+      localStorage.removeItem(`soulove-cache-${slug}`)
+      localStorage.removeItem(`soulove-lang-${slug}`)
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(`romantic-site-authenticated-${slug}`)
+      sessionStorage.removeItem(`romantic-pass-${slug}`)
+      sessionStorage.removeItem(`romantic-token-${slug}`)
+      sessionStorage.removeItem(`romantic-site-skip-intro`)
+    }
+  } catch {}
+}
+
 // ─── Cache helpers ────────────────────────────────────────────────────────────
 function readCache(slug) {
-  if (!slug) return null
+  if (!slug || isSiteClosed(slug)) return null
   try {
     const raw = localStorage.getItem(`soulove-cache-${slug}`)
     return raw ? mergeContent(JSON.parse(raw)) : null
@@ -69,7 +98,7 @@ function readCache(slug) {
 }
 
 function writeCache(slug, data) {
-  if (!slug || !data) return
+  if (!slug || !data || isSiteClosed(slug)) return
   try { 
     localStorage.setItem(`soulove-cache-${slug}`, JSON.stringify(data))
     if (data.language) {
@@ -184,7 +213,10 @@ export function ContentProvider({ children }) {
     return parts[0]
   }, [location.pathname])
 
-  const [siteNotFound, setSiteNotFound] = useState(false)
+  const [siteNotFound, setSiteNotFound] = useState(() => {
+    const slug = getSlugFromCurrentPath()
+    return Boolean(slug && isSiteClosed(slug))
+  })
   const retryTimerRef = useRef(null)
 
   useEffect(() => {
@@ -212,6 +244,7 @@ export function ContentProvider({ children }) {
     try {
       const remote = await loadSiteContent(slug)
       if (remote && !remote.siteNotFound) {
+        clearSiteClosed(slug)
         setSiteNotFound(false)
         if (retryTimerRef.current) {
           clearTimeout(retryTimerRef.current)
@@ -219,7 +252,9 @@ export function ContentProvider({ children }) {
         }
         applyLoadedContent(remote, slug)
       } else if (remote && remote.siteNotFound) {
-        setContent((prev) => ({ ...prev, language: remote.language }))
+        markSiteClosed(slug)
+        setContent(null)
+        setPersistedContent(null)
         setSiteNotFound(true)
         setSyncStatus('ready')
       }
@@ -229,8 +264,6 @@ export function ContentProvider({ children }) {
       setSyncError(error.message || 'تعذّر تحميل المحتوى')
 
       // Do NOT set siteNotFound on network or server errors — retry silently in background
-      setSiteNotFound(false)
-
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
       retryTimerRef.current = setTimeout(() => {
         loadFromDatabase(true).catch(() => {})
@@ -245,11 +278,11 @@ export function ContentProvider({ children }) {
     const parts = location.pathname.split('/').filter(Boolean)
     const isRootAdmin = parts[0] === 'soulove-admin' || parts[0] === 'api'
 
-    setSiteNotFound(false)
     setHistory([])
     setHistoryIndex(-1)
 
     if (!slug || isRootAdmin) {
+      setSiteNotFound(false)
       const seed = getSeedContent()
       setContent(seed)
       setPersistedContent(seed)
@@ -257,7 +290,19 @@ export function ContentProvider({ children }) {
       return
     }
 
-    // 1️⃣ Show cached content IMMEDIATELY (zero delay)
+    // 🔒 If site is marked closed/deleted, immediately block without showing stale content
+    if (isSiteClosed(slug)) {
+      setSiteNotFound(true)
+      setContent(null)
+      setPersistedContent(null)
+      setSyncStatus('ready')
+      loadFromDatabase(true).catch(() => {})
+      return
+    }
+
+    setSiteNotFound(false)
+
+    // 1️⃣ Show cached content IMMEDIATELY (zero delay) if valid
     const cached = readCache(slug)
     if (cached) {
       applySiteTheme(cached.appearance)
@@ -278,6 +323,31 @@ export function ContentProvider({ children }) {
     // 2️⃣ Fetch fresh data silently in the background
     loadFromDatabase().catch(() => { })
   }, [location.pathname, loadFromDatabase, getClientSlug])
+
+  // ⚡ Live site heartbeat check — detects if site is deleted/closed while visitor has it open
+  useEffect(() => {
+    const slug = getClientSlug()
+    const parts = location.pathname.split('/').filter(Boolean)
+    const isRootAdmin = parts[0] === 'soulove-admin' || parts[0] === 'api'
+
+    if (!slug || isRootAdmin || siteNotFound) return
+
+    const checkStatus = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        loadFromDatabase(true).catch(() => {})
+      }
+    }
+
+    const interval = setInterval(checkStatus, 10000)
+    document.addEventListener('visibilitychange', checkStatus)
+    window.addEventListener('focus', checkStatus)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', checkStatus)
+      window.removeEventListener('focus', checkStatus)
+    }
+  }, [getClientSlug, location.pathname, siteNotFound, loadFromDatabase])
 
   // ⚡ Background Image Preloader — Pre-caches all memory & gallery photos instantly
   useEffect(() => {

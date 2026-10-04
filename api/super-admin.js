@@ -338,10 +338,18 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'slug_required' })
       }
 
-      await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
+      const delRes = await fetchWithResilience(`${SUPABASE_URL}/rest/v1/sites?slug=eq.${encodeURIComponent(slug)}`, {
         method: 'DELETE',
-        headers: restHeaders,
+        headers: {
+          ...restHeaders,
+          'Prefer': 'return=representation'
+        },
       })
+
+      if (!delRes.ok) {
+        const errText = await delRes.text().catch(() => '')
+        throw new Error(`فشل حذف الموقع من قاعدة البيانات: ${errText}`)
+      }
 
       return res.status(200).json({ success: true, deletedSlug: slug })
     }

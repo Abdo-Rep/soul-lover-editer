@@ -691,7 +691,7 @@ export default function Dashboard() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [isDirty])
 
-  if (siteNotFound && !isLoading) {
+  if (siteNotFound || (!content && !isLoading)) {
     return <NotFound />
   }
 

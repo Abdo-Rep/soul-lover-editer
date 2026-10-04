@@ -33,7 +33,7 @@ function shouldSkipLoginIntro() {
 }
 
 export default function Home() {
-  const { siteNotFound } = useContent()
+  const { siteNotFound, content } = useContent()
   const { isAuthenticated, login } = useAuth()
   const { requestMusicStart, playMusic } = useMusic()
   const [step, setStep] = useState(() => (isAuthenticated ? 'welcome' : 'enter'))
@@ -149,7 +149,7 @@ export default function Home() {
 
   const pageFadeClass = 'screen-fade-in'
 
-  if (siteNotFound) {
+  if (siteNotFound || !content) {
     return <NotFound />
   }
 

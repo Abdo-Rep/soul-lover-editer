@@ -359,6 +359,17 @@ export default function SuperAdmin() {
 
   const handleToggleActive = async (slug, newStatus) => {
     try {
+      if (slug && !newStatus) {
+        try {
+          localStorage.setItem(`soulove-closed-${slug}`, 'true')
+          localStorage.removeItem(`soulove-cache-${slug}`)
+        } catch {}
+      } else if (slug && newStatus) {
+        try {
+          localStorage.removeItem(`soulove-closed-${slug}`)
+        } catch {}
+      }
+
       const res = await fetch(`/api/super-admin`, {
         method: 'PUT',
         headers: {
@@ -391,26 +402,50 @@ export default function SuperAdmin() {
 
   const confirmDeleteSite = async () => {
     if (!deleteTargetSlug) return
+    const target = deleteTargetSlug
     setIsDeleting(true)
 
+    // Purge local storage cache for this slug immediately
     try {
-      const res = await fetch(`/api/super-admin?slug=${encodeURIComponent(deleteTargetSlug)}`, {
+      localStorage.setItem(`soulove-closed-${target}`, 'true')
+      localStorage.removeItem(`soulove-cache-${target}`)
+      localStorage.removeItem(`soulove-lang-${target}`)
+      sessionStorage.removeItem(`romantic-site-authenticated-${target}`)
+      sessionStorage.removeItem(`romantic-pass-${target}`)
+      sessionStorage.removeItem(`romantic-token-${target}`)
+    } catch {}
+
+    // Optimistic UI update: remove immediately from view and cache
+    setSites((prev) => {
+      const updated = prev.filter((s) => s.slug !== target)
+      try {
+        sessionStorage.setItem('cached_super_admin_sites', JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
+
+    try {
+      const res = await fetch(`/api/super-admin?slug=${encodeURIComponent(target)}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
           'X-Admin-Email': email,
         },
+        signal: AbortSignal.timeout(15000),
       })
       if (res.ok) {
         setDeleteTargetSlug(null)
-        fetchSites(token, email)
+        fetchSites(token, email, true)
       } else {
-        setFetchError('فشل حذف الموقع من الخادم')
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || 'فشل حذف الموقع من الخادم')
       }
     } catch (err) {
       setFetchError('خطأ أثناء الحذف: ' + err.message)
+      fetchSites(token, email, false)
     } finally {
       setIsDeleting(false)
+      setDeleteTargetSlug(null)
     }
   }
 
