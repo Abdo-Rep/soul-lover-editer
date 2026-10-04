@@ -12,13 +12,22 @@ import App from './App.jsx'
 // Apply cached theme immediately before render to prevent FOUC
 applyCachedSiteTheme()
 
-// Register Service Worker for PWA (Network-First for instant live updates)
-if ('serviceWorker' in navigator && typeof window !== 'undefined') {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.warn('[PWA] Service Worker registration failed:', err)
+// Register Service Worker for PWA in production only (avoids Vite dev HMR/bundler connection resets)
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  if (import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.warn('[PWA] Service Worker registration failed:', err)
+      })
     })
-  })
+  } else {
+    // In dev mode, unregister any active workers to prevent connection resets
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister()
+      }
+    }).catch(() => {})
+  }
 }
 
 // ─── Root Error Boundary ──────────────────────────────────────────────────────

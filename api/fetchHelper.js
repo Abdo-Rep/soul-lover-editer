@@ -3,7 +3,7 @@
  * Solves PostgREST 503 (PGRST002/PGRST000 schema cache reloads) and Vercel serverless timeouts.
  */
 
-export async function fetchWithResilience(url, options = {}, maxRetries = 2, attemptTimeoutMs = 5000) {
+export async function fetchWithResilience(url, options = {}, maxRetries = 1, attemptTimeoutMs = 8000) {
   let lastError = null
 
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
@@ -15,19 +15,16 @@ export async function fetchWithResilience(url, options = {}, maxRetries = 2, att
 
       // If PostgREST is reloading schema cache (503 PGRST002 or PGRST000), wait and retry
       if (response.status === 503 && attempt <= maxRetries) {
-        const backoffMs = attempt === 1 ? 1200 : 2000
-        await new Promise((resolve) => setTimeout(resolve, backoffMs))
+        await new Promise((resolve) => setTimeout(resolve, 500))
         continue
       }
 
       return response
     } catch (err) {
       lastError = err
-      const isTimeout = err.name === 'TimeoutError' || err.message?.includes('timeout') || err.message?.includes('aborted')
 
       if (attempt <= maxRetries) {
-        const backoffMs = isTimeout ? 800 : (attempt * 1000)
-        await new Promise((resolve) => setTimeout(resolve, backoffMs))
+        await new Promise((resolve) => setTimeout(resolve, 400))
         continue
       }
 

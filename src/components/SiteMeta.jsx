@@ -56,8 +56,8 @@ export default function SiteMeta() {
 
     if (parts[0] === 'soulove-admin') {
       // App 1: Super Admin App (Isolated PWA)
-      manifestId = '/soulove-admin/'
-      manifestScope = '/soulove-admin/'
+      manifestId = '/soulove-admin'
+      manifestScope = '/soulove-admin'
       startUrl = '/soulove-admin'
       appName = 'Soulove Control — لوحة تحكم المنصة 👑'
       shortName = 'Super Admin'
@@ -66,8 +66,8 @@ export default function SiteMeta() {
     } else if (parts.length >= 2 && (parts[1] === 'dashboard' || parts[1] === 'login')) {
       // App 2: Client Dashboard App (Isolated PWA per client)
       const slug = parts[0]
-      manifestId = `/${slug}/dashboard/`
-      manifestScope = `/${slug}/dashboard/`
+      manifestId = `/${slug}/dashboard`
+      manifestScope = `/${slug}/dashboard`
       startUrl = `/${slug}/dashboard`
       appName = `لوحة التحكم — ${content?.siteName || slug}`
       shortName = `لوحة التحكم`
@@ -76,8 +76,8 @@ export default function SiteMeta() {
     } else if (parts.length >= 1) {
       // App 3: Client Visitor Website App (Isolated PWA per site)
       const slug = parts[0]
-      manifestId = `/${slug}/`
-      manifestScope = `/${slug}/`
+      manifestId = `/${slug}`
+      manifestScope = `/${slug}`
       startUrl = `/${slug}`
       appName = content?.siteName?.trim() || title
       shortName = content?.siteName?.trim() || 'موقعنا'
@@ -109,8 +109,7 @@ export default function SiteMeta() {
       ]
     }
 
-    const manifestBlob = new Blob([JSON.stringify(dynamicManifest)], { type: 'application/json' })
-    const manifestUrl = URL.createObjectURL(manifestBlob)
+    const manifestDataUri = `data:application/manifest+json;charset=utf-8,${encodeURIComponent(JSON.stringify(dynamicManifest))}`
 
     let manifestLink = document.querySelector('link[rel="manifest"]')
     if (!manifestLink) {
@@ -118,17 +117,13 @@ export default function SiteMeta() {
       manifestLink.setAttribute('rel', 'manifest')
       document.head.appendChild(manifestLink)
     }
-    manifestLink.setAttribute('href', manifestUrl)
+    manifestLink.setAttribute('href', manifestDataUri)
 
     // 5. Twitter Card Meta Tags
     setMetaTag('name', 'twitter:card', 'summary_large_image')
     setMetaTag('name', 'twitter:title', title)
     setMetaTag('name', 'twitter:description', description)
     setMetaTag('name', 'twitter:image', coverImage)
-
-    return () => {
-      URL.revokeObjectURL(manifestUrl)
-    }
   }, [content, getClientSlug])
 
   return null

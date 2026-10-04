@@ -843,7 +843,7 @@ export function ContentProvider({ children }) {
             title: tracks[index]?.title || file.name?.split('.').slice(0, -1).join('.') || `أغنية ${index + 1}`,
             fileName: file.name || 'مقطع صوتي',
             src: url,
-            localUrl: localUrl || url,
+            localUrl: url,
             sizeBytes: file.size,
             ...(reportedDuration ? { duration: reportedDuration } : {}),
           }

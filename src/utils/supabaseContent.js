@@ -55,29 +55,12 @@ export async function fetchRemoteContent(slug) {
   if (!slug) return mergeContent(getSeedContent())
 
   let res = null
-  let lastError = null
-
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
-        signal: AbortSignal.timeout(8000),
-      })
-      if ((res.status === 503 || res.status === 504) && attempt < 3) {
-        await new Promise((resolve) => setTimeout(resolve, attempt === 1 ? 1200 : 2000))
-        continue
-      }
-      break
-    } catch (e) {
-      lastError = e
-      if (attempt < 3) {
-        await new Promise((resolve) => setTimeout(resolve, attempt === 1 ? 1200 : 2000))
-        continue
-      }
-    }
-  }
-
-  if (!res) {
-    const err = new Error(lastError?.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
+  try {
+    res = await fetch(`/api/sites?slug=${encodeURIComponent(slug)}`, {
+      signal: AbortSignal.timeout(6000),
+    })
+  } catch (e) {
+    const err = new Error(e?.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
     err.isDbConnecting = true
     throw err
   }

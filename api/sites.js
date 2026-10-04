@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { fetchCompleteSite, saveRelationalContent } from './modelHelper.js'
@@ -11,9 +14,11 @@ const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
 const restHeaders = {
   'apikey': SECRET_KEY,
-  'Authorization': `Bearer ${JWT_TOKEN}`,
+  'Authorization': `Bearer ${JWT_TOKEN || SECRET_KEY}`,
   'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
+  'Accept-Profile': 'romantic-old-version',
+  'Content-Profile': 'romantic-old-version',
+  'Prefer': 'resolution=merge-duplicates,return=representation'
 }
 
 export default async function handler(req, res) {

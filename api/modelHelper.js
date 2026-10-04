@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 import { encrypt, decrypt } from './cryptoHelper.js'
 import { fetchWithResilience } from './fetchHelper.js'
 
@@ -7,9 +10,11 @@ const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
 const restHeaders = {
   'apikey': SECRET_KEY,
-  'Authorization': `Bearer ${JWT_TOKEN}`,
+  'Authorization': `Bearer ${JWT_TOKEN || SECRET_KEY}`,
   'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
+  'Accept-Profile': 'romantic-old-version',
+  'Content-Profile': 'romantic-old-version',
+  'Prefer': 'resolution=merge-duplicates,return=representation'
 }
 
 export function rowToContent(row, memories = [], galleryItems = [], wishlistItems = []) {
@@ -35,10 +40,16 @@ export function rowToContent(row, memories = [], galleryItems = [], wishlistItem
         countdownsList = parsed.countdowns
       }
       if (parsed.tracks && Array.isArray(parsed.tracks)) {
-        musicTracks = parsed.tracks
+        musicTracks = parsed.tracks.map(t => ({
+          ...t,
+          localUrl: (t.localUrl && !String(t.localUrl).startsWith('blob:')) ? t.localUrl : (t.src || '')
+        }))
         musicSrc = parsed.mainSrc || (musicTracks.find(t => t.src)?.src) || ''
       } else if (Array.isArray(parsed)) {
-        musicTracks = parsed
+        musicTracks = parsed.map(t => ({
+          ...t,
+          localUrl: (t.localUrl && !String(t.localUrl).startsWith('blob:')) ? t.localUrl : (t.src || '')
+        }))
         musicSrc = (musicTracks.find(t => t.src)?.src) || ''
       } else {
         musicSrc = parsed.mainSrc || ''

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { config } from '../data/config'
 import { formatAudioTime } from '../utils/formatAudioTime'
 import { useContent } from './ContentContext'
@@ -87,6 +88,9 @@ export function MusicProvider({ children }) {
   const currentTrack = tracks[safeIndex] || tracks[0]
   const activeMusicSrc = proxyMediaUrl(currentTrack?.src || '')
 
+  const location = useLocation()
+  const isSuperAdminRoute = location.pathname.startsWith('/soulove-admin')
+
   // Store target volume from content
   useEffect(() => {
     if (content?.music?.volume !== undefined) {
@@ -99,7 +103,17 @@ export function MusicProvider({ children }) {
   // 1️⃣ Reliable track switching — instant & non-blocking
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio || !activeMusicSrc) return
+    if (!audio) return
+
+    if (isSuperAdminRoute) {
+      audio.pause()
+      audio.removeAttribute('src')
+      audio.load()
+      prevSrcRef.current = ''
+      return
+    }
+
+    if (!activeMusicSrc) return
 
     if (prevSrcRef.current !== activeMusicSrc) {
       prevSrcRef.current = activeMusicSrc
@@ -275,7 +289,9 @@ export function MusicProvider({ children }) {
     }
 
     const onError = (e) => {
-      console.warn('Audio playback error:', e?.target?.error)
+      if (isPlaying && !isSuperAdminRoute) {
+        console.warn('Audio playback error:', e?.target?.error)
+      }
       setIsPlaying(false)
     }
 

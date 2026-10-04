@@ -158,12 +158,19 @@ export default function SuperAdmin() {
   const [authError, setAuthError] = useState('')
   const [isLoggingIn, setIsLoggingIn] = useState(false)
 
-  const [sites, setSites] = useState([])
+  const [sites, setSites] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('cached_super_admin_sites')
+      return cached ? JSON.parse(cached) : []
+    } catch {
+      return []
+    }
+  })
   const [activeFilterTab, setActiveFilterTab] = useState('all') // 'all' | 'disabled'
   const [isLoading, setIsLoading] = useState(false)
+  const [isBackgroundSyncing, setIsBackgroundSyncing] = useState(false)
   const [fetchError, setFetchError] = useState('')
-  const [retryNotice, setRetryNotice] = useState('')
-  const retryTimeoutRef = useRef(null)
+  const retryTimerRef = useRef(null)
 
   // Modal State
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -172,7 +179,6 @@ export default function SuperAdmin() {
   const [newSlug, setNewSlug] = useState('')
   const [newSitePass, setNewSitePass] = useState('love')
   const [newAdminPass, setNewAdminPass] = useState('love')
-  const [newLanguage, setNewLanguage] = useState('ar')
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
 
@@ -193,23 +199,28 @@ export default function SuperAdmin() {
     setTimeout(() => setCopiedKey(''), 2000)
   }
 
-  const fetchSites = useCallback(async (authToken, adminEmail, retryAttempt = 0) => {
-    setIsLoading(true)
-    if (retryAttempt === 0) {
-      setFetchError('')
-      setRetryNotice('')
+  const fetchSites = useCallback(async (authToken, adminEmail, isBackground = false, retryCount = 0) => {
+    if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+
+    if (!isBackground && sites.length === 0) {
+      setIsLoading(true)
+    } else {
+      setIsBackgroundSyncing(true)
     }
+    
     try {
       const res = await fetch(`/api/super-admin`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'X-Admin-Email': adminEmail,
         },
-        signal: AbortSignal.timeout(9000),
+        signal: AbortSignal.timeout(25000),
       })
+
       if (!res.ok) {
         if (res.status === 401) {
           localStorage.removeItem('super_admin_token')
+          sessionStorage.removeItem('cached_super_admin_sites')
           setToken('')
           setAuthError('بيانات الدخول غير صحيحة أو غير مسجلة بقاعدة البيانات')
           return
@@ -217,35 +228,29 @@ export default function SuperAdmin() {
         const errJson = await res.json().catch(() => ({}))
         throw new Error(errJson.error || 'فشل جلب قائمة المواقع')
       }
-      const data = await res.json()
-      setSites(data.sites || [])
-      setFetchError('')
-      setRetryNotice('')
-    } catch (err) {
-      const isRetryable = err.name === 'TimeoutError' || err.message?.includes('تحديث') || err.message?.includes('استيقاظ') || err.message?.includes('timeout') || err.message?.includes('PGRST')
-      
-      // Auto-retry up to 2 times with a 2-second delay
-      if (isRetryable && retryAttempt < 2) {
-        setRetryNotice(`خادم قاعدة البيانات يستجيب، جاري إعادة المحاولة تلقائياً (${retryAttempt + 1}/2)...`)
-        if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
-        retryTimeoutRef.current = setTimeout(() => {
-          fetchSites(authToken, adminEmail, retryAttempt + 1)
-        }, 2200)
-        return
-      }
 
-      setRetryNotice('')
-      setFetchError(err.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
+      const data = await res.json()
+      const list = data.sites || []
+      setSites(list)
+      try {
+        sessionStorage.setItem('cached_super_admin_sites', JSON.stringify(list))
+      } catch {}
+      setFetchError('')
+    } catch (err) {
+      // Auto-retry in background up to 3 times before displaying persistent error
+      if (retryCount < 3) {
+        const nextDelay = (retryCount + 1) * 3000
+        retryTimerRef.current = setTimeout(() => {
+          fetchSites(authToken, adminEmail, true, retryCount + 1)
+        }, nextDelay)
+      } else if (sites.length === 0) {
+        setFetchError(err.message === 'signal timed out' ? 'استغرق الاتصال وقتاً أطول من المتوقع، جاري إعادة المحاولة تلقائياً...' : (err.message || 'تعذّر الاتصال بخادم قاعدة البيانات'))
+      }
     } finally {
       setIsLoading(false)
+      setIsBackgroundSyncing(false)
     }
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
-    }
-  }, [])
+  }, [sites.length])
 
   useEffect(() => {
     document.title = 'Soulove'
@@ -253,37 +258,56 @@ export default function SuperAdmin() {
 
   useEffect(() => {
     if (token) {
-      fetchSites(token, email)
+      fetchSites(token, email, sites.length > 0)
+      
+      // Auto-sync in the background every 45 seconds
+      const interval = setInterval(() => {
+        if (token && document.visibilityState === 'visible') {
+          fetchSites(token, email, true)
+        }
+      }, 45000)
+
+      return () => {
+        clearInterval(interval)
+        if (retryTimerRef.current) clearTimeout(retryTimerRef.current)
+      }
     }
   }, [token, email, fetchSites])
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    if (!inputPassword.trim() || !email.trim()) {
-      setAuthError('يرجى إدخال البريد الإلكتروني وكلمة المرور المسجلة بالداتابيز')
+    const cleanPass = inputPassword.trim()
+    const cleanMail = email.trim()
+    if (!cleanPass || !cleanMail) {
+      setAuthError('يرجى إدخال البريد الإلكتروني وكلمة المرور')
       return
     }
     setIsLoggingIn(true)
     setAuthError('')
 
-    fetch(`/api/super-admin`, {
-      headers: {
-        Authorization: `Bearer ${inputPassword}`,
-        'X-Admin-Email': email,
-      },
-    })
-      .then((res) => {
-        if (res.ok) {
-          localStorage.setItem('super_admin_email', email)
-          localStorage.setItem('super_admin_token', inputPassword)
-          setToken(inputPassword)
-          setInputPassword('')
-        } else {
-          setAuthError('بيانات الدخول غير مسجلة بقاعدة البيانات')
-        }
+    try {
+      const res = await fetch(`/api/super-admin`, {
+        headers: {
+          Authorization: `Bearer ${cleanPass}`,
+          'X-Admin-Email': cleanMail,
+        },
+        signal: AbortSignal.timeout(15000),
       })
-      .catch(() => setAuthError('تعذّر الاتصال بالخادم'))
-      .finally(() => setIsLoggingIn(false))
+      if (res.ok) {
+        const data = await res.json()
+        localStorage.setItem('super_admin_email', cleanMail)
+        localStorage.setItem('super_admin_token', cleanPass)
+        setSites(data.sites || [])
+        setToken(cleanPass)
+        setInputPassword('')
+      } else {
+        setAuthError('بيانات الدخول غير صحيحة أو غير مسجلة')
+      }
+    } catch {
+      setAuthError('تعذّر الاتصال بالخادم')
+    } finally {
+      setIsLoggingIn(false)
+    }
   }
 
   const handleCreateSite = async (e) => {
@@ -308,7 +332,7 @@ export default function SuperAdmin() {
           slug: newSlug,
           sitePassword: newSitePass || 'soulove',
           adminPassword: newAdminPass || 'soulove',
-          language: newLanguage,
+          language: 'ar',
         }),
       })
 
@@ -325,7 +349,6 @@ export default function SuperAdmin() {
       setNewSlug('')
       setNewSitePass('love')
       setNewAdminPass('love')
-      setNewLanguage('ar')
       fetchSites(token, email)
     } catch (err) {
       setCreateError(err.message)
@@ -363,27 +386,6 @@ export default function SuperAdmin() {
       setToggleStatusTarget(null)
     } finally {
       setIsTogglingStatus(false)
-    }
-  }
-
-  const handleLanguageChange = async (slug, newLang) => {
-    try {
-      const res = await fetch(`/api/super-admin`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          'X-Admin-Email': email,
-        },
-        body: JSON.stringify({ slug, language: newLang }),
-      })
-      if (res.ok) {
-        fetchSites(token, email)
-      } else {
-        setFetchError('فشل تعديل لغة الموقع')
-      }
-    } catch (err) {
-      setFetchError(err.message)
     }
   }
 
@@ -443,7 +445,7 @@ export default function SuperAdmin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@saalove.com"
+                  placeholder="admin@example.com"
                   className="w-full px-4 py-3 rounded-xl bg-[#060814] border border-[#19213d] text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#ff3b68]"
                   required
                 />
@@ -573,21 +575,14 @@ export default function SuperAdmin() {
             <button
               type="button"
               onClick={() => fetchSites(token, email)}
-              className="text-xs font-semibold text-[#ff3b68] hover:underline flex items-center gap-1 transition-colors"
+              className="text-xs font-semibold text-[#ff3b68] hover:underline flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <RefreshSvg className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              تحديث القائمة
+              <RefreshSvg className={`w-3.5 h-3.5 ${isLoading || isBackgroundSyncing ? 'animate-spin' : ''}`} />
+              <span>{isBackgroundSyncing ? 'جاري المزامنة...' : 'تحديث القائمة'}</span>
             </button>
           </div>
 
-          {retryNotice && (
-            <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#1e1528] border border-[#a855f7]/40 text-[#c084fc] text-xs flex items-center gap-2.5 animate-pulse">
-              <RefreshSvg className="w-4 h-4 animate-spin shrink-0 text-[#c084fc]" />
-              <span className="font-medium">{retryNotice}</span>
-            </div>
-          )}
-
-          {fetchError && !retryNotice && (
+          {fetchError && (
             <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[#281125] border border-[#ff3b68]/40 text-[#ff3b68] text-xs space-y-3">
               <div className="flex items-center gap-2 font-bold text-sm text-white">
                 <AlertSvg className="w-5 h-5 text-[#ff3b68] shrink-0" />
@@ -597,18 +592,18 @@ export default function SuperAdmin() {
               <div className="pt-1">
                 <button
                   type="button"
-                  onClick={() => fetchSites(token, email, 0)}
+                  onClick={() => fetchSites(token, email)}
                   disabled={isLoading}
                   className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff3b68] to-[#e11d48] text-white text-xs font-bold hover:opacity-95 transition-all shadow-md shadow-[#ff3b68]/20 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   <RefreshSvg className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-                  {isLoading ? 'جاري الاتصال...' : 'إعادة المحاولة الآن'}
+                  {isLoading ? 'جاري الاتصال...' : 'إعادة المحاولة'}
                 </button>
               </div>
             </div>
           )}
 
-          {(fetchError || retryNotice) && sites.length === 0 ? null : filteredSites.length === 0 && !isLoading ? (
+          {fetchError && sites.length === 0 ? null : filteredSites.length === 0 && !isLoading ? (
             <div className="p-8 sm:p-10 text-center rounded-2xl bg-[#0b0e20] border border-[#19213d] space-y-3">
               <GlobeSvg className="w-10 h-10 text-[#7786a5]/30 mx-auto" />
               <p className="text-[#7786a5] text-xs">
@@ -632,7 +627,6 @@ export default function SuperAdmin() {
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">الرابط (Slug)</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الزائر</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right">كلمة مرور الداشبورد</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">اللغة</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">الحالة</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">الروابط والإجراءات</th>
                     </tr>
@@ -662,18 +656,6 @@ export default function SuperAdmin() {
                             <span className={copiedKey === `${site.slug}-ap` ? 'text-emerald-400 font-bold' : 'text-white/90 hover:text-white hover:underline'}>
                               {site.admin_password || 'love'}
                             </span>
-                          </td>
-                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
-                            <select
-                              value={site.language || 'ar'}
-                              onChange={(e) => handleLanguageChange(site.slug, e.target.value)}
-                              className="px-2 py-1 rounded bg-[#060814] border border-[#19213d] text-white/90 text-xs focus:outline-none cursor-pointer"
-                            >
-                              <option value="ar">العربية 🇪🇬</option>
-                              <option value="en">English (US) 🇺🇸</option>
-                              <option value="es">Español 🇪🇸</option>
-                              <option value="en-GB">English (UK) 🇬🇧</option>
-                            </select>
                           </td>
                           <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
                             <button
@@ -816,21 +798,6 @@ export default function SuperAdmin() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[#7786a5] mb-1.5 text-right">
-                  لغة الموقع الافتراضية (Default Language)
-                </label>
-                <select
-                  value={newLanguage}
-                  onChange={(e) => setNewLanguage(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#060814] border border-[#19213d] text-white text-sm focus:outline-none focus:border-[#ff3b68] cursor-pointer"
-                >
-                  <option value="ar">العربية 🇪🇬</option>
-                  <option value="en">English (US) 🇺🇸</option>
-                  <option value="es">Español 🇪🇸</option>
-                  <option value="en-GB">English (UK) 🇬🇧</option>
-                </select>
-              </div>
 
               {createError && (
                 <div className="p-3 rounded-xl bg-[#281125] border border-[#4a1835] text-[#ff3b68] text-xs text-right">

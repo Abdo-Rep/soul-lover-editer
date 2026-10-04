@@ -25,10 +25,22 @@ export default async function handler(req, res) {
       upstreamHeaders.range = req.headers.range
     }
 
-    const upstream = await fetch(targetUrl, {
+    let upstream = await fetch(targetUrl, {
       method: req.method,
       headers: upstreamHeaders,
     })
+
+    // Fallback during storage migration if object is not yet replicated to 8000
+    if (!upstream.ok && upstream.status !== 206) {
+      const fallbackUrl = `http://31.220.93.65:9000/storage/v1/object/public/site-media/${filePath}`
+      const fallbackUpstream = await fetch(fallbackUrl, {
+        method: req.method,
+        headers: upstreamHeaders,
+      })
+      if (fallbackUpstream.ok || fallbackUpstream.status === 206) {
+        upstream = fallbackUpstream
+      }
+    }
 
     if (!upstream.ok && upstream.status !== 206) {
       return res.status(upstream.status).json({ error: 'File not found' })

@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import sitesHandler from './api/sites.js'
-import superAdminHandler from './api/super-admin.js'
+import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
+
+dotenv.config()
+
+import sitesHandler from './api/sites.js'
+import superAdminHandler from './api/super-admin.js'
 
 function apiPlugin() {
   return {
@@ -54,19 +58,38 @@ function apiPlugin() {
           if (!mediaPath) {
             return res.status(400).json({ error: 'Missing path' })
           }
-          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
+          const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'http://31.220.93.65:8000'
           const targetUrl = `${SUPABASE_URL}/storage/v1/object/public/site-media/${mediaPath}`
           try {
-            const upstream = await fetch(targetUrl)
-            if (!upstream.ok) {
+            const reqHeaders = {}
+            if (req.headers.range) reqHeaders.range = req.headers.range
+
+            let upstream = await fetch(targetUrl, { headers: reqHeaders })
+            if (!upstream.ok && upstream.status !== 206) {
+              const fallbackUrl = `http://31.220.93.65:9000/storage/v1/object/public/site-media/${mediaPath}`
+              const fallbackUpstream = await fetch(fallbackUrl, { headers: reqHeaders })
+              if (fallbackUpstream.ok || fallbackUpstream.status === 206) {
+                upstream = fallbackUpstream
+              }
+            }
+
+            if (!upstream.ok && upstream.status !== 206) {
               res.statusCode = upstream.status
               return res.end('Not found')
             }
             const ct = upstream.headers.get('content-type') || 'application/octet-stream'
+            const cl = upstream.headers.get('content-length')
+            const cr = upstream.headers.get('content-range')
+            const ar = upstream.headers.get('accept-ranges') || 'bytes'
+
             res.setHeader('Content-Type', ct)
+            res.setHeader('Accept-Ranges', ar)
             res.setHeader('Cache-Control', 'public, max-age=31536000')
+            if (cl) res.setHeader('Content-Length', cl)
+            if (cr) res.setHeader('Content-Range', cr)
+
             const buf = Buffer.from(await upstream.arrayBuffer())
-            res.statusCode = 200
+            res.statusCode = upstream.status
             return res.end(buf)
           } catch (err) {
             console.error('Dev media proxy error:', err)
@@ -147,7 +170,7 @@ function apiPlugin() {
 
               const storageHeaders = {
                 'apikey': SECRET_KEY,
-                'Authorization': `Bearer ${JWT_TOKEN}`,
+                'Authorization': `Bearer ${JWT_TOKEN || SECRET_KEY}`,
               }
 
               // Ensure public bucket 'site-media' exists then upload object
@@ -205,7 +228,7 @@ function apiPlugin() {
           const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
           const storageHeaders = {
             'apikey': SECRET_KEY,
-            'Authorization': `Bearer ${JWT_TOKEN}`,
+            'Authorization': `Bearer ${JWT_TOKEN || SECRET_KEY}`,
           }
           const { fileUrl } = req.body || {}
           if (fileUrl && typeof fileUrl === 'string' && fileUrl.includes('/storage/v1/object/')) {
@@ -271,7 +294,7 @@ export default defineConfig({
     },
     proxy: {
       '/api/storage': {
-        target: process.env.VITE_SUPABASE_URL || 'http://localhost:9000',
+        target: process.env.VITE_SUPABASE_URL || 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/storage/, '/storage/v1/object/public'),
       }

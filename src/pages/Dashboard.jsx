@@ -201,7 +201,7 @@ function ReorderableMusicTrack({
             {content.language === 'es' ? 'Archivo:' : content.language === 'en' || content.language === 'en-GB' ? 'File:' : 'الملف:'} {track.fileName || (content.language === 'es' ? 'Archivo de audio' : content.language === 'en' || content.language === 'en-GB' ? 'Audio file' : 'ملف صوتي')}
           </p>
           {(() => {
-            const audioSrc = track.localUrl || track.src
+            const audioSrc = (track.localUrl && !String(track.localUrl).startsWith('blob:')) ? track.localUrl : track.src
             return (
               <audio
                 controls

@@ -12,7 +12,7 @@ const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
 const storageHeaders = {
   apikey: SECRET_KEY,
-  Authorization: `Bearer ${JWT_TOKEN}`,
+  Authorization: `Bearer ${JWT_TOKEN || SECRET_KEY}`,
 }
 
 function getExt(filename) {

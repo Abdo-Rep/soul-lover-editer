@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 import bcrypt from 'bcryptjs'
 import { encrypt, decrypt } from './cryptoHelper.js'
 import { fetchWithResilience, sanitizeDatabaseError } from './fetchHelper.js'
@@ -8,102 +11,15 @@ const JWT_TOKEN = process.env.SERVICE_ROLE_JWT || ''
 
 const restHeaders = {
   'apikey': SECRET_KEY,
-  'Authorization': `Bearer ${JWT_TOKEN}`,
+  'Authorization': `Bearer ${JWT_TOKEN || SECRET_KEY}`,
   'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
+  'Accept-Profile': 'romantic-old-version',
+  'Content-Profile': 'romantic-old-version',
+  'Prefer': 'resolution=merge-duplicates,return=representation'
 }
 
-function getDefaultFields(language) {
-  if (language === 'en') {
-    return {
-      login_eyebrow: 'A gift from my heart',
-      login_title: 'Welcome my love',
-      login_subtitle: 'Behind this door is a small world I built for you alone — our memories, our story, and every heartbeat of love in my heart.',
-      login_placeholder: 'Secret password',
-      login_password_label: 'Password',
-      login_button: 'Open my heart',
-      login_error: 'Incorrect password, try again my beautiful.',
-      login_footer: 'Made with love, for you alone',
-      
-      welcome_eyebrow: 'You finally arrived',
-      welcome_title: 'Welcome, the most beautiful love in my life',
-      welcome_subtitle: 'Everything waiting for you here was written and prepared with you in mind — a gentle journey through our story, our time, and the love we live together.',
-      
-      story_eyebrow: 'A Love Story',
-      story_title: 'Our Story',
-      story_first_meeting_label: 'The first day we met',
-      story_first_meeting_description: 'I did not know it yet, but my heart was already finding its way to you.',
-      story_love_confession_label: 'The day I said "I love you"',
-      story_love_confession_message: 'Three small words — and suddenly the world became warmer, softer, and infinitely more beautiful.',
-      
-      gallery_eyebrow: 'Our Album',
-      gallery_title: 'Memories',
-      
-      final_eyebrow: 'A final letter',
-      final_title: 'Forever and always',
-      final_text: 'Wherever life takes us, my heart will always find its way back to you. You are my dream that I want to live every day, and my pulse that I miss every moment. Thank you for being you.'
-    }
-  } else if (language === 'es') {
-    return {
-      login_eyebrow: 'Un regalo de mi corazón',
-      login_title: 'Bienvenida mi amor',
-      login_subtitle: 'Detrás de esta puerta hay un pequeño mundo que construí para ti sola: nuestros recuerdos, nuestra historia y cada latido de amor en mi corazón.',
-      login_placeholder: 'Contraseña secreta',
-      login_password_label: 'Contraseña',
-      login_button: 'Abre mi corazón',
-      login_error: 'Contraseña incorrecta, inténtalo de nuevo mi bella.',
-      login_footer: 'Hecho con amor, solo para ti',
-      
-      welcome_eyebrow: 'Finalmente llegaste',
-      welcome_title: 'Bienvenida, el amor más bello de mi vida',
-      welcome_subtitle: 'Todo lo que te espera aquí fue escrito y preparado pensando en ti: un viaje suave a través de nuestra historia, nuestro tiempo y el amor que vivimos juntos.',
-      
-      story_eyebrow: 'Una historia de amor',
-      story_title: 'Nuestra Historia',
-      story_first_meeting_label: 'El primer día que nos conocimos',
-      story_first_meeting_description: 'Aún no lo sabía, pero mi corazón ya estaba encontrando su camino hacia ti.',
-      story_love_confession_label: 'El día que dije "Te amo"',
-      story_love_confession_message: 'Tres pequeñas palabras, y de repente el mundo se volvió más cálido, más suave e infinitamente más hermoso.',
-      
-      gallery_eyebrow: 'Nuestro Álbum',
-      gallery_title: 'Recuerdos',
-      
-      final_eyebrow: 'Una carta final',
-      final_title: 'Por siempre y para siempre',
-      final_text: 'Dondequiera que nos lleve la vida, mi corazón siempre encontrará el camino de regreso a ti. Eres mi sueño que quiero vivir todos los días, y mi pulso que extraño a cada momento. Gracias por ser tú.'
-    }
-  } else if (language === 'en-GB') {
-    return {
-      login_eyebrow: 'A gift from my heart',
-      login_title: 'Welcome my love',
-      login_subtitle: 'Behind this door is a small world I built for you alone — our memories, our story, and every heartbeat of love in my heart.',
-      login_placeholder: 'Secret password',
-      login_password_label: 'Password',
-      login_button: 'Open my heart',
-      login_error: 'Incorrect password, try again my beautiful.',
-      login_footer: 'Made with love, for you alone',
-      
-      welcome_eyebrow: 'You finally arrived',
-      welcome_title: 'Welcome, the most beautiful love in my life',
-      welcome_subtitle: 'Everything waiting for you here was written and prepared with you in mind — a gentle journey through our story, our time, and the love we live together.',
-      
-      story_eyebrow: 'A Love Story',
-      story_title: 'Our Story',
-      story_first_meeting_label: 'The first day we met',
-      story_first_meeting_description: 'I did not know it yet, but my heart was already finding its way to you.',
-      story_love_confession_label: 'The day I said "I love you"',
-      story_love_confession_message: 'Three small words — and suddenly the world became warmer, softer, and infinitely more beautiful.',
-      
-      gallery_eyebrow: 'Our Album',
-      gallery_title: 'Memories',
-      
-      final_eyebrow: 'A final letter',
-      final_title: 'Forever and always',
-      final_text: 'Wherever life takes us, my heart will always find its way back to you. You are my dream that I want to live every day, and my pulse that I miss every moment. Thank you for being you.'
-    }
-  }
-
-  // Default is Arabic (ar) - Using soulove template as master
+function getDefaultFields() {
+  // Pure Arabic master template (soulove)
   return {
     primary_color: '#ef4444',
     background_heart_color: '#be123c',
@@ -188,7 +104,7 @@ export default async function handler(req, res) {
     return res.status(200).end()
   }
 
-  // 1. Authenticate Super Admin against Supabase REST / super_admins table or primary credentials
+  // 1. Authenticate Super Admin against env / Vercel or Supabase REST super_admins
   const authHeader = req.headers.authorization || ''
   let token = authHeader.replace(/^Bearer\s+/i, '').trim() || req.query.token
   let email = (req.headers['x-admin-email'] || req.headers['X-Admin-Email'] || req.query.email || '').trim()
@@ -201,12 +117,18 @@ export default async function handler(req, res) {
 
   let isAuthorized = false
 
+  const SUPER_ADMIN_EMAIL = (process.env.SUPER_ADMIN_EMAIL || '').toLowerCase().trim()
+  const SUPER_ADMIN_PASSWORD = (process.env.SUPER_ADMIN_PASSWORD || '').trim()
+
   if (email && token) {
-    const cleanEmail = email.toLowerCase()
-    // Direct check for primary admin credentials
-    if ((cleanEmail === 'admin@saalove.com' || cleanEmail === 'admin@admin.com') && token === 'Mohammedosha1#') {
+    const cleanEmail = email.toLowerCase().trim()
+    const cleanToken = String(token).trim()
+
+    // 1. Direct check exclusively from environment variables (.env / Vercel)
+    if (SUPER_ADMIN_EMAIL && SUPER_ADMIN_PASSWORD && cleanEmail === SUPER_ADMIN_EMAIL && cleanToken === SUPER_ADMIN_PASSWORD) {
       isAuthorized = true
     } else {
+      // 2. Database check from super_admins table
       try {
         const r = await fetchWithResilience(
           `${SUPABASE_URL}/rest/v1/super_admins?email=eq.${encodeURIComponent(cleanEmail)}`,
@@ -216,7 +138,7 @@ export default async function handler(req, res) {
           const rows = await r.json()
           if (Array.isArray(rows) && rows.length > 0) {
             const hash = rows[0].password_hash
-            const match = await bcrypt.compare(token, hash)
+            const match = await bcrypt.compare(cleanToken, hash)
             if (match) {
               isAuthorized = true
             }
@@ -304,7 +226,7 @@ export default async function handler(req, res) {
       const encryptedVisitorPass = encrypt(cleanVisitorPass)
       const encryptedAdminPass = encrypt(cleanAdminPass)
 
-      const defaultFields = getDefaultFields(language)
+      const defaultFields = getDefaultFields()
       let insertRes = await fetch(`${SUPABASE_URL}/rest/v1/sites`, {
         method: 'POST',
         headers: restHeaders,
