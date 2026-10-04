@@ -620,10 +620,10 @@ export default function Dashboard() {
     }
     try {
       adminLoginWithPassword(password)
-      await loadFromDatabase()
+      // مزامنة أحدث بيانات في الخلفية بدون تأخير فتح لوحة التحكم
+      loadFromDatabase(true).catch(() => {})
     } catch (err) {
       console.error('Failed to load database content during admin login:', err)
-      setError(err?.message || 'تعذّر الاتصال بخادم قاعدة البيانات')
       adminLogout()
     }
   }

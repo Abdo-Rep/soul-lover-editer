@@ -444,22 +444,40 @@ export function ContentProvider({ children }) {
 
   const verifyPassword = useCallback(async (password) => {
     const clean = String(password || '').trim()
+    if (!clean) return false
+
+    // ⚡ 1. Ultra-fast local validation if site content is already loaded in memory (0ms delay)
+    const expectedSite = (persistedContentRef.current?.password || contentRef.current?.password || '').trim()
+    const expectedAdmin = (persistedContentRef.current?.adminPassword || contentRef.current?.adminPassword || '').trim()
+
+    if (expectedSite && clean === expectedSite) {
+      return true
+    }
+    if (expectedAdmin && clean === expectedAdmin) {
+      return true
+    }
+
+    // ⚡ 2. Server fallback verification
     const slug = getClientSlug()
     if (slug) {
       const serverValid = await verifySitePassword(clean, slug)
       if (serverValid) return true
     }
-    const expected = (persistedContentRef.current?.password || persistedContentRef.current?.adminPassword || 'soulove').trim()
-    return clean === expected
+
+    const fallbackExpected = (expectedSite || expectedAdmin || 'soulove').trim()
+    return clean === fallbackExpected
   }, [getClientSlug])
 
   const verifyAdminPasswordFn = useCallback(async (password) => {
     const clean = String(password || '').trim()
+    if (!clean) return false
+
     const slug = getClientSlug()
     if (slug) {
       const serverValid = await verifyAdminPassword(clean, slug)
       if (serverValid) return true
     }
+
     const expected = (persistedContentRef.current?.adminPassword || persistedContentRef.current?.password || 'soulove').trim()
     return clean === expected
   }, [getClientSlug])

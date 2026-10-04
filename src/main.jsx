@@ -30,6 +30,8 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   }
 }
 
+import NotFound from './pages/NotFound'
+
 // ─── Root Error Boundary ──────────────────────────────────────────────────────
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -44,47 +46,7 @@ class ErrorBoundary extends Component {
   }
   render() {
     if (this.state.hasError) {
-      return (
-        <div
-          style={{
-            minHeight: '100dvh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            textAlign: 'center',
-            direction: 'rtl',
-            background: '#fff1f2',
-            color: '#be123c',
-            fontFamily: 'Amiri, Cairo, sans-serif',
-          }}
-        >
-          <p style={{ fontSize: '3rem' }}>💔</p>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.5rem' }}>
-            حدث خطأ غير متوقع
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: '#fb7185', marginTop: '0.5rem' }}>
-            جرّب إعادة تحميل الصفحة
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              marginTop: '1.5rem',
-              padding: '0.625rem 1.5rem',
-              borderRadius: '1.5rem',
-              background: '#fb7185',
-              color: '#fff',
-              fontWeight: 700,
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-            }}
-          >
-            إعادة التحميل
-          </button>
-        </div>
-      )
+      return <NotFound />
     }
     return this.props.children
   }
