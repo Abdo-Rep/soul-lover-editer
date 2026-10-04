@@ -1137,7 +1137,7 @@ export function ContentProvider({ children }) {
 
   return (
     <ContentContext.Provider value={value}>
-      <ThemeApplier appearance={content.appearance} />
+      <ThemeApplier appearance={content?.appearance} />
       {children}
     </ContentContext.Provider>
   )
@@ -1146,7 +1146,16 @@ export function ContentProvider({ children }) {
 export function useContent() {
   const context = useContext(ContentContext)
   if (!context) {
-    throw new Error('useContent must be used within ContentProvider')
+    return {
+      content: null,
+      siteNotFound: true,
+      isLoading: false,
+      syncStatus: 'ready',
+      t: {},
+      langCode: 'ar',
+      isRtl: true,
+      getClientSlug: () => '',
+    }
   }
   return context
 }

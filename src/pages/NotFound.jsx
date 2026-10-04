@@ -3,7 +3,11 @@ import { HeartOff } from 'lucide-react'
 import { useContent } from '../context/ContentContext'
 
 export default function NotFound() {
-  const { content } = useContent()
+  let content = null
+  try {
+    const ctx = useContent()
+    content = ctx?.content
+  } catch {}
   const lang = content?.language || 'ar'
   const isEn = lang === 'en' || lang === 'en-GB'
   const isEs = lang === 'es'
